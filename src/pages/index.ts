@@ -1,0 +1,9 @@
+export { HomePage } from "./HomePage/HomePage";
+export { RestaurantsPage } from "./RestaurantsPage/RestaurantsPage";
+export { RestaurantPage } from "./RestaurantPage/RestaurantPage";
+export {  BookingPage } from "./BookingPage/BookingPage";
+export {  ProfilePage } from "./ProfilePage/ProfilePage";
+export {  LoginPage } from "./LoginPage/LoginPage";
+export {  RegistrationPage } from "./RegistrationPage/RegistrationPage";
+export {  DishPage } from "./DishPage/DishPage";
+export {  NotFoundPage } from "./NotFoundPage/NotFoundPage";
