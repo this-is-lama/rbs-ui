@@ -1,74 +1,744 @@
-# React + TypeScript + Vite
+# 💻 Технологический стек фронтенда (RBS)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Основные технологии
 
-Currently, two official plugins are available:
+* **React** — библиотека для создания пользовательского интерфейса (SPA, компонентный подход)
+* **TypeScript** — язык программирования с поддержкой статической типизации (типизация API, моделей и состояний)
+* **Vite** — инструмент сборки и разработки frontend-приложения (быстрый dev-сервер, hot reload)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## Навигация и архитектура
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+* **React Router** — маршрутизация приложения (переходы между страницами, защищённые роуты)
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Работа с сервером
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+* **Axios** — HTTP-клиент для взаимодействия с backend API (запросы, интерсепторы, JWT)
+* **TanStack Query (React Query)** — управление серверным состоянием (кэширование, refetch, синхронизация данных)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Управление состоянием
+
+* **Zustand** — управление глобальным состоянием (авторизация, пользователь, UI-состояние)
+
+---
+
+## Формы и валидация
+
+* **React Hook Form** — работа с формами (оптимизация, управление состоянием полей)
+* **Zod** — валидация данных (схемы форм, проверка входных данных)
+
+---
+
+## Стилизация интерфейса
+
+* **SCSS (Sass)** — препроцессор CSS (переменные, вложенность, модульная структура стилей)
+
+---
+
+## Дополнительные инструменты
+
+* **Lucide React** — библиотека иконок (UI-элементы интерфейса)
+
+---
+
+# 🎯 Итог
+
+👉 **React + TypeScript + Vite + React Router + Axios + TanStack Query + Zustand + React Hook Form + Zod + SCSS + Lucide React**
+
+---
+
+
+# 📁 Общая структура проекта
+
+```bash
+src/
+│
+├── app/                # инициализация приложения
+├── pages/              # страницы (роуты)
+├── widgets/            # крупные UI-блоки (секции страниц)
+├── features/           # бизнес-логика (фичи)
+├── entities/           # сущности (restaurant, user, booking)
+├── shared/             # переиспользуемый код
+│
+├── styles/             # глобальные стили (SCSS)
+├── router/             # маршрутизация
+├── main.tsx
+└── App.tsx
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+👉 Это архитектура близкая к **Feature-Sliced Design (FSD)** — идеально подходит для твоего проекта.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# 🧠 Слои (очень важно понять)
+
+## 1. `app/` — запуск приложения
+
+```bash
+app/
+├── providers/
+│   ├── router.tsx
+│   ├── query-client.tsx
+│   └── store.ts
 ```
-"# rbs-ui" 
+
+Здесь:
+
+* подключаешь React Query
+* подключаешь Router
+* инициализируешь глобальные провайдеры
+
+---
+
+## 2. `pages/` — страницы
+
+```bash
+pages/
+├── auth/
+│   ├── login-page.tsx
+│   └── RegisterPage.tsx
+│
+├── restaurants/
+│   ├── restaurants-page.tsx
+│   └── RestaurantDetailsPage.tsx
+│
+├── booking/
+│   └── booking-page.tsx
+│
+├── profile/
+│   └── profile-page.tsx
+```
+
+👉 Здесь **НЕ логика**, только сборка страницы из компонентов
+
+---
+
+## 3. `widgets/` — крупные блоки UI
+
+```bash
+widgets/
+├── header/
+├── Sidebar/
+├── RestaurantList/
+├── BookingCalendar/
+```
+
+👉 Это уже куски страницы, но без бизнес-логики
+
+---
+
+## 4. `features/` — действия пользователя (самое важное)
+
+```bash
+features/
+├── auth/
+│   ├── login/
+│   ├── register/
+│
+├── booking/
+│   ├── create-booking/
+│   ├── cancel-booking/
+│
+├── restaurant/
+│   ├── create-restaurant/
+│   ├── upload-image/
+```
+
+👉 Здесь:
+
+* формы
+* кнопки
+* действия (login, create booking)
+
+---
+
+## 5. `entities/` — бизнес-сущности
+
+```bash
+entities/
+├── user/
+│   ├── api/
+│   ├── model/
+│   └── ui/
+│
+├── restaurant/
+│   ├── api/
+│   ├── model/
+│   └── ui/
+│
+├── booking/
+│   ├── api/
+│   ├── model/
+│   └── ui/
+```
+
+👉 Здесь:
+
+* типы (TypeScript)
+* API
+* базовые UI-компоненты
+
+---
+
+## 6. `shared/` — общее
+
+```bash
+shared/
+├── api/
+│   ├── axios.ts        # настройка axios
+│   └── interceptors.ts
+│
+├── lib/
+│   ├── hooks/
+│   └── utils/
+│
+├── ui/
+│   ├── Button/
+│   ├── Input/
+│   └── Modal/
+│
+├── config/
+│   └── env.ts
+```
+
+👉 Всё, что переиспользуется везде
+
+---
+
+## 7. `styles/` (SCSS)
+
+```bash
+styles/
+├── globals.scss
+├── variables.scss
+├── mixins.scss
+```
+
+👉 Подключается в `main.tsx`
+
+---
+
+# 🔥 Пример структуры сущности (очень важно)
+
+## `entities/restaurant/`
+
+```bash
+restaurant/
+├── api/
+│   ├── getRestaurants.ts
+│   ├── getRestaurantById.ts
+│
+├── model/
+│   ├── types.ts
+│   └── hooks.ts
+│
+├── ui/
+│   ├── RestaurantCard.tsx
+│   └── RestaurantCard.module.scss
+```
+
+---
+
+# 🌐 Axios (под твой backend)
+
+```ts
+// shared/api/axios.ts
+import axios from "axios";
+
+export const api = axios.create({
+  baseURL: "http://localhost:8080/api",
+  withCredentials: true,
+});
+```
+
+👉 потом добавим:
+
+* access token
+* refresh token
+* interceptors
+
+---
+
+# 🔐 Auth (Zustand)
+
+```ts
+// shared/store/auth.store.ts
+import { create } from "zustand";
+
+type AuthState = {
+  user: any;
+  accessToken: string | null;
+  setAuth: (data: any) => void;
+};
+
+export const useAuthStore = create<AuthState>((set) => ({
+  user: null,
+  accessToken: null,
+  setAuth: (data) => set(data),
+}));
+```
+
+---
+
+# 📡 React Query
+
+```ts
+// app/providers/query-client.tsx
+import { QueryClient } from "@tanstack/react-query";
+
+export const queryClient = new QueryClient();
+```
+
+---
+
+# 🧭 Router
+
+```ts
+// router/router.tsx
+import { createBrowserRouter } from "react-router-dom";
+
+export const router = createBrowserRouter([
+  { path: "/login", element: <LoginPage /> },
+  { path: "/restaurants", element: <RestaurantsPage /> },
+]);
+```
+
+---
+
+# 🎯 Как это связано с твоим backend
+
+Ты уже присылал backend, и под него:
+
+* `entities/restaurant/api` → restaurant-service
+* `entities/booking/api` → booking-service
+* `features/auth` → user-service
+* `upload-image` → MinIO presigned URL
+* `auth store` → JWT
+
+👉 Всё идеально ложится в эту архитектуру
+
+---
+
+Порядок изучения React
+
+Блок 1. Основа React 
+Что такое React и как он работает
+Что такое JSX в React
+Как устроен компонент в React
+Что такое props и как передавать данные между компонентами
+Что такое children в React
+Как работают события в React
+Что такое useState и как с ним работать
+Как правильно обновлять state в React
+Условный рендеринг в React
+Как выводить списки через map в React
+Что такое key и зачем он нужен
+Как разбивать интерфейс на компоненты
+
+Блок 2. Хуки и жизненный цикл
+Что такое хуки в React
+Как работает useEffect
+Когда useEffect вызывается
+Зависимости в useEffect
+Как делать запрос к API в React через useEffect
+Что такое useMemo и когда он нужен
+Что такое useCallback и когда он нужен
+Что такое useRef и как его использовать
+
+Блок 3. Формы
+Как работать с input в React
+Что такое controlled components
+Как сделать форму логина на React
+Как сделать форму регистрации на React
+Как делать валидацию формы в React
+Как показать ошибки в форме
+Как отправлять форму на backend
+
+Блок 4. Роутинг
+Что такое React Router
+Как настроить маршруты в React
+Как сделать несколько страниц в React
+Как работает Link
+Как работает useNavigate
+Как получить параметры из URL через useParams
+Как сделать страницу ресторана по id
+
+Блок 5. Работа с API
+Как подключить Axios в React
+Как создать общий api client
+Как отправить GET запрос в React
+Как отправить POST запрос в React
+Как отправить PUT и DELETE запросы
+Как обрабатывать loading, error, data
+Как сделать авторизацию через JWT на фронтенде
+Как хранить access token
+Как подставлять токен в Authorization header
+Что такое interceptor в Axios
+Как обновлять access token через refresh token
+
+Блок 6. Архитектура проекта
+Как правильно организовать структуру React проекта
+Что такое pages, widgets, features, entities, shared
+Как хранить типы в TypeScript React проекте
+Где хранить API функции
+Где хранить UI-компоненты
+Как разделять бизнес-логику и интерфейс
+Как построить архитектуру frontend для проекта RBS
+
+Блок 7. TypeScript в React
+Как использовать TypeScript в React
+Как типизировать props
+Как типизировать useState
+Как типизировать массивы объектов
+Как типизировать ответы с backend
+Чем interface отличается от type в React
+Как типизировать события в React
+Как типизировать формы и input
+Как типизировать API слой в React
+
+Блок 8. Стилизация
+Как подключить SCSS в React
+Как устроены стили в React проекте
+Как использовать CSS Modules с SCSS
+Как организовать глобальные и локальные стили
+Как сделать адаптивную верстку в React
+Как сверстать карточку ресторана
+Как сверстать header и навигацию
+Как оформить страницу списка ресторанов
+
+Блок 9. Практика под твой проект
+Как сделать страницу списка ресторанов в React
+Как сделать карточку ресторана
+Как сделать страницу одного ресторана
+Как сделать выбор даты и времени для бронирования
+Как сделать форму бронирования
+Как отправить бронирование на backend
+Как сделать страницу логина
+Как сделать страницу регистрации
+Как скрывать страницы от неавторизованных пользователей
+Как сделать личный кабинет пользователя
+Как собрать MVP фронтенда для RBS
+
+
+
+## 1. Сначала определить, какие страницы вообще будут
+
+Для MVP фронтенда тебе нужно сначала выписать экраны, которые будут в проекте. Например:
+
+* главная
+* список ресторанов
+* страница одного ресторана
+* логин
+* регистрация
+* профиль
+* мои бронирования
+* создание бронирования
+
+То есть сначала ты должен понять: **что вообще будет у пользователя перед глазами**.
+
+---
+
+## 2. Потом настроить базовую структуру проекта
+
+Так как ты хочешь FSD, сначала создается каркас проекта:
+
+* `app`
+* `pages`
+* `widgets`
+* `features`
+* `entities`
+* `shared`
+
+И внутри сразу базовые вещи:
+
+* роутинг
+* layouts
+* navbar/header
+* глобальные стили
+* api client
+* типы
+
+То есть сначала не отдельные красивые страницы, а **фундамент**, чтобы дальше не переделывать всё.
+
+---
+
+## 3. Потом настроить инфраструктуру
+
+До верстки стоит сделать техническую базу:
+
+* React Router
+* Axios instance
+* aliases `@/...`
+* SCSS
+* папки `shared/ui`, `shared/api`, `shared/types`
+* `index.ts` для экспортов
+* базовый layout приложения
+
+Потому что если сразу начать верстать страницы без этого, потом придется переносить код и переписывать импорты.
+
+---
+
+## 4. Потом сделать “скелет” страниц без красоты
+
+Вот это очень важный этап.
+
+Сначала делай **простую разметку и логику**, без сложного CSS.
+То есть:
+
+* страница существует
+* роут открывается
+* кнопки и ссылки работают
+* форма отправляется
+* данные приходят с backend
+
+Пример:
+
+* список ресторанов просто выводится карточками
+* страница ресторана просто показывает название, описание, столики
+* логин просто содержит 2 input и кнопку
+
+На этом этапе можно вообще сделать почти без стилей, только минимально.
+
+---
+
+## 5. После этого подключать API
+
+Когда страницы уже существуют как каркас, начинай подключать backend:
+
+* авторизация
+* получение ресторанов
+* получение ресторана по id
+* отправка бронирования
+* получение профиля
+* получение списка своих бронирований
+
+То есть сначала страница-пустышка, потом страница с живыми данными.
+
+---
+
+## 6. Потом выделять сущности и переиспользуемые компоненты
+
+Когда уже видно, что повторяется, выносишь это в архитектуру.
+
+Например:
+
+**entities**
+
+* restaurant
+* user
+* booking
+
+**features**
+
+* auth login
+* auth register
+* create booking
+* logout
+
+**widgets**
+
+* navbar
+* restaurant list
+* profile info
+* bookings list
+
+**shared/ui**
+
+* button
+* input
+* loader
+* modal
+* card
+
+То есть не надо с самого начала пытаться идеально разложить вообще всё.
+Сначала сделал рабочую версию, потом аккуратно вынес повторяющиеся части.
+
+---
+
+## 7. И только потом делать нормальный CSS/SCSS
+
+Лучше не делать так:
+**“сейчас идеально сверстаю одну страницу, а потом начну логику”**.
+Это почти всегда замедляет.
+
+Лучше так:
+
+1. сначала рабочий JSX
+2. потом подключенная логика
+3. потом SCSS
+4. потом улучшение внешнего вида
+
+То есть ответ на твой вопрос такой:
+
+**сначала JSX + структура + логика, CSS потом**.
+
+Но не в смысле “вообще без CSS”, а так:
+
+* сначала минимальные стили, чтобы не было совсем хаоса
+* потом полноценная стилизация
+
+---
+
+# Какой порядок разработки конкретно тебе лучше взять
+
+Вот хороший пошаговый маршрут.
+
+## Этап 1. Подготовка проекта
+
+1. Создать структуру папок по FSD
+2. Настроить aliases
+3. Подключить React Router
+4. Подключить SCSS
+5. Создать `AppLayout`
+6. Создать `Navbar`
+7. Настроить общий `api` через Axios
+
+---
+
+## Этап 2. Базовая навигация
+
+8. Создать пустые страницы:
+
+* HomePage
+* RestaurantsPage
+* RestaurantDetailsPage
+* LoginPage
+* RegisterPage
+* ProfilePage
+* BookingsPage
+
+9. Настроить маршруты
+10. Проверить, что переходы между страницами работают
+
+---
+
+## Этап 3. Авторизация
+
+11. Сделать формы логина и регистрации
+12. Подключить запросы к backend
+13. Настроить хранение access token
+14. Сделать protected routes
+15. Добавить logout
+
+---
+
+## Этап 4. Рестораны
+
+16. Сделать страницу списка ресторанов
+17. Сделать карточку ресторана
+18. Подключить получение списка ресторанов
+19. Сделать страницу ресторана по `id`
+20. Подключить получение одного ресторана
+
+---
+
+## Этап 5. Бронирование
+
+21. Сделать блок выбора даты/времени
+22. Сделать форму бронирования
+23. Подключить отправку бронирования
+24. Сделать страницу “мои бронирования”
+25. Подключить список бронирований пользователя
+
+---
+
+## Этап 6. Профиль
+
+26. Сделать страницу профиля
+27. Подключить данные текущего пользователя
+28. Добавить базовые действия пользователя
+
+---
+
+## Этап 7. Стилизация
+
+29. Привести все страницы к единому стилю
+30. Сделать адаптивность
+31. Добавить состояния:
+
+* loading
+* error
+* empty state
+
+32. Улучшить UI компонентов
+
+---
+
+## Этап 8. Рефакторинг
+
+33. Вынести повторяющиеся компоненты в `shared/ui`
+34. Вынести бизнес-логику в `features`
+35. Вынести типы и api-модели
+36. Почистить импорты и структуру
+37. Проверить, что всё соответствует FSD
+
+---
+
+# Очень важный практический совет
+
+На каждой странице делай работу в таком порядке:
+
+### 1. Скелет JSX
+
+Пример:
+
+* заголовок
+* блоки
+* кнопки
+* форма
+
+### 2. Локальный state и события
+
+* `useState`
+* `onChange`
+* `onSubmit`
+
+### 3. Подключение API
+
+* запросы
+* loading
+* error
+
+### 4. SCSS
+
+* контейнеры
+* отступы
+* сетка
+* цвета
+* адаптив
+
+Это самый удобный и безопасный путь.
+
+---
+
+# То, как делать не стоит
+
+Плохой порядок:
+
+* сначала долго делать идеальный CSS
+* потом писать JSX
+* потом пытаться вставить API
+* потом ломать верстку из-за реальных данных
+
+Потому что пока нет живых данных, ты не понимаешь:
+
+* какие будут размеры текста
+* сколько карточек придет
+* какие ошибки надо показать
+* как выглядит пустой список
+* как ведет себя форма после отправки
+
+---
+
+# Самая правильная формула
+
+Для тебя сейчас лучше запомнить так:
+
+**структура проекта → роутинг → каркасы страниц → API → формы/логика → стилизация → рефакторинг**
+
+---

@@ -1,4 +1,4 @@
-import { Router } from "./providers/router/Router.tsx";
+import { Router } from "./providers/router";
 
 
 function App() {

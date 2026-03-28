@@ -1,7 +1,9 @@
+import {LoginForm} from "@/features/auth/ui";
+
 export const LoginPage = () => {
     return (
     <>
-        Login Page
+        <LoginForm />
     </>
     )
 }

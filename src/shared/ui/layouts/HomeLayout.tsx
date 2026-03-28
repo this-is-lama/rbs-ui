@@ -1,10 +1,10 @@
 import {Outlet} from "react-router-dom";
-import {Navbar} from "@/widgets/Navigation/Navbar.tsx";
+import {Header} from "@/widgets/header/Header.tsx";
 
 export const HomeLayout = () => {
     return (
         <>
-            <Navbar />
+            <Header />
             <main>
                 <Outlet />
             </main>
