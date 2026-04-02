@@ -1,3 +1,3 @@
-export {AuthLayout} from "./AuthLayout.tsx";
-export {MainLayout} from "./MainLayout.tsx";
-export {HomeLayout} from "./HomeLayout.tsx";
+export {AuthLayout} from "./auth-layout.tsx";
+export {MainLayout} from "./main-layout.tsx";
+export {HomeLayout} from "./home-layout.tsx";

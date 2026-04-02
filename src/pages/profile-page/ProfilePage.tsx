@@ -1,8 +1,10 @@
+import {UserProfileWidget} from "@/widgets/user-profile/ui/user-profile-widget.tsx";
+
 export const ProfilePage = () => {
     return (
-        <>
-            Profile Page
-        </>
-    )
-}
-
+        <div>
+            <h1>Профиль пользователя</h1>
+            <UserProfileWidget />
+        </div>
+    );
+};

@@ -1,1 +1,0 @@
-export type {UserRole, User} from "./model/types.ts"

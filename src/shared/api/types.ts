@@ -1,8 +1,6 @@
-export interface ApiErrorResponse {
+export type ApiErrorResponse = {
+    status: number;
+    code: string;
     message: string;
-    status?: number;
-    errorCode?: string;
-    timestamp?: string;
-    path?: string;
-    details?: string[];
-}
+    path: string;
+};

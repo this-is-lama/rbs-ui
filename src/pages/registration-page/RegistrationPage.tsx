@@ -1,4 +1,4 @@
-import { RegisterForm } from "@/features/auth/ui"
+import {RegisterForm} from "@/features/user/auth/register/ui/register-form.tsx";
 
 export const RegistrationPage = () => {
     return (
