@@ -1,2 +1,2 @@
-export { apiClient } from './base';
+export { apiClient } from './api-client.ts';
 export * from './types';

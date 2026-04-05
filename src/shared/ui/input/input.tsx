@@ -1,18 +1,22 @@
-import * as React from "react";
+import * as React from 'react';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label?: string;
     error?: string;
 }
 
-export const Input = ({ label, error, ...props }: InputProps) => {
-    return (
-        <div className="input">
-            {label && <label className="input__label">{label}</label>}
+export const Input = React.forwardRef<HTMLInputElement, InputProps>(
+    ({ label, error, id, ...props }, ref) => {
+        const inputId = id ?? props.name;
 
-            <input className="input__field" {...props} />
+        return (
+            <div>
+                {label ? <label htmlFor={inputId}>{label}</label> : null}
+                <input id={inputId} ref={ref} {...props} />
+                {error ? <div>{error}</div> : null}
+            </div>
+        );
+    },
+);
 
-            {error && <span className="input__error">{error}</span>}
-        </div>
-    );
-};
+Input.displayName = 'Input';

@@ -1,12 +1,23 @@
-import { Navigate, Outlet } from 'react-router-dom';
-import {tokenStorage} from "@/shared/lib/token-storage/token-storage.ts";
-
+import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { useAuth } from '@/app/providers/auth/use-auth.ts';
+import { RoutePaths } from '@/shared/config/routes/routes.ts';
 
 export const ProtectedRoute = () => {
-    const accessToken = tokenStorage.getAccessToken();
+    const { isAuthenticated, isLoading } = useAuth();
+    const location = useLocation();
 
-    if (!accessToken) {
-        return <Navigate to="/login" replace />;
+    if (isLoading) {
+        return <div>Загрузка...</div>;
+    }
+
+    if (!isAuthenticated) {
+        return (
+            <Navigate
+                to={RoutePaths.LOGIN}
+                replace
+                state={{ from: location }}
+            />
+        );
     }
 
     return <Outlet />;

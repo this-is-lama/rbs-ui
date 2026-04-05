@@ -1,17 +1,28 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 
-
 import { getErrorMessage } from '../lib/get-error-message';
 import { loginSchema, type LoginFormValues } from '../lib/login.schema';
-import {loginUser} from "@/features/user/auth/login/api/login.ts";
-import {tokenStorage} from "@/shared/lib/token-storage/token-storage.ts";
+import { loginUser } from '@/features/user/auth/login/api/login.ts';
+import { useAuth } from '@/app/providers/auth/use-auth.ts';
+import { RoutePaths } from '@/shared/config/routes/routes.ts';
+
+type LocationState = {
+    from?: {
+        pathname?: string;
+    };
+};
 
 export const useLoginForm = () => {
     const navigate = useNavigate();
+    const location = useLocation();
+    const { login } = useAuth();
     const [serverError, setServerError] = useState('');
+
+    const state = location.state as LocationState | null;
+    const from = state?.from?.pathname || RoutePaths.PROFILE;
 
     const form = useForm<LoginFormValues>({
         resolver: zodResolver(loginSchema),
@@ -28,10 +39,10 @@ export const useLoginForm = () => {
 
             const tokens = await loginUser(values);
 
-            tokenStorage.setTokens(tokens.accessToken, tokens.refreshToken);
+            await login(tokens.accessToken, tokens.refreshToken);
 
             form.reset();
-            navigate('/');
+            navigate(from, { replace: true });
         } catch (error) {
             setServerError(getErrorMessage(error));
         }

@@ -1,5 +1,5 @@
-import type { UserProfile } from '../api/types';
-import {UserAvatar} from "@/entities/user/ui/use-avatar.tsx";
+import type { UserProfile } from '../model/types.ts';
+import {UserAvatar} from "@/entities/user/ui/user-avatar.tsx";
 
 type UserProfileCardProps = {
     user: UserProfile;

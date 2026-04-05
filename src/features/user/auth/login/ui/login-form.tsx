@@ -10,14 +10,7 @@ export const LoginForm = () => {
     } = useLoginForm();
 
     return (
-        <form
-            onSubmit={onSubmit}
-            style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '16px',
-            }}
-        >
+        <form onSubmit={onSubmit}>
             <Input
                 label="Почта"
                 type="email"

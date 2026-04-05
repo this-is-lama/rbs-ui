@@ -1,4 +1,4 @@
-import type { UserProfile } from './types';
+import type { UserProfile } from '../model/types.ts';
 import {apiClient} from "@/shared/api";
 
 export const getUserProfile = async (): Promise<UserProfile> => {
