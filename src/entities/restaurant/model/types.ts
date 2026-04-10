@@ -53,9 +53,10 @@ export type RestaurantCard = {
     id: string;
     name: string;
     category: string;
+    description?: string | null;
     address: string;
     active: boolean;
-    workingHours?: WorkingHours[] | null;
+    workingHour?: WorkingHours | null;
     bannerPhoto?: Photo | null;
 };
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useRestaurantFilters } from '@/features/restaurants/filter-restaurants/model/use-restaurant-filters.ts';
 import styles from './RestaurantsFilterForm.module.scss';
@@ -8,18 +8,12 @@ type RestaurantFiltersFormValues = {
     address: string;
 };
 
-export const RestaurantsFilterForm = () => {
+type RestaurantsFilterFormProps = {
+    onClose?: () => void;
+};
+
+export const RestaurantsFilterForm = ({ onClose }: RestaurantsFilterFormProps) => {
     const { filters, setFilters } = useRestaurantFilters();
-
-    const hasActiveFilters = useMemo(() => {
-        return Boolean(
-            filters.name.trim() ||
-            filters.address.trim() ||
-            filters.category.trim(),
-        );
-    }, [filters]);
-
-    const [isOpen, setIsOpen] = useState(hasActiveFilters);
 
     const form = useForm<RestaurantFiltersFormValues>({
         defaultValues: {
@@ -35,18 +29,14 @@ export const RestaurantsFilterForm = () => {
         });
     }, [filters, form]);
 
-    useEffect(() => {
-        if (hasActiveFilters) {
-            setIsOpen(true);
-        }
-    }, [hasActiveFilters]);
-
     const onSubmit = form.handleSubmit((values) => {
         setFilters({
             name: values.name,
             address: values.address,
             category: filters.category,
         });
+
+        onClose?.();
     });
 
     const handleReset = () => {
@@ -60,58 +50,47 @@ export const RestaurantsFilterForm = () => {
             address: '',
             category: '',
         });
+
+        onClose?.();
     };
 
     return (
-        <div className={styles.wrapper}>
-            <button
-                type="button"
-                className={styles.trigger}
-                onClick={() => setIsOpen((current) => !current)}
-                aria-expanded={isOpen}
-            >
-                {isOpen ? 'Скрыть фильтры' : 'Открыть фильтры'}
-            </button>
+        <div className={styles.panel}>
+            <form onSubmit={onSubmit} className={styles.form}>
+                <div className={styles.fields}>
+                    <label className={styles.field}>
+                        <span className={styles.label}>Название</span>
+                        <input
+                            className={styles.input}
+                            placeholder="Введите название ресторана"
+                            {...form.register('name')}
+                        />
+                    </label>
 
-            {isOpen ? (
-                <div className={styles.panel}>
-                    <form onSubmit={onSubmit} className={styles.form}>
-                        <div className={styles.fields}>
-                            <label className={styles.field}>
-                                <span className={styles.label}>Название</span>
-                                <input
-                                    className={styles.input}
-                                    placeholder="Введите название ресторана"
-                                    {...form.register('name')}
-                                />
-                            </label>
-
-                            <label className={styles.field}>
-                                <span className={styles.label}>Адрес</span>
-                                <input
-                                    className={styles.input}
-                                    placeholder="Введите адрес"
-                                    {...form.register('address')}
-                                />
-                            </label>
-                        </div>
-
-                        <div className={styles.actions}>
-                            <button
-                                type="button"
-                                className={styles.secondaryButton}
-                                onClick={handleReset}
-                            >
-                                Сбросить
-                            </button>
-
-                            <button type="submit" className={styles.primaryButton}>
-                                Применить фильтры
-                            </button>
-                        </div>
-                    </form>
+                    <label className={styles.field}>
+                        <span className={styles.label}>Адрес</span>
+                        <input
+                            className={styles.input}
+                            placeholder="Введите адрес"
+                            {...form.register('address')}
+                        />
+                    </label>
                 </div>
-            ) : null}
+
+                <div className={styles.actions}>
+                    <button
+                        type="button"
+                        className={styles.secondaryButton}
+                        onClick={handleReset}
+                    >
+                        Сбросить
+                    </button>
+
+                    <button type="submit" className={styles.primaryButton}>
+                        Применить фильтры
+                    </button>
+                </div>
+            </form>
         </div>
     );
 };

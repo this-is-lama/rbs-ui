@@ -1,30 +1,40 @@
 @use '@/app/styles/variables' as *;
 
 .wrapper {
-  display: flex;
-  justify-content: center;
+  width: 100%;
+  overflow: hidden;
 }
 
 .navbar {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-wrap: nowrap;
   gap: 12px;
-  width: fit-content;
+  width: 100%;
   max-width: 100%;
-  padding: 12px;
+  padding: 18px;
+  overflow-x: auto;
+  overflow-y: hidden;
   background-color: $color-surface;
   border-radius: 999px;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.navbar::-webkit-scrollbar {
+  display: none;
 }
 
 .button {
+  flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: 46px;
-  padding: 0 20px;
+  padding: 0 24px;
   border: none;
   border-radius: 999px;
+  white-space: nowrap;
   background-color: $color-white;
   color: $color-text-primary;
   font-size: 16px;
@@ -48,4 +58,17 @@
   background-color: $color-primary;
   color: $color-white;
   box-shadow: 0 14px 28px rgba(51, 76, 219, 0.2);
+}
+
+@media (max-width: 640px) {
+  .navbar {
+    padding: 14px;
+    gap: 10px;
+  }
+
+  .button {
+    min-height: 42px;
+    padding: 0 20px;
+    font-size: 15px;
+  }
 }

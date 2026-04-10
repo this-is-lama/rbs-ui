@@ -37,7 +37,7 @@ export const RestaurantCategoriesNavbar = () => {
 
     return (
         <div className={styles.wrapper}>
-            <nav className={styles.navbar}>
+            <nav className={styles.navbar} aria-label="Категории ресторанов">
                 <button
                     type="button"
                     onClick={() => setCategory('')}

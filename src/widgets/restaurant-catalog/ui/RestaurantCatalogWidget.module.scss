@@ -1,0 +1,205 @@
+@use '@/app/styles/variables' as *;
+
+.page {
+  display: grid;
+  gap: 180px;
+  background-color: $color-white;
+}
+
+.section {
+  display: grid;
+  gap: 84px;
+  padding-top: 96px;
+  padding-bottom: 0;
+}
+
+.header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 16px;
+}
+
+.headerSpacer {
+  min-width: 1px;
+}
+
+.title {
+  margin: 0;
+  grid-column: 2;
+  justify-self: center;
+  text-align: center;
+  font-size: clamp(52px, 5vw, 68px);
+  font-weight: 700;
+  line-height: 0.95;
+  color: $color-text-primary;
+}
+
+.filterBox {
+  grid-column: 3;
+  justify-self: end;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.filterButton {
+  width: 64px;
+  height: 64px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 20px;
+  background-color: $color-surface;
+  color: $color-text-primary;
+  transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease,
+          background-color 0.2s ease,
+          color 0.2s ease;
+}
+
+.filterButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(17, 17, 17, 0.08);
+}
+
+.filterButtonActive {
+  background-color: $color-primary;
+  color: $color-white;
+}
+
+.filterDropdown {
+  position: absolute;
+  top: calc(100% + 16px);
+  right: 0;
+  z-index: 30;
+}
+
+.list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+  align-items: stretch;
+}
+
+.state {
+  font-size: 18px;
+  color: $color-text-primary;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.paginationButton,
+.paginationDots {
+  width: 64px;
+  height: 64px;
+  border: none;
+  border-radius: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: $color-surface;
+  color: $color-text-primary;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.paginationButton {
+  transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease,
+          background-color 0.2s ease,
+          color 0.2s ease,
+          opacity 0.2s ease;
+}
+
+.paginationButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(17, 17, 17, 0.08);
+}
+
+.paginationButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.paginationButtonActive {
+  background-color: $color-primary;
+  color: $color-white;
+}
+
+.paginationDots {
+  pointer-events: none;
+}
+
+@media (max-width: 1100px) {
+  .page {
+    gap: 140px;
+  }
+
+  .section {
+    gap: 68px;
+    padding-top: 80px;
+  }
+
+  .list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .page {
+    gap: 100px;
+  }
+
+  .section {
+    gap: 44px;
+    padding-top: 40px;
+  }
+
+  .header {
+    grid-template-columns: 1fr auto;
+  }
+
+  .headerSpacer {
+    display: none;
+  }
+
+  .title {
+    grid-column: 1 / 2;
+    justify-self: start;
+    text-align: left;
+  }
+
+  .filterBox {
+    grid-column: 2 / 3;
+  }
+
+  .filterButton {
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+  }
+
+  .pagination {
+    gap: 10px;
+  }
+
+  .paginationButton,
+  .paginationDots {
+    width: 52px;
+    height: 52px;
+    font-size: 16px;
+    border-radius: 16px;
+  }
+}

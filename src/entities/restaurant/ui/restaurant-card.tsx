@@ -1,51 +1,79 @@
 import { Link, generatePath } from 'react-router-dom';
 import type { RestaurantCard as RestaurantCardType } from '@/entities/restaurant/model/types.ts';
-import { RestaurantWorkingHours } from '@/entities/restaurant/ui/restaurant-working-hours.tsx';
 import { RoutePaths } from '@/shared/config/routes/routes.ts';
+import styles from './RestaurantCard.module.scss';
 
 type RestaurantCardProps = {
     restaurant: RestaurantCardType;
 };
 
+const formatCardTime = (value: string | null | undefined) => {
+    if (!value) {
+        return '—';
+    }
+
+    const normalized = value.slice(0, 5);
+
+    if (normalized.endsWith(':00')) {
+        return normalized.slice(0, 2);
+    }
+
+    return normalized;
+};
+
 export const RestaurantCard = ({ restaurant }: RestaurantCardProps) => {
     const restaurantPath = generatePath(RoutePaths.RESTAURANT, { id: restaurant.id });
-    const bookingPath = `${RoutePaths.BOOKING}?restaurantId=${restaurant.id}`;
+    const todayHours = restaurant.workingHour ?? null;
+
+    const openTime = todayHours && !todayHours.closed
+        ? formatCardTime(todayHours.openTime)
+        : '—';
+
+    const closeTime = todayHours && !todayHours.closed
+        ? formatCardTime(todayHours.closeTime)
+        : '—';
+
+    const description = restaurant.description?.trim() || restaurant.category || 'Описание отсутствует';
 
     return (
-        <article className="surface-block" style={{ padding: '24px', display: 'grid', gap: '18px' }}>
-            <div style={{ display: 'grid', gap: '8px' }}>
-                <h2>{restaurant.name}</h2>
-                <div><strong>Категория:</strong> {restaurant.category}</div>
-                <div><strong>Адрес:</strong> {restaurant.address}</div>
-                <div><strong>Статус:</strong> {restaurant.active ? 'Активен' : 'Неактивен'}</div>
-            </div>
-
-            {restaurant.bannerPhoto?.publicUrl ? (
-                <div>
-                    <img
-                        src={restaurant.bannerPhoto.publicUrl}
-                        alt={restaurant.name}
-                        width={420}
-                    />
+        <Link
+            to={restaurantPath}
+            className={styles.cardLink}
+            aria-label={`Открыть ресторан ${restaurant.name}`}
+        >
+            <article className={styles.card}>
+                <div className={styles.imageWrapper}>
+                    {restaurant.bannerPhoto?.publicUrl ? (
+                        <img
+                            src={restaurant.bannerPhoto.publicUrl}
+                            alt={restaurant.name}
+                            className={styles.image}
+                        />
+                    ) : (
+                        <div className={styles.imagePlaceholder}>Фото ресторана</div>
+                    )}
                 </div>
-            ) : (
-                <div>Баннер отсутствует</div>
-            )}
 
-            <div style={{ display: 'grid', gap: '8px' }}>
-                <h3>Часы работы</h3>
-                <RestaurantWorkingHours workingHours={restaurant.workingHours} />
-            </div>
+                <div className={styles.content}>
+                    <div className={styles.hours}>
+                        <span className={styles.time}>{openTime}</span>
+                        <span className={styles.divider} />
+                        <span className={styles.time}>{closeTime}</span>
+                    </div>
 
-            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                <Link to={restaurantPath}>
-                    <button className="primary-button">Открыть ресторан</button>
-                </Link>
+                    <div className={styles.info}>
+                        <h2 className={styles.name}>{restaurant.name}</h2>
 
-                <Link to={bookingPath}>
-                    <button className="secondary-button">Забронировать</button>
-                </Link>
-            </div>
-        </article>
+                        <p className={styles.description} title={description}>
+                            {description}
+                        </p>
+
+                        <p className={styles.address} title={restaurant.address}>
+                            {restaurant.address}
+                        </p>
+                    </div>
+                </div>
+            </article>
+        </Link>
     );
 };

@@ -21,9 +21,8 @@ export const getRestaurants = async (
             ? response.data.content.map((restaurant, index) => ({
                 ...restaurant,
                 id: restaurant?.id ?? `restaurant-${index}`,
-                workingHours: Array.isArray(restaurant?.workingHours)
-                    ? restaurant.workingHours
-                    : [],
+                description: restaurant?.description ?? '',
+                workingHour: restaurant?.workingHour ?? null,
                 bannerPhoto: restaurant?.bannerPhoto ?? null,
             }))
             : [],

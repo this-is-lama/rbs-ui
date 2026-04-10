@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { getRestaurants } from '@/entities/restaurant/api/get-restaurants.ts';
 import type { RestaurantCard as RestaurantCardType } from '@/entities/restaurant/model/types.ts';
 import type { PageResponse } from '@/shared/api';
@@ -7,12 +7,37 @@ import { RestaurantsFilterForm } from '@/features/restaurants/filter-restaurants
 import { useRestaurantFilters } from '@/features/restaurants/filter-restaurants/model/use-restaurant-filters.ts';
 import { RestaurantCategoriesNavbar } from '@/features/restaurants/filter-restaurants/ui/restaurant-categories-navbar.tsx';
 import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
+import { Footer } from '@/widgets/footer/Footer';
+import styles from './RestaurantCatalogWidget.module.scss';
+
+type PaginationItem = number | 'ellipsis-left' | 'ellipsis-right';
+
+const buildPagination = (currentPage: number, totalPages: number): PaginationItem[] => {
+    if (totalPages <= 1) {
+        return [];
+    }
+
+    if (totalPages <= 5) {
+        return Array.from({ length: totalPages }, (_, index) => index);
+    }
+
+    if (currentPage <= 2) {
+        return [0, 1, 2, 'ellipsis-right', totalPages - 1];
+    }
+
+    if (currentPage >= totalPages - 3) {
+        return [0, 'ellipsis-left', totalPages - 3, totalPages - 2, totalPages - 1];
+    }
+
+    return [0, 'ellipsis-left', currentPage, currentPage + 1, 'ellipsis-right', totalPages - 1];
+};
 
 export const RestaurantCatalogWidget = () => {
     const { filters, setPage } = useRestaurantFilters();
     const [data, setData] = useState<PageResponse<RestaurantCardType> | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
+    const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
     useEffect(() => {
         const loadRestaurants = async () => {
@@ -57,52 +82,126 @@ export const RestaurantCatalogWidget = () => {
 
     const restaurants = Array.isArray(data?.content) ? data.content : [];
 
+    const paginationItems = useMemo(() => {
+        return buildPagination(filters.page, data?.totalPages ?? 0);
+    }, [filters.page, data?.totalPages]);
+
     return (
-        <section className="container" style={{ display: 'grid', gap: '24px', paddingTop: '24px', paddingBottom: '48px' }}>
-            <div style={{ display: 'grid', gap: '8px', justifyItems: 'center', textAlign: 'center' }}>
-                <h1 className="page-title">Рестораны</h1>
-                <div style={{ maxWidth: '720px', color: '#777' }}>
-                    Выбирай ресторан по категории, названию и адресу.
-                </div>
-            </div>
+        <div className={styles.page}>
+            <section className={`container ${styles.section}`}>
+                <div className={styles.header}>
+                    <div className={styles.headerSpacer} />
 
-            <RestaurantCategoriesNavbar />
-            <RestaurantsFilterForm />
+                    <h1 className={styles.title}>Рестораны</h1>
 
-            {isLoading ? <div>Загрузка ресторанов...</div> : null}
-            {error ? <div>{error}</div> : null}
-
-            {!isLoading && !error && restaurants.length === 0 ? (
-                <div>Рестораны не найдены</div>
-            ) : null}
-
-            {!isLoading && !error && data ? (
-                <div style={{ display: 'grid', gap: '18px' }}>
-                    <div>
-                        <strong>Всего найдено:</strong> {data.totalElements}
-                    </div>
-
-                    {restaurants.map((restaurant, index) => (
-                        <div key={restaurant.id || `${restaurant.name}-${index}`}>
-                            <RestaurantCard restaurant={restaurant} />
-                        </div>
-                    ))}
-
-                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-                        <div>
-                            Страница {data.number + 1} из {data.totalPages || 1}
-                        </div>
-
-                        <button className="secondary-button" type="button" onClick={handlePrevPage} disabled={data.first}>
-                            Назад
+                    <div className={styles.filterBox}>
+                        <button
+                            type="button"
+                            className={`${styles.filterButton} ${isFiltersOpen ? styles.filterButtonActive : ''}`}
+                            onClick={() => setIsFiltersOpen((current) => !current)}
+                            aria-label="Открыть фильтры"
+                            aria-expanded={isFiltersOpen}
+                        >
+                            <svg
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    d="M4 7H20M7 12H17M10 17H14"
+                                    stroke="currentColor"
+                                    strokeWidth="2.2"
+                                    strokeLinecap="round"
+                                />
+                            </svg>
                         </button>
 
-                        <button className="secondary-button" type="button" onClick={handleNextPage} disabled={data.last}>
-                            Вперед
-                        </button>
+                        {isFiltersOpen ? (
+                            <div className={styles.filterDropdown}>
+                                <RestaurantsFilterForm onClose={() => setIsFiltersOpen(false)} />
+                            </div>
+                        ) : null}
                     </div>
                 </div>
-            ) : null}
-        </section>
+
+                <RestaurantCategoriesNavbar />
+
+                {isLoading ? <div className={styles.state}>Загрузка ресторанов...</div> : null}
+                {error ? <div className={styles.state}>{error}</div> : null}
+
+                {!isLoading && !error && restaurants.length === 0 ? (
+                    <div className={styles.state}>Рестораны не найдены</div>
+                ) : null}
+
+                {!isLoading && !error && restaurants.length > 0 ? (
+                    <>
+                        <div className={styles.list}>
+                            {restaurants.map((restaurant, index) => (
+                                <RestaurantCard
+                                    key={restaurant.id || `${restaurant.name}-${index}`}
+                                    restaurant={restaurant}
+                                />
+                            ))}
+                        </div>
+
+                        {data && data.totalPages > 1 ? (
+                            <div className={styles.pagination}>
+                                <button
+                                    type="button"
+                                    className={styles.paginationButton}
+                                    onClick={handlePrevPage}
+                                    disabled={data.first}
+                                    aria-label="Предыдущая страница"
+                                >
+                                    {'<'}
+                                </button>
+
+                                {paginationItems.map((item, index) => {
+                                    if (typeof item !== 'number') {
+                                        return (
+                                            <span
+                                                key={`${item}-${index}`}
+                                                className={styles.paginationDots}
+                                            >
+                                                ...
+                                            </span>
+                                        );
+                                    }
+
+                                    const isActive = item === filters.page;
+
+                                    return (
+                                        <button
+                                            key={item}
+                                            type="button"
+                                            className={`${styles.paginationButton} ${isActive ? styles.paginationButtonActive : ''}`}
+                                            onClick={() => setPage(item)}
+                                            aria-current={isActive ? 'page' : undefined}
+                                        >
+                                            {item + 1}
+                                        </button>
+                                    );
+                                })}
+
+                                <button
+                                    type="button"
+                                    className={styles.paginationButton}
+                                    onClick={handleNextPage}
+                                    disabled={data.last}
+                                    aria-label="Следующая страница"
+                                >
+                                    {'>'}
+                                </button>
+                            </div>
+                        ) : null}
+                    </>
+                ) : null}
+            </section>
+
+            <Footer />
+        </div>
     );
 };
