@@ -1,5 +1,5 @@
-import { Input } from '@/shared/ui/input/input.tsx';
 import { useRegisterForm } from '../model/use-register-form';
+import styles from '../../shared/AuthForm.module.scss';
 
 export const RegisterForm = () => {
     const {
@@ -10,42 +10,71 @@ export const RegisterForm = () => {
     } = useRegisterForm();
 
     return (
-        <form onSubmit={onSubmit} className="surface-block" style={{ padding: '24px', display: 'grid', gap: '16px' }}>
-            <Input
-                label="Имя"
-                placeholder="Введите имя"
-                error={errors.name?.message}
-                {...register('name')}
-            />
+        <form onSubmit={onSubmit} className={styles.form}>
+            <div className={styles.field}>
+                <input
+                    className={styles.input}
+                    type="text"
+                    placeholder="Имя"
+                    aria-label="Имя"
+                    autoComplete="given-name"
+                    autoFocus
+                    {...register('name')}
+                />
+                {errors.name?.message ? (
+                    <div className={styles.error}>{errors.name.message}</div>
+                ) : null}
+            </div>
 
-            <Input
-                label="Фамилия"
-                placeholder="Введите фамилию"
-                error={errors.surname?.message}
-                {...register('surname')}
-            />
+            <div className={styles.field}>
+                <input
+                    className={styles.input}
+                    type="text"
+                    placeholder="Фамилия"
+                    aria-label="Фамилия"
+                    autoComplete="family-name"
+                    {...register('surname')}
+                />
+                {errors.surname?.message ? (
+                    <div className={styles.error}>{errors.surname.message}</div>
+                ) : null}
+            </div>
 
-            <Input
-                label="Почта"
-                type="email"
-                placeholder="Введите почту"
-                error={errors.email?.message}
-                {...register('email')}
-            />
+            <div className={styles.field}>
+                <input
+                    className={styles.input}
+                    type="email"
+                    placeholder="Почта"
+                    aria-label="Почта"
+                    autoComplete="email"
+                    {...register('email')}
+                />
+                {errors.email?.message ? (
+                    <div className={styles.error}>{errors.email.message}</div>
+                ) : null}
+            </div>
 
-            <Input
-                label="Пароль"
-                type="password"
-                placeholder="Введите пароль"
-                error={errors.password?.message}
-                {...register('password')}
-            />
+            <div className={styles.field}>
+                <input
+                    className={styles.input}
+                    type="password"
+                    placeholder="Пароль"
+                    aria-label="Пароль"
+                    autoComplete="new-password"
+                    {...register('password')}
+                />
+                {errors.password?.message ? (
+                    <div className={styles.error}>{errors.password.message}</div>
+                ) : null}
+            </div>
 
-            {serverError ? <div>{serverError}</div> : null}
+            {serverError ? <div className={styles.serverError}>{serverError}</div> : null}
 
-            <button className="primary-button" type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Регистрация...' : 'Зарегистрироваться'}
-            </button>
+            <div className={styles.actions}>
+                <button className={styles.primaryButton} type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? 'Регистрация...' : 'Зарегистрироваться'}
+                </button>
+            </div>
         </form>
     );
 };

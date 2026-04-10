@@ -1,0 +1,147 @@
+@use '@/app/styles/variables' as *;
+
+.form {
+  display: grid;
+  gap: 20px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.label {
+  padding-left: 8px;
+  font-size: 14px;
+  line-height: 1.2;
+  font-weight: 600;
+  color: $color-primary;
+}
+
+.input {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 18px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background-color: #f3f3f3;
+  color: $color-text-primary;
+  font-size: 16px;
+  line-height: 1;
+  outline: none;
+  transition:
+          border-color 0.2s ease,
+          box-shadow 0.2s ease,
+          transform 0.2s ease;
+}
+
+.input::placeholder {
+  color: rgba(17, 17, 17, 0.55);
+}
+
+.input:focus {
+  border-color: rgba(51, 76, 219, 0.45);
+  box-shadow: 0 0 0 4px rgba(51, 76, 219, 0.1);
+}
+
+.error {
+  padding-left: 10px;
+  color: #c62828;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.serverError,
+.successMessage {
+  padding: 12px 14px;
+  border-radius: 18px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.serverError {
+  background-color: rgba(198, 40, 40, 0.08);
+  color: #b42318;
+}
+
+.successMessage {
+  background-color: rgba(22, 163, 74, 0.1);
+  color: #15803d;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.primaryButton,
+.secondaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  padding: 0 22px;
+  border-radius: 999px;
+  font-size: 16px;
+  line-height: 1;
+  transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease,
+          background-color 0.2s ease,
+          color 0.2s ease,
+          opacity 0.2s ease;
+}
+
+.primaryButton {
+  border: none;
+  background-color: $color-primary;
+  color: $color-white;
+}
+
+.secondaryButton {
+  border: 1.5px solid $color-primary;
+  background-color: transparent;
+  color: $color-text-primary;
+}
+
+.primaryButton:hover:not(:disabled),
+.secondaryButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(17, 17, 17, 0.08);
+}
+
+.primaryButton:disabled,
+.secondaryButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.fullWidth {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 700px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
+    display: grid;
+  }
+
+  .primaryButton,
+  .secondaryButton {
+    width: 100%;
+  }
+}

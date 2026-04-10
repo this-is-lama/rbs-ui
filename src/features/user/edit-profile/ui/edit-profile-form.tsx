@@ -1,5 +1,5 @@
-import { Input } from '@/shared/ui/input/input.tsx';
 import { useEditProfileForm } from '../model/use-edit-profile-form.ts';
+import styles from '@/features/user/profile-settings/ui/ProfileSettingsForm.module.scss';
 
 export const EditProfileForm = () => {
     const {
@@ -11,49 +11,87 @@ export const EditProfileForm = () => {
     } = useEditProfileForm();
 
     return (
-        <form onSubmit={onSubmit} className="surface-block" style={{ padding: '24px', display: 'grid', gap: '16px' }}>
-            <Input
-                label="Имя"
-                placeholder="Введите имя"
-                error={errors.name?.message}
-                {...register('name')}
-            />
+        <form onSubmit={onSubmit} className={styles.form}>
+            <div className={styles.grid}>
+                <div className={styles.field}>
+                    <label htmlFor="name" className={styles.label}>Имя</label>
+                    <input
+                        id="name"
+                        className={styles.input}
+                        placeholder="Введите имя"
+                        autoComplete="given-name"
+                        {...register('name')}
+                    />
+                    {errors.name?.message ? (
+                        <div className={styles.error}>{errors.name.message}</div>
+                    ) : null}
+                </div>
 
-            <Input
-                label="Фамилия"
-                placeholder="Введите фамилию"
-                error={errors.surname?.message}
-                {...register('surname')}
-            />
+                <div className={styles.field}>
+                    <label htmlFor="surname" className={styles.label}>Фамилия</label>
+                    <input
+                        id="surname"
+                        className={styles.input}
+                        placeholder="Введите фамилию"
+                        autoComplete="family-name"
+                        {...register('surname')}
+                    />
+                    {errors.surname?.message ? (
+                        <div className={styles.error}>{errors.surname.message}</div>
+                    ) : null}
+                </div>
 
-            <Input
-                label="Дата рождения"
-                type="date"
-                error={errors.dateOfBirth?.message}
-                {...register('dateOfBirth')}
-            />
+                <div className={styles.field}>
+                    <label htmlFor="dateOfBirth" className={styles.label}>Дата рождения</label>
+                    <input
+                        id="dateOfBirth"
+                        className={styles.input}
+                        type="date"
+                        {...register('dateOfBirth')}
+                    />
+                    {errors.dateOfBirth?.message ? (
+                        <div className={styles.error}>{errors.dateOfBirth.message}</div>
+                    ) : null}
+                </div>
 
-            <Input
-                label="Телефон"
-                placeholder="Введите телефон"
-                error={errors.phone?.message}
-                {...register('phone')}
-            />
+                <div className={styles.field}>
+                    <label htmlFor="phone" className={styles.label}>Телефон</label>
+                    <input
+                        id="phone"
+                        className={styles.input}
+                        placeholder="Введите телефон"
+                        autoComplete="tel"
+                        {...register('phone')}
+                    />
+                    {errors.phone?.message ? (
+                        <div className={styles.error}>{errors.phone.message}</div>
+                    ) : null}
+                </div>
 
-            <Input
-                label="Почта"
-                type="email"
-                placeholder="Введите почту"
-                error={errors.email?.message}
-                {...register('email')}
-            />
+                <div className={`${styles.field} ${styles.fullWidth}`}>
+                    <label htmlFor="email" className={styles.label}>Почта</label>
+                    <input
+                        id="email"
+                        className={styles.input}
+                        type="email"
+                        placeholder="Введите почту"
+                        autoComplete="email"
+                        {...register('email')}
+                    />
+                    {errors.email?.message ? (
+                        <div className={styles.error}>{errors.email.message}</div>
+                    ) : null}
+                </div>
+            </div>
 
-            {serverError ? <div>{serverError}</div> : null}
-            {successMessage ? <div style={{ color: 'green' }}>{successMessage}</div> : null}
+            {serverError ? <div className={styles.serverError}>{serverError}</div> : null}
+            {successMessage ? <div className={styles.successMessage}>{successMessage}</div> : null}
 
-            <button className="primary-button" type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Сохранение...' : 'Сохранить изменения'}
-            </button>
+            <div className={styles.actions}>
+                <button className={styles.primaryButton} type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? 'Сохранение...' : 'Сохранить изменения'}
+                </button>
+            </div>
         </form>
     );
 };

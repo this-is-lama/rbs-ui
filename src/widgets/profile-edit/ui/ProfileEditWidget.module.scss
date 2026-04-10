@@ -1,0 +1,113 @@
+@use '@/app/styles/variables' as *;
+
+.wrapper {
+  width: 100%;
+  max-width: 1028px;
+  margin: 0 auto;
+  display: grid;
+  gap: 24px;
+  padding: 24px 0 48px;
+}
+
+.card {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  grid-template-rows: auto 1fr;
+  gap: 36px 28px;
+  padding: 40px 44px;
+  border-radius: 38px;
+  background-color: #f3f3f3;
+}
+
+.title {
+  grid-column: 1 / -1;
+  margin: 0;
+  font-size: clamp(48px, 5.2vw, 64px);
+  line-height: 0.95;
+  font-weight: 700;
+  color: $color-text-primary;
+}
+
+.visual {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 4px;
+}
+
+.content {
+  display: grid;
+  gap: 24px;
+  min-width: 0;
+}
+
+.section {
+  display: grid;
+  gap: 18px;
+  padding: 24px 24px 26px;
+  border-radius: 28px;
+  background-color: $color-white;
+  box-shadow: inset 0 0 0 1px rgba(17, 17, 17, 0.05);
+}
+
+.sectionHeader {
+  display: grid;
+  gap: 8px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: clamp(24px, 2.8vw, 32px);
+  line-height: 1.05;
+  font-weight: 700;
+  color: $color-text-primary;
+}
+
+.sectionDescription {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.45;
+  color: rgba(17, 17, 17, 0.68);
+}
+
+@media (max-width: 960px) {
+  .card {
+    grid-template-columns: 1fr;
+    gap: 30px;
+    padding: 32px 28px;
+  }
+
+  .visual {
+    justify-content: center;
+    padding-top: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .wrapper {
+    padding: 18px 0 40px;
+  }
+
+  .card {
+    padding: 24px 18px;
+    border-radius: 28px;
+    gap: 24px;
+  }
+
+  .title {
+    font-size: 42px;
+  }
+
+  .section {
+    padding: 18px 16px 20px;
+    border-radius: 22px;
+  }
+
+  .sectionTitle {
+    font-size: 24px;
+  }
+
+  .sectionDescription {
+    font-size: 14px;
+  }
+}
