@@ -31,6 +31,10 @@ export const tokenStorage = {
         localStorage.removeItem(REFRESH_TOKEN_KEY);
     },
 
+    isAuthenticated: () => {
+        return !!localStorage.getItem(ACCESS_TOKEN_KEY);
+    },
+
     clear(): void {
         localStorage.removeItem(ACCESS_TOKEN_KEY);
         localStorage.removeItem(REFRESH_TOKEN_KEY);

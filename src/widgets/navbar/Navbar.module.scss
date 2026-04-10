@@ -1,0 +1,42 @@
+@use '@/app/styles/variables' as *;
+
+.navbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px;
+  background-color: $color-surface;
+  border-radius: 999px;
+}
+
+.navButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 200px;
+  height: 48px;
+  padding: 0 24px;
+  border-radius: 999px;
+  background-color: $color-white;
+  color: $color-text-primary;
+  font-family: $font-family-base;
+  font-size: 18px;
+  font-weight: $font-weight-medium;
+  line-height: 1;
+  text-decoration: none;
+  transition: 0.2s ease;
+}
+
+.navButton:hover {
+  opacity: 0.92;
+}
+
+.navButtonActive {
+  background-color: $color-white;
+  color: $color-text-primary;
+}
+
+.navButtonPrimary {
+  background-color: $color-primary;
+  color: $color-white;
+}

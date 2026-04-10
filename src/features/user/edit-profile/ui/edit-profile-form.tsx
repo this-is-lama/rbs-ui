@@ -11,7 +11,7 @@ export const EditProfileForm = () => {
     } = useEditProfileForm();
 
     return (
-        <form onSubmit={onSubmit}>
+        <form onSubmit={onSubmit} className="surface-block" style={{ padding: '24px', display: 'grid', gap: '16px' }}>
             <Input
                 label="Имя"
                 placeholder="Введите имя"
@@ -48,12 +48,12 @@ export const EditProfileForm = () => {
                 {...register('email')}
             />
 
-            <button type="submit" disabled={isSubmitting}>
+            {serverError ? <div>{serverError}</div> : null}
+            {successMessage ? <div style={{ color: 'green' }}>{successMessage}</div> : null}
+
+            <button className="primary-button" type="submit" disabled={isSubmitting}>
                 {isSubmitting ? 'Сохранение...' : 'Сохранить изменения'}
             </button>
-
-            {serverError && <div>{serverError}</div>}
-            {successMessage && <div>{successMessage}</div>}
         </form>
     );
 };

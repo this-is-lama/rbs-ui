@@ -3,9 +3,10 @@ import { getRestaurants } from '@/entities/restaurant/api/get-restaurants.ts';
 import type { RestaurantCard as RestaurantCardType } from '@/entities/restaurant/model/types.ts';
 import type { PageResponse } from '@/shared/api';
 import { RestaurantCard } from '@/entities/restaurant/ui/restaurant-card.tsx';
-import { Button } from '@/shared/ui/button/button.tsx';
 import { RestaurantsFilterForm } from '@/features/restaurants/filter-restaurants/ui/restaurants-filter-form.tsx';
 import { useRestaurantFilters } from '@/features/restaurants/filter-restaurants/model/use-restaurant-filters.ts';
+import { RestaurantCategoriesNavbar } from '@/features/restaurants/filter-restaurants/ui/restaurant-categories-navbar.tsx';
+import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
 
 export const RestaurantCatalogWidget = () => {
     const { filters, setPage } = useRestaurantFilters();
@@ -28,8 +29,8 @@ export const RestaurantCatalogWidget = () => {
                 });
 
                 setData(response);
-            } catch {
-                setError('Не удалось загрузить список ресторанов');
+            } catch (loadError) {
+                setError(getApiErrorMessage(loadError, 'Не удалось загрузить список ресторанов'));
             } finally {
                 setIsLoading(false);
             }
@@ -57,11 +58,16 @@ export const RestaurantCatalogWidget = () => {
     const restaurants = Array.isArray(data?.content) ? data.content : [];
 
     return (
-        <section>
-            <h2>Фильтрация ресторанов</h2>
-            <RestaurantsFilterForm />
+        <section className="container" style={{ display: 'grid', gap: '24px', paddingBottom: '48px' }}>
+            <div style={{ display: 'grid', gap: '8px' }}>
+                <h2 className="section-title">Фильтрация ресторанов</h2>
+                <div style={{ color: '#777' }}>
+                    Выбирай ресторан по категории, названию и адресу.
+                </div>
+            </div>
 
-            <hr />
+            <RestaurantCategoriesNavbar />
+            <RestaurantsFilterForm />
 
             {isLoading ? <div>Загрузка ресторанов...</div> : null}
             {error ? <div>{error}</div> : null}
@@ -71,7 +77,7 @@ export const RestaurantCatalogWidget = () => {
             ) : null}
 
             {!isLoading && !error && data ? (
-                <div>
+                <div style={{ display: 'grid', gap: '18px' }}>
                     <div>
                         <strong>Всего найдено:</strong> {data.totalElements}
                     </div>
@@ -79,22 +85,21 @@ export const RestaurantCatalogWidget = () => {
                     {restaurants.map((restaurant, index) => (
                         <div key={restaurant.id || `${restaurant.name}-${index}`}>
                             <RestaurantCard restaurant={restaurant} />
-                            <hr />
                         </div>
                     ))}
 
-                    <div>
+                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
                         <div>
                             Страница {data.number + 1} из {data.totalPages || 1}
                         </div>
 
-                        <Button type="button" onClick={handlePrevPage} disabled={data.first}>
+                        <button className="secondary-button" type="button" onClick={handlePrevPage} disabled={data.first}>
                             Назад
-                        </Button>
+                        </button>
 
-                        <Button type="button" onClick={handleNextPage} disabled={data.last}>
+                        <button className="secondary-button" type="button" onClick={handleNextPage} disabled={data.last}>
                             Вперед
-                        </Button>
+                        </button>
                     </div>
                 </div>
             ) : null}

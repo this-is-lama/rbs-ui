@@ -27,13 +27,13 @@ export const Router = () => {
                 <Route path={RoutePaths.RESTAURANTS} element={<RestaurantsPage />} />
                 <Route path={RoutePaths.RESTAURANT} element={<RestaurantPage />} />
                 <Route path={RoutePaths.DISH} element={<DishPage />} />
-                <Route path={RoutePaths.PROFILE} element={<ProfilePage />} />
-                <Route path={RoutePaths.BOOKING} element={<BookingPage />} />
             </Route>
 
             <Route element={<ProtectedRoute />}>
                 <Route element={<MainLayout />}>
+                    <Route path={RoutePaths.PROFILE} element={<ProfilePage />} />
                     <Route path={RoutePaths.PROFILE_EDIT} element={<ProfileEditPage />} />
+                    <Route path={RoutePaths.BOOKING} element={<BookingPage />} />
                 </Route>
             </Route>
 

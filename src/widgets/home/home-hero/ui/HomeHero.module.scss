@@ -1,0 +1,166 @@
+@use '@/app/styles/variables' as *;
+
+.section {
+  padding: 32px 0 0;
+}
+
+.container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+.grid {
+  min-height: calc(100vh - 170px);
+  display: grid;
+  grid-template-columns: 320px minmax(360px, 1fr) 430px;
+  grid-template-areas:
+    "title logo description"
+    "title action description";
+  align-items: center;
+  column-gap: 28px;
+  row-gap: 20px;
+}
+
+.title {
+  grid-area: title;
+  display: flex;
+  flex-direction: column;
+  align-self: start;
+  margin: 0;
+  padding-top: 48px;
+  font-size: 64px;
+  font-weight: 700;
+  line-height: 1.04;
+  color: $color-text-primary;
+}
+
+.logoBlock {
+  grid-area: logo;
+  display: flex;
+  justify-content: center;
+  align-self: end;
+}
+
+.logo {
+  width: 100%;
+  max-width: 470px;
+  color: $color-primary;
+}
+
+.descriptionBlock {
+  grid-area: description;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  align-self: center;
+}
+
+.description {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: $color-text-primary;
+}
+
+.actionBlock {
+  grid-area: action;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 310px;
+  min-height: 82px;
+  padding: 0 32px;
+  border-radius: 999px;
+  background-color: $color-primary;
+  color: $color-white;
+  text-decoration: none;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1;
+  transition: 0.2s ease;
+}
+
+.button:hover {
+  opacity: 0.92;
+}
+
+@media (max-width: 1280px) {
+  .grid {
+    grid-template-columns: 280px minmax(300px, 1fr) 340px;
+  }
+
+  .title {
+    font-size: 54px;
+  }
+
+  .description {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .grid {
+    min-height: auto;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "title"
+      "logo"
+      "description"
+      "action";
+    row-gap: 32px;
+  }
+
+  .title {
+    padding-top: 16px;
+    font-size: 48px;
+  }
+
+  .logoBlock {
+    justify-content: center;
+  }
+
+  .logo {
+    max-width: 360px;
+  }
+
+  .descriptionBlock {
+    justify-content: flex-start;
+  }
+
+  .description {
+    font-size: 28px;
+    max-width: 640px;
+  }
+
+  .actionBlock {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 0 20px;
+  }
+
+  .title {
+    font-size: 40px;
+  }
+
+  .description {
+    font-size: 24px;
+  }
+
+  .button {
+    min-width: 100%;
+    min-height: 68px;
+    font-size: 20px;
+  }
+}

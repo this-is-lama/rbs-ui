@@ -1,9 +1,9 @@
-import {UserProfileWidget} from "@/widgets/user-profile/ui/user-profile-widget.tsx";
+import { UserProfileWidget } from '@/widgets/user-profile/ui/user-profile-widget.tsx';
 
 export const ProfilePage = () => {
     return (
-        <div>
-            <h1>Профиль пользователя</h1>
+        <div className="container" style={{ display: 'grid', gap: '24px', paddingBottom: '48px' }}>
+            <h1 className="page-title">Профиль пользователя</h1>
             <UserProfileWidget />
         </div>
     );

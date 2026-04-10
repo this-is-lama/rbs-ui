@@ -1,0 +1,42 @@
+@use '@/app/styles/variables' as *;
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1100;
+  background-color: $color-white;
+}
+
+.container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 18px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logoLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: $color-primary;
+  text-decoration: none;
+}
+
+.logo {
+  width: 78px;
+  height: auto;
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 16px 20px;
+  }
+
+  .logo {
+    width: 60px;
+  }
+}

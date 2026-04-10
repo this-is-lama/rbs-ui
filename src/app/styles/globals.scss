@@ -1,0 +1,109 @@
+@use './variables' as *;
+@use './mixins' as *;
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  font-family: $font-family-base;
+  font-weight: $font-weight-regular;
+  color: $color-text-primary;
+  background-color: $color-white;
+  line-height: 1.4;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  margin: 0;
+}
+
+.container {
+  @include container;
+}
+
+.page-title {
+  font-size: 40px;
+  font-weight: $font-weight-bold;
+  line-height: 1.1;
+}
+
+.section-title {
+  font-size: 32px;
+  font-weight: $font-weight-bold;
+  line-height: 1.15;
+}
+
+.surface-block {
+  background-color: $color-surface;
+  border-radius: $radius-lg;
+}
+
+.primary-button {
+  @include pill-button($color-primary, $color-white);
+}
+
+.secondary-button {
+  @include pill-button($color-surface, $color-text-primary);
+}
+
+.base-input {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 18px;
+  border: 1px solid transparent;
+  border-radius: $radius-md;
+  background-color: $color-surface;
+  color: $color-text-primary;
+  outline: none;
+  transition: $transition-base;
+
+  &::placeholder {
+    color: $color-text-secondary;
+  }
+
+  &:focus {
+    border-color: $color-primary;
+  }
+}

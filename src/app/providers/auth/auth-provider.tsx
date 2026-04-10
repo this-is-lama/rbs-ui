@@ -38,9 +38,12 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
             if (refreshToken) {
                 await logoutUser({ refreshToken });
             }
-        } catch { /* empty */ } finally {
+        } catch {
+            // ignore backend logout error
+        } finally {
             tokenStorage.clear();
             setUser(null);
+            window.dispatchEvent(new Event('auth:logout'));
         }
     }, []);
 
@@ -55,6 +58,19 @@ export const AuthProvider = ({ children }: PropsWithChildren) => {
 
         void initAuth();
     }, [loadProfile]);
+
+    useEffect(() => {
+        const handleExternalLogout = () => {
+            setUser(null);
+            setIsLoading(false);
+        };
+
+        window.addEventListener('auth:logout', handleExternalLogout);
+
+        return () => {
+            window.removeEventListener('auth:logout', handleExternalLogout);
+        };
+    }, []);
 
     const value = useMemo(() => {
         return {

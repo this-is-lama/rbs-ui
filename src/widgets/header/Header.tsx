@@ -1,13 +1,18 @@
+import { Link } from 'react-router-dom';
+import { Logo } from '@/shared/ui/logo/Logo';
+import styles from './Header.module.scss';
 import {Navbar} from "@/widgets/navbar";
-import logo from "@/shared/assets/logo.svg"
 
 export const Header = () => {
     return (
-        <header>
-            <div>
-                <img alt="logo" src={logo} />
+        <header className={styles.header}>
+            <div className={styles.container}>
+                <Link to="/" className={styles.logoLink}>
+                    <Logo className={styles.logo} />
+                </Link>
+
+                <Navbar />
             </div>
-            <Navbar />
         </header>
-    )
-}
+    );
+};

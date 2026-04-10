@@ -10,7 +10,7 @@ export const RegisterForm = () => {
     } = useRegisterForm();
 
     return (
-        <form  onSubmit={onSubmit}>
+        <form onSubmit={onSubmit} className="surface-block" style={{ padding: '24px', display: 'grid', gap: '16px' }}>
             <Input
                 label="Имя"
                 placeholder="Введите имя"
@@ -41,11 +41,11 @@ export const RegisterForm = () => {
                 {...register('password')}
             />
 
-            <button  type="submit" disabled={isSubmitting}>
+            {serverError ? <div>{serverError}</div> : null}
+
+            <button className="primary-button" type="submit" disabled={isSubmitting}>
                 {isSubmitting ? 'Регистрация...' : 'Зарегистрироваться'}
             </button>
-
-            {serverError && <div>{serverError}</div>}
         </form>
     );
 };

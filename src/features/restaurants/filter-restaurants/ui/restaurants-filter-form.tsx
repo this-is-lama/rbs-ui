@@ -2,11 +2,10 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { Input } from '@/shared/ui/input/input.tsx';
 import { Button } from '@/shared/ui/button/button.tsx';
-import { useRestaurantFilters } from '../model/use-restaurant-filters';
+import {useRestaurantFilters} from "@/features/restaurants/filter-restaurants/model/use-restaurant-filters.ts";
 
 type RestaurantFiltersFormValues = {
     name: string;
-    category: string;
     address: string;
 };
 
@@ -16,7 +15,6 @@ export const RestaurantsFilterForm = () => {
     const form = useForm<RestaurantFiltersFormValues>({
         defaultValues: {
             name: filters.name,
-            category: filters.category,
             address: filters.address,
         },
     });
@@ -24,26 +22,28 @@ export const RestaurantsFilterForm = () => {
     useEffect(() => {
         form.reset({
             name: filters.name,
-            category: filters.category,
             address: filters.address,
         });
     }, [filters, form]);
 
     const onSubmit = form.handleSubmit((values) => {
-        setFilters(values);
+        setFilters({
+            name: values.name,
+            address: values.address,
+            category: filters.category,
+        });
     });
 
     const handleReset = () => {
         form.reset({
             name: '',
-            category: '',
             address: '',
         });
 
         setFilters({
             name: '',
-            category: '',
             address: '',
+            category: '',
         });
     };
 
@@ -56,19 +56,15 @@ export const RestaurantsFilterForm = () => {
             />
 
             <Input
-                label="Категория"
-                placeholder="Введите категорию"
-                {...form.register('category')}
-            />
-
-            <Input
                 label="Адрес"
                 placeholder="Введите адрес"
                 {...form.register('address')}
             />
 
             <Button type="submit">Применить фильтры</Button>
-            <Button type="button" onClick={handleReset}>Сбросить</Button>
+            <Button type="button" onClick={handleReset}>
+                Сбросить
+            </Button>
         </form>
     );
 };

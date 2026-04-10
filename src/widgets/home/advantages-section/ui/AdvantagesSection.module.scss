@@ -1,0 +1,121 @@
+@use '@/app/styles/variables' as *;
+
+.section {
+  padding: 0 0 72px;
+}
+
+.container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 18px;
+}
+
+.title {
+  margin: 0;
+  font-size: 56px;
+  font-weight: 700;
+  line-height: 1.05;
+  color: $color-primary;
+}
+
+.lead {
+  margin: 36px 0 0;
+  font-size: 38px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: $color-text-primary;
+}
+
+.leadAccent {
+  margin: 12px 0 0;
+  font-size: 38px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: $color-primary;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  margin-top: 48px;
+}
+
+.card {
+  min-height: 252px;
+  padding: 30px 22px 26px;
+  border-radius: 36px;
+  background-color: $color-surface;
+}
+
+.cardTitle {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: $color-primary;
+}
+
+.cardDescription {
+  margin: 22px 0 0;
+  font-size: 29px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: $color-text-primary;
+}
+
+@media (max-width: 1024px) {
+  .container {
+    padding: 0 28px;
+  }
+
+  .title {
+    font-size: 44px;
+  }
+
+  .lead,
+  .leadAccent {
+    font-size: 30px;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cardTitle {
+    font-size: 28px;
+  }
+
+  .cardDescription {
+    font-size: 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 0 20px;
+  }
+
+  .title {
+    font-size: 36px;
+  }
+
+  .lead,
+  .leadAccent {
+    font-size: 24px;
+  }
+
+  .card {
+    min-height: auto;
+    padding: 24px 20px;
+    border-radius: 28px;
+  }
+
+  .cardTitle {
+    font-size: 24px;
+  }
+
+  .cardDescription {
+    font-size: 20px;
+  }
+}

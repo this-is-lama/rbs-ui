@@ -41,6 +41,21 @@ export const useRestaurantFilters = () => {
         setSearchParams(params);
     };
 
+    const setCategory = (category: string) => {
+        const params = new URLSearchParams(searchParams);
+
+        if (category.trim()) {
+            params.set('category', category.trim());
+        } else {
+            params.delete('category');
+        }
+
+        params.set('page', '0');
+        params.set('size', String(filters.size));
+
+        setSearchParams(params);
+    };
+
     const setPage = (page: number) => {
         const params = new URLSearchParams(searchParams);
         params.set('page', String(page));
@@ -51,6 +66,7 @@ export const useRestaurantFilters = () => {
     return {
         filters,
         setFilters,
+        setCategory,
         setPage,
     };
 };

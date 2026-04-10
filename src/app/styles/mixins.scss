@@ -1,0 +1,47 @@
+@use './variables' as *;
+
+@mixin container {
+  width: 100%;
+  max-width: $container-width;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 24px;
+  padding-right: 24px;
+  box-sizing: border-box;
+}
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin pill-button($bg, $color) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 24px;
+  border: none;
+  border-radius: $radius-pill;
+  background-color: $bg;
+  color: $color;
+  font-family: $font-family-base;
+  font-size: 16px;
+  font-weight: $font-weight-medium;
+  line-height: 1;
+  cursor: pointer;
+  transition: $transition-base;
+}
+
+@mixin text-ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

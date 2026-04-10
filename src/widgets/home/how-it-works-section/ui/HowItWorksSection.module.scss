@@ -1,0 +1,148 @@
+@use '@/app/styles/variables' as *;
+
+.section {
+  padding: 0 0 76px;
+}
+
+.container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.title {
+  margin: 0;
+  font-size: 58px;
+  font-weight: 700;
+  line-height: 1.05;
+  color: $color-text-primary;
+}
+
+.timeline {
+  position: relative;
+  margin-top: 54px;
+  padding-top: 118px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  column-gap: 24px;
+}
+
+.line {
+  position: absolute;
+  top: 76px;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background-color: $color-primary;
+}
+
+.step {
+  position: relative;
+  padding-right: 18px;
+}
+
+.badge {
+  position: absolute;
+  top: -10px;
+  left: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 90px;
+  min-height: 42px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background-color: $color-primary;
+  color: $color-white;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 1;
+}
+
+.dot {
+  position: absolute;
+  top: 61px;
+  left: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: $color-primary;
+}
+
+.stepTitle {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: $color-primary;
+}
+
+.stepDescription {
+  margin: 10px 0 0;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.55;
+  color: $color-text-primary;
+}
+
+@media (max-width: 1100px) {
+  .timeline {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 56px;
+  }
+
+  .line {
+    display: none;
+  }
+
+  .step {
+    padding-top: 54px;
+  }
+
+  .badge {
+    position: static;
+  }
+
+  .dot {
+    top: 60px;
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 0 20px;
+  }
+
+  .title {
+    font-size: 38px;
+  }
+
+  .timeline {
+    grid-template-columns: 1fr;
+    margin-top: 32px;
+    padding-top: 0;
+  }
+
+  .step {
+    padding-top: 0;
+    padding-right: 0;
+  }
+
+  .badge {
+    position: static;
+  }
+
+  .dot {
+    display: none;
+  }
+
+  .stepTitle {
+    margin-top: 16px;
+    font-size: 22px;
+  }
+
+  .stepDescription {
+    font-size: 19px;
+    line-height: 1.45;
+  }
+}

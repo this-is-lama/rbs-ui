@@ -10,7 +10,7 @@ export const ChangePasswordForm = () => {
     } = useChangePasswordForm();
 
     return (
-        <form onSubmit={onSubmit}>
+        <form onSubmit={onSubmit} className="surface-block" style={{ padding: '24px', display: 'grid', gap: '16px' }}>
             <Input
                 label="Текущий пароль"
                 type="password"
@@ -35,11 +35,11 @@ export const ChangePasswordForm = () => {
                 {...register('confirmPassword')}
             />
 
-            <button type="submit" disabled={isSubmitting}>
+            {serverError ? <div>{serverError}</div> : null}
+
+            <button className="primary-button" type="submit" disabled={isSubmitting}>
                 {isSubmitting ? 'Сохранение...' : 'Изменить пароль'}
             </button>
-
-            {serverError && <div>{serverError}</div>}
         </form>
     );
 };

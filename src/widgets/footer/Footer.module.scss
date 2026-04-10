@@ -1,0 +1,108 @@
+@use '@/app/styles/variables' as *;
+
+.footer {
+  background-color: $color-footer-background;
+  color: $color-white;
+  margin-top: 0;
+}
+
+.container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 56px 28px 64px;
+}
+
+.top {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  column-gap: 70px;
+  align-items: start;
+}
+
+.logoBlock {
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+}
+
+.logo {
+  width: 100%;
+  max-width: 260px;
+  color: $color-white;
+}
+
+.columns {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(170px, 1fr));
+  gap: 48px;
+}
+
+.columnTitle {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: $color-white;
+}
+
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 36px;
+}
+
+.link {
+  color: $color-white;
+  text-decoration: none;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.bottomText {
+  margin: 74px 0 0;
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: $color-white;
+}
+
+@media (max-width: 1024px) {
+  .top {
+    grid-template-columns: 1fr;
+    row-gap: 40px;
+  }
+
+  .columns {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+
+  .link {
+    font-size: 22px;
+  }
+
+  .bottomText {
+    margin-top: 52px;
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 40px 20px 48px;
+  }
+
+  .columnTitle {
+    font-size: 22px;
+  }
+
+  .link {
+    font-size: 18px;
+  }
+
+  .bottomText {
+    font-size: 18px;
+  }
+}

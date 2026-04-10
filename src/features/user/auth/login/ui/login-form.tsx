@@ -10,7 +10,7 @@ export const LoginForm = () => {
     } = useLoginForm();
 
     return (
-        <form onSubmit={onSubmit}>
+        <form onSubmit={onSubmit} className="surface-block" style={{ padding: '24px', display: 'grid', gap: '16px' }}>
             <Input
                 label="Почта"
                 type="email"
@@ -27,11 +27,11 @@ export const LoginForm = () => {
                 {...register('password')}
             />
 
-            <button type="submit" disabled={isSubmitting}>
+            {serverError ? <div>{serverError}</div> : null}
+
+            <button className="primary-button" type="submit" disabled={isSubmitting}>
                 {isSubmitting ? 'Вход...' : 'Войти'}
             </button>
-
-            {serverError && (<div>{serverError}</div>)}
         </form>
     );
 };
