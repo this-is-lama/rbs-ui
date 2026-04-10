@@ -2,4 +2,6 @@
 
 .page {
   background-color: $color-white;
+  display: grid;
+  gap: 28px;
 }

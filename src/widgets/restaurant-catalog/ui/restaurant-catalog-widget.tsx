@@ -58,10 +58,10 @@ export const RestaurantCatalogWidget = () => {
     const restaurants = Array.isArray(data?.content) ? data.content : [];
 
     return (
-        <section className="container" style={{ display: 'grid', gap: '24px', paddingBottom: '48px' }}>
-            <div style={{ display: 'grid', gap: '8px' }}>
-                <h2 className="section-title">Фильтрация ресторанов</h2>
-                <div style={{ color: '#777' }}>
+        <section className="container" style={{ display: 'grid', gap: '24px', paddingTop: '24px', paddingBottom: '48px' }}>
+            <div style={{ display: 'grid', gap: '8px', justifyItems: 'center', textAlign: 'center' }}>
+                <h1 className="page-title">Рестораны</h1>
+                <div style={{ maxWidth: '720px', color: '#777' }}>
                     Выбирай ресторан по категории, названию и адресу.
                 </div>
             </div>

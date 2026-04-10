@@ -1,93 +1,72 @@
 @use '@/app/styles/variables' as *;
 
 .section {
-  padding: 0 0 72px;
+  padding: 0 0 110px;
 }
 
 .container {
-  max-width: 1440px;
+  max-width: 1320px;
   margin: 0 auto;
-  padding: 0 18px;
+  padding: 0 24px;
 }
 
 .title {
   margin: 0;
-  font-size: 56px;
+  font-size: clamp(38px, 4vw, 50px);
   font-weight: 700;
   line-height: 1.05;
   color: $color-primary;
 }
 
 .lead {
-  margin: 36px 0 0;
-  font-size: 38px;
+  margin: 22px 0 0;
+  font-size: clamp(24px, 2.5vw, 32px);
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.18;
   color: $color-text-primary;
 }
 
 .leadAccent {
-  margin: 12px 0 0;
-  font-size: 38px;
+  margin: 8px 0 0;
+  font-size: clamp(24px, 2.5vw, 32px);
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 1.18;
   color: $color-primary;
 }
 
 .grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 24px;
-  margin-top: 48px;
+  gap: 18px;
+  margin-top: 42px;
 }
 
 .card {
-  min-height: 252px;
-  padding: 30px 22px 26px;
-  border-radius: 36px;
+  min-height: 190px;
+  padding: 24px 20px 22px;
+  border-radius: 28px;
   background-color: $color-surface;
 }
 
 .cardTitle {
   margin: 0;
-  font-size: 32px;
+  font-size: clamp(24px, 2vw, 28px);
   font-weight: 700;
   line-height: 1.15;
   color: $color-primary;
 }
 
 .cardDescription {
-  margin: 22px 0 0;
-  font-size: 29px;
+  margin: 16px 0 0;
+  font-size: clamp(20px, 1.8vw, 24px);
   font-weight: 600;
-  line-height: 1.35;
+  line-height: 1.32;
   color: $color-text-primary;
 }
 
 @media (max-width: 1024px) {
-  .container {
-    padding: 0 28px;
-  }
-
-  .title {
-    font-size: 44px;
-  }
-
-  .lead,
-  .leadAccent {
-    font-size: 30px;
-  }
-
   .grid {
     grid-template-columns: 1fr;
-  }
-
-  .cardTitle {
-    font-size: 28px;
-  }
-
-  .cardDescription {
-    font-size: 24px;
   }
 }
 
@@ -96,26 +75,11 @@
     padding: 0 20px;
   }
 
-  .title {
-    font-size: 36px;
-  }
-
-  .lead,
-  .leadAccent {
-    font-size: 24px;
-  }
-
   .card {
     min-height: auto;
-    padding: 24px 20px;
-    border-radius: 28px;
   }
 
-  .cardTitle {
-    font-size: 24px;
-  }
-
-  .cardDescription {
-    font-size: 20px;
+  .section {
+    padding: 0 0 76px;
   }
 }

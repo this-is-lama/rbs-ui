@@ -1,8 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { Input } from '@/shared/ui/input/input.tsx';
-import { Button } from '@/shared/ui/button/button.tsx';
-import {useRestaurantFilters} from "@/features/restaurants/filter-restaurants/model/use-restaurant-filters.ts";
+import { useRestaurantFilters } from '@/features/restaurants/filter-restaurants/model/use-restaurant-filters.ts';
+import styles from './RestaurantsFilterForm.module.scss';
 
 type RestaurantFiltersFormValues = {
     name: string;
@@ -11,6 +10,16 @@ type RestaurantFiltersFormValues = {
 
 export const RestaurantsFilterForm = () => {
     const { filters, setFilters } = useRestaurantFilters();
+
+    const hasActiveFilters = useMemo(() => {
+        return Boolean(
+            filters.name.trim() ||
+            filters.address.trim() ||
+            filters.category.trim(),
+        );
+    }, [filters]);
+
+    const [isOpen, setIsOpen] = useState(hasActiveFilters);
 
     const form = useForm<RestaurantFiltersFormValues>({
         defaultValues: {
@@ -25,6 +34,12 @@ export const RestaurantsFilterForm = () => {
             address: filters.address,
         });
     }, [filters, form]);
+
+    useEffect(() => {
+        if (hasActiveFilters) {
+            setIsOpen(true);
+        }
+    }, [hasActiveFilters]);
 
     const onSubmit = form.handleSubmit((values) => {
         setFilters({
@@ -48,23 +63,55 @@ export const RestaurantsFilterForm = () => {
     };
 
     return (
-        <form onSubmit={onSubmit}>
-            <Input
-                label="Название"
-                placeholder="Введите название ресторана"
-                {...form.register('name')}
-            />
+        <div className={styles.wrapper}>
+            <button
+                type="button"
+                className={styles.trigger}
+                onClick={() => setIsOpen((current) => !current)}
+                aria-expanded={isOpen}
+            >
+                {isOpen ? 'Скрыть фильтры' : 'Открыть фильтры'}
+            </button>
 
-            <Input
-                label="Адрес"
-                placeholder="Введите адрес"
-                {...form.register('address')}
-            />
+            {isOpen ? (
+                <div className={styles.panel}>
+                    <form onSubmit={onSubmit} className={styles.form}>
+                        <div className={styles.fields}>
+                            <label className={styles.field}>
+                                <span className={styles.label}>Название</span>
+                                <input
+                                    className={styles.input}
+                                    placeholder="Введите название ресторана"
+                                    {...form.register('name')}
+                                />
+                            </label>
 
-            <Button type="submit">Применить фильтры</Button>
-            <Button type="button" onClick={handleReset}>
-                Сбросить
-            </Button>
-        </form>
+                            <label className={styles.field}>
+                                <span className={styles.label}>Адрес</span>
+                                <input
+                                    className={styles.input}
+                                    placeholder="Введите адрес"
+                                    {...form.register('address')}
+                                />
+                            </label>
+                        </div>
+
+                        <div className={styles.actions}>
+                            <button
+                                type="button"
+                                className={styles.secondaryButton}
+                                onClick={handleReset}
+                            >
+                                Сбросить
+                            </button>
+
+                            <button type="submit" className={styles.primaryButton}>
+                                Применить фильтры
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            ) : null}
+        </div>
     );
 };

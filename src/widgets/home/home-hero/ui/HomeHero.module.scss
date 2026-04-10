@@ -1,25 +1,25 @@
 @use '@/app/styles/variables' as *;
 
 .section {
-  padding: 32px 0 0;
+  padding: 22px 0 110px;
 }
 
 .container {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 0 28px;
+  padding: 0 24px;
 }
 
 .grid {
-  min-height: calc(100vh - 170px);
+  min-height: calc(100vh - 120px);
   display: grid;
-  grid-template-columns: 320px minmax(360px, 1fr) 430px;
+  grid-template-columns: 250px minmax(260px, 1fr) 300px;
   grid-template-areas:
     "title logo description"
     "title action description";
   align-items: center;
-  column-gap: 28px;
-  row-gap: 20px;
+  column-gap: 24px;
+  row-gap: 18px;
 }
 
 .title {
@@ -28,10 +28,10 @@
   flex-direction: column;
   align-self: start;
   margin: 0;
-  padding-top: 48px;
-  font-size: 64px;
+  padding-top: 24px;
+  font-size: clamp(42px, 4.6vw, 56px);
   font-weight: 700;
-  line-height: 1.04;
+  line-height: 1.02;
   color: $color-text-primary;
 }
 
@@ -39,12 +39,12 @@
   grid-area: logo;
   display: flex;
   justify-content: center;
-  align-self: end;
+  align-self: center;
 }
 
 .logo {
   width: 100%;
-  max-width: 470px;
+  max-width: 340px;
   color: $color-primary;
 }
 
@@ -58,9 +58,9 @@
 
 .description {
   margin: 0;
-  font-size: 34px;
+  font-size: clamp(22px, 2.2vw, 28px);
   font-weight: 700;
-  line-height: 1.1;
+  line-height: 1.14;
   color: $color-text-primary;
 }
 
@@ -75,34 +75,35 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 310px;
-  min-height: 82px;
-  padding: 0 32px;
+  min-width: 260px;
+  min-height: 64px;
+  padding: 0 28px;
   border-radius: 999px;
   background-color: $color-primary;
   color: $color-white;
   text-decoration: none;
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 600;
   line-height: 1;
-  transition: 0.2s ease;
+  transition:
+          background-color 0.2s ease,
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
 }
 
 .button:hover {
-  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 16px 30px rgba(51, 76, 219, 0.2);
+  background-color: #2c43c5;
 }
 
-@media (max-width: 1280px) {
+@media (max-width: 1200px) {
   .grid {
-    grid-template-columns: 280px minmax(300px, 1fr) 340px;
+    grid-template-columns: 220px minmax(220px, 1fr) 260px;
   }
 
-  .title {
-    font-size: 54px;
-  }
-
-  .description {
-    font-size: 28px;
+  .logo {
+    max-width: 300px;
   }
 }
 
@@ -115,33 +116,27 @@
       "logo"
       "description"
       "action";
-    row-gap: 32px;
+    row-gap: 28px;
+    justify-items: center;
   }
 
   .title {
-    padding-top: 16px;
-    font-size: 48px;
-  }
-
-  .logoBlock {
-    justify-content: center;
-  }
-
-  .logo {
-    max-width: 360px;
+    padding-top: 0;
+    text-align: center;
+    align-items: center;
   }
 
   .descriptionBlock {
-    justify-content: flex-start;
+    justify-content: center;
   }
 
   .description {
-    font-size: 28px;
-    max-width: 640px;
+    max-width: 620px;
+    text-align: center;
   }
 
   .actionBlock {
-    justify-content: flex-start;
+    justify-content: center;
   }
 }
 
@@ -150,17 +145,17 @@
     padding: 0 20px;
   }
 
-  .title {
-    font-size: 40px;
+  .section {
+    padding: 18px 0 42px;
   }
 
-  .description {
-    font-size: 24px;
+  .logo {
+    max-width: 240px;
   }
 
   .button {
     min-width: 100%;
-    min-height: 68px;
-    font-size: 20px;
+    min-height: 58px;
+    font-size: 18px;
   }
 }

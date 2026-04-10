@@ -1,18 +1,24 @@
 @use '@/app/styles/variables' as *;
 
+$axis-y: 74px;
+$line-height: 6px;
+$dot-size: 24px;
+$badge-height: 42px;
+$step-top-space: 118px;
+
 .section {
-  padding: 0 0 76px;
+  padding: 0 0 110px;
 }
 
 .container {
-  max-width: 1440px;
+  max-width: 1320px;
   margin: 0 auto;
   padding: 0 24px;
 }
 
 .title {
   margin: 0;
-  font-size: 58px;
+  font-size: clamp(38px, 4vw, 50px);
   font-weight: 700;
   line-height: 1.05;
   color: $color-text-primary;
@@ -20,107 +26,81 @@
 
 .timeline {
   position: relative;
-  margin-top: 54px;
-  padding-top: 118px;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  column-gap: 24px;
+  column-gap: 26px;
+  margin-top: 46px;
 }
 
 .line {
   position: absolute;
-  top: 76px;
   left: 0;
   right: 0;
-  height: 6px;
+  top: calc(#{$axis-y} - #{$line-height} / 2);
+  height: $line-height;
   background-color: $color-primary;
 }
 
 .step {
   position: relative;
-  padding-right: 18px;
+  padding-top: $step-top-space;
+  padding-right: 10px;
 }
 
 .badge {
   position: absolute;
-  top: -10px;
+  top: calc(#{$axis-y} - #{$dot-size} / 2 - #{$dot-size} - #{$badge-height});
   left: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 90px;
-  min-height: 42px;
-  padding: 0 18px;
+  min-width: 100px;
+  min-height: $badge-height;
+  padding: 0 20px;
   border-radius: 999px;
   background-color: $color-primary;
   color: $color-white;
-  font-size: 20px;
+  font-size: 16px;
   font-weight: 500;
   line-height: 1;
+  z-index: 2;
 }
 
 .dot {
   position: absolute;
-  top: 61px;
   left: 0;
-  width: 32px;
-  height: 32px;
+  top: calc(#{$axis-y} - #{$dot-size} / 2);
+  width: $dot-size;
+  height: $dot-size;
   border-radius: 50%;
   background-color: $color-primary;
+  z-index: 2;
 }
 
 .stepTitle {
   margin: 0;
-  font-size: 24px;
+  font-size: clamp(20px, 1.8vw, 22px);
   font-weight: 700;
   line-height: 1.2;
   color: $color-primary;
 }
 
 .stepDescription {
-  margin: 10px 0 0;
-  font-size: 22px;
+  margin: 12px 0 0;
+  font-size: clamp(18px, 1.5vw, 20px);
   font-weight: 600;
-  line-height: 1.55;
+  line-height: 1.42;
   color: $color-text-primary;
 }
 
 @media (max-width: 1100px) {
   .timeline {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    row-gap: 56px;
+    row-gap: 44px;
   }
 
   .line {
     display: none;
-  }
-
-  .step {
-    padding-top: 54px;
-  }
-
-  .badge {
-    position: static;
-  }
-
-  .dot {
-    top: 60px;
-  }
-}
-
-@media (max-width: 640px) {
-  .container {
-    padding: 0 20px;
-  }
-
-  .title {
-    font-size: 38px;
-  }
-
-  .timeline {
-    grid-template-columns: 1fr;
-    margin-top: 32px;
-    padding-top: 0;
   }
 
   .step {
@@ -130,19 +110,35 @@
 
   .badge {
     position: static;
+    margin-bottom: 16px;
   }
 
   .dot {
     display: none;
   }
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 0 20px;
+  }
+
+  .timeline {
+    grid-template-columns: 1fr;
+    margin-top: 34px;
+    row-gap: 34px;
+  }
 
   .stepTitle {
-    margin-top: 16px;
     font-size: 22px;
   }
 
   .stepDescription {
     font-size: 19px;
     line-height: 1.45;
+  }
+
+  .section {
+    padding: 0 0 76px;
   }
 }

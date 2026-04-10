@@ -3,32 +3,40 @@
 .navbar {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 12px;
+  gap: 14px;
+  padding: 10px;
   background-color: $color-surface;
   border-radius: 999px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .navButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 200px;
-  height: 48px;
-  padding: 0 24px;
+  min-width: 170px;
+  height: 46px;
+  padding: 0 22px;
   border-radius: 999px;
   background-color: $color-white;
   color: $color-text-primary;
   font-family: $font-family-base;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: $font-weight-medium;
   line-height: 1;
   text-decoration: none;
-  transition: 0.2s ease;
+  transition:
+          background-color 0.2s ease,
+          color 0.2s ease,
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
 }
 
 .navButton:hover {
-  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(17, 17, 17, 0.08);
+  background-color: rgba(51, 76, 219, 0.08);
 }
 
 .navButtonActive {
@@ -39,4 +47,19 @@
 .navButtonPrimary {
   background-color: $color-primary;
   color: $color-white;
+}
+
+.navButtonPrimary:hover {
+  background-color: #2c43c5;
+}
+
+@media (max-width: 640px) {
+  .navbar {
+    width: 100%;
+  }
+
+  .navButton {
+    min-width: 140px;
+    flex: 1 1 140px;
+  }
 }
