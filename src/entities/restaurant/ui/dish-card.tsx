@@ -1,3 +1,4 @@
+import type { KeyboardEvent, MouseEvent } from 'react';
 import type { Dish } from '@/entities/restaurant/model/types.ts';
 import { getPhotoByCategory } from '@/entities/restaurant/lib/get-photo-by-category.ts';
 import styles from './dish-card.module.scss';
@@ -5,6 +6,7 @@ import styles from './dish-card.module.scss';
 type DishCardProps = {
     dish: Dish;
     count?: number;
+    onOpen?: () => void;
     onAddToCart?: () => void;
     onDecreaseFromCart?: () => void;
 };
@@ -12,14 +14,40 @@ type DishCardProps = {
 export const DishCard = ({
     dish,
     count = 0,
+    onOpen,
     onAddToCart,
     onDecreaseFromCart,
 }: DishCardProps) => {
     const photos = Array.isArray(dish.photos) ? dish.photos : [];
     const banner = getPhotoByCategory(photos, 'BANNER') ?? photos[0] ?? null;
 
+    const handleCardKeyDown = (event: KeyboardEvent<HTMLElement>) => {
+        if (!onOpen) {
+            return;
+        }
+
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            onOpen();
+        }
+    };
+
+    const handleActionClick = (
+        event: MouseEvent<HTMLButtonElement>,
+        action?: () => void,
+    ) => {
+        event.stopPropagation();
+        action?.();
+    };
+
     return (
-        <article className={styles.card}>
+        <article
+            className={`${styles.card} ${onOpen ? styles.cardInteractive : ''}`}
+            onClick={onOpen}
+            onKeyDown={handleCardKeyDown}
+            role={onOpen ? 'link' : undefined}
+            tabIndex={onOpen ? 0 : undefined}
+        >
             <div className={styles.imageWrapper}>
                 {banner?.publicUrl ? (
                     <img src={banner.publicUrl} alt={dish.name} className={styles.image} />
@@ -42,7 +70,9 @@ export const DishCard = ({
                                 <button
                                     type="button"
                                     className={styles.stepButton}
-                                    onClick={onDecreaseFromCart}
+                                    onClick={(event) =>
+                                        handleActionClick(event, onDecreaseFromCart)
+                                    }
                                     aria-label={`Уменьшить количество блюда ${dish.name}`}
                                 >
                                     -
@@ -53,7 +83,7 @@ export const DishCard = ({
                                 <button
                                     type="button"
                                     className={styles.stepButton}
-                                    onClick={onAddToCart}
+                                    onClick={(event) => handleActionClick(event, onAddToCart)}
                                     aria-label={`Увеличить количество блюда ${dish.name}`}
                                 >
                                     +
@@ -63,7 +93,7 @@ export const DishCard = ({
                             <button
                                 type="button"
                                 className={styles.priceButton}
-                                onClick={onAddToCart}
+                                onClick={(event) => handleActionClick(event, onAddToCart)}
                                 aria-label={`Добавить блюдо ${dish.name} в корзину`}
                             >
                                 <span className={styles.pricePrefix}>+</span>

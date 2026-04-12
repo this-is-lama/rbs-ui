@@ -1,4 +1,6 @@
 import { useParams } from 'react-router-dom';
+import { RestaurantOrderConflictModal } from '@/shared/ui/restaurant-order-conflict-modal/RestaurantOrderConflictModal.tsx';
+import { useRestaurantOrderGuard } from '@/shared/lib/restaurant-order/use-restaurant-order-guard.ts';
 import { Footer } from '@/widgets/footer/Footer.tsx';
 import { useRestaurantDetails } from '../model/use-restaurant-details.ts';
 import { RestaurantBookingModal } from './components/restaurant-booking-modal.tsx';
@@ -34,6 +36,12 @@ export const RestaurantDetailsWidget = () => {
         handleDecreaseDish,
         handleBookingAdded,
     } = useRestaurantDetails(id);
+    const {
+        conflict,
+        guardRestaurantOrder,
+        cancelRestaurantSwitch,
+        confirmRestaurantSwitch,
+    } = useRestaurantOrderGuard();
 
     if (isLoading) {
         return (
@@ -71,6 +79,7 @@ export const RestaurantDetailsWidget = () => {
                 />
 
                 <RestaurantMenuSection
+                    restaurantId={restaurant.id}
                     dishCategories={dishCategories}
                     selectedCategory={selectedCategory}
                     totalCartCount={totalCartCount}
@@ -78,7 +87,13 @@ export const RestaurantDetailsWidget = () => {
                     visibleDishes={visibleDishes}
                     cartCounts={cartCounts}
                     onSelectCategory={setSelectedCategory}
-                    onAddDish={handleAddDish}
+                    onAddDish={(dish) => {
+                        guardRestaurantOrder({
+                            restaurantId: restaurant.id,
+                            restaurantName: restaurant.name,
+                            onAccept: () => handleAddDish(dish),
+                        });
+                    }}
                     onDecreaseDish={handleDecreaseDish}
                 />
 
@@ -98,11 +113,27 @@ export const RestaurantDetailsWidget = () => {
                         schemePhotoUrl={schemePhoto?.publicUrl ?? null}
                         onClose={() => setSelectedTable(null)}
                         onAdded={handleBookingAdded}
+                        onRequestAddToOrder={(onAccept) => {
+                            guardRestaurantOrder({
+                                restaurantId: restaurant.id,
+                                restaurantName: restaurant.name,
+                                onAccept,
+                            });
+                        }}
                     />
                 ) : null}
             </div>
 
             <Footer />
+
+            {conflict ? (
+                <RestaurantOrderConflictModal
+                    currentRestaurantName={conflict.currentRestaurantName}
+                    nextRestaurantName={conflict.nextRestaurantName}
+                    onCancel={cancelRestaurantSwitch}
+                    onConfirm={confirmRestaurantSwitch}
+                />
+            ) : null}
         </>
     );
 };

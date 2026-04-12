@@ -1,115 +1,68 @@
-import { Link, generatePath } from 'react-router-dom';
+import { generatePath, useNavigate } from 'react-router-dom';
 import type { DishCartItem } from '@/shared/dish-cart/dish-cart.ts';
+import { DishCard } from '@/entities/restaurant/ui/dish-card.tsx';
 import { RoutePaths } from '@/shared/config/routes/routes.ts';
-import type { DishCartGroup } from '../booking-page.types.ts';
+import type { BookingPageDishCardItem } from '../booking-page.types.ts';
 import styles from '../BookingPageWidget.module.scss';
 
 type DishCartSectionProps = {
-    groups: DishCartGroup[];
+    restaurantId: string | null;
+    items: BookingPageDishCardItem[];
     onClear: () => void;
     onDecrement: (restaurantId: string, dishId: string) => void;
     onIncrement: (item: DishCartItem) => void;
-    onRemove: (restaurantId: string, dishId: string) => void;
-    formatMoney: (value: number) => string;
 };
 
-const getDishKey = (item: DishCartItem) => `${item.restaurantId}:${item.dishId}`;
-
 export const DishCartSection = ({
-    groups,
+    restaurantId,
+    items,
     onClear,
     onDecrement,
     onIncrement,
-    onRemove,
-    formatMoney,
 }: DishCartSectionProps) => {
+    const navigate = useNavigate();
+
+    const openDish = (dishId: string) => {
+        if (!restaurantId) {
+            return;
+        }
+
+        const path = generatePath(RoutePaths.DISH, { id: dishId });
+        navigate(`${path}?restaurantId=${restaurantId}`);
+    };
+
     return (
         <section className={styles.section}>
             <div className={styles.headerRow}>
                 <h2 className="section-title">Блюда</h2>
 
-                {groups.length > 0 ? (
-                    <div className={styles.actions}>
-                        <button
-                            type="button"
-                            className={styles.dangerButton}
-                            onClick={onClear}
-                        >
-                            Очистить блюда
-                        </button>
-                    </div>
+                {items.length > 0 ? (
+                    <button
+                        type="button"
+                        className={styles.iconDangerButton}
+                        onClick={onClear}
+                        aria-label="Очистить блюда"
+                    >
+                        X
+                    </button>
                 ) : null}
             </div>
 
-            {groups.length > 0 ? (
-                groups.map((group) => (
-                    <article key={group.restaurantId} className={styles.card}>
-                        <div className={styles.headerRow}>
-                            <h3 className={styles.bookingTitle}>{group.restaurantName}</h3>
-
-                            <Link
-                                to={generatePath(RoutePaths.RESTAURANT, { id: group.restaurantId })}
-                                className={`${styles.secondaryButton} ${styles.linkButton}`}
-                            >
-                                Перейти в ресторан
-                            </Link>
-                        </div>
-
-                        <div className={styles.dishGroupList}>
-                            {group.items.map((item) => (
-                                <div key={getDishKey(item)} className={styles.dishItem}>
-                                    <div className={styles.dishImageBox}>
-                                        {item.photoUrl ? (
-                                            <img
-                                                src={item.photoUrl}
-                                                alt={item.dishName}
-                                                className={styles.dishImage}
-                                            />
-                                        ) : (
-                                            'Фото'
-                                        )}
-                                    </div>
-
-                                    <div className={styles.dishInfo}>
-                                        <strong className={styles.dishName}>{item.dishName}</strong>
-                                        <span className={styles.subtleText}>{item.weight} г</span>
-                                        <span className={styles.dishPrice}>
-                                            {formatMoney(item.price * item.quantity)}
-                                        </span>
-                                    </div>
-
-                                    <div className={styles.dishActions}>
-                                        <button
-                                            type="button"
-                                            className={styles.secondaryButton}
-                                            onClick={() => onDecrement(item.restaurantId, item.dishId)}
-                                        >
-                                            −
-                                        </button>
-
-                                        <div className={styles.quantityValue}>{item.quantity}</div>
-
-                                        <button
-                                            type="button"
-                                            className={styles.primaryButton}
-                                            onClick={() => onIncrement(item)}
-                                        >
-                                            +
-                                        </button>
-
-                                        <button
-                                            type="button"
-                                            className={styles.dangerButton}
-                                            onClick={() => onRemove(item.restaurantId, item.dishId)}
-                                        >
-                                            Удалить
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </article>
-                ))
+            {items.length > 0 ? (
+                <div className={styles.dishCardsGrid}>
+                    {items.map(({ cartItem, dish }) => (
+                        <DishCard
+                            key={`${cartItem.restaurantId}:${cartItem.dishId}`}
+                            dish={dish}
+                            count={cartItem.quantity}
+                            onOpen={() => openDish(cartItem.dishId)}
+                            onAddToCart={() => onIncrement(cartItem)}
+                            onDecreaseFromCart={() => {
+                                onDecrement(cartItem.restaurantId, cartItem.dishId);
+                            }}
+                        />
+                    ))}
+                </div>
             ) : (
                 <div className={`${styles.card} ${styles.emptyCard}`}>
                     Добавленных блюд пока нет

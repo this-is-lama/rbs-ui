@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { RoutePaths } from '@/shared/config/routes/routes.ts';
 import { Logo } from '@/shared/ui/logo/Logo';
 import styles from './Footer.module.scss';
 
@@ -17,10 +18,10 @@ export const Footer = () => {
                         <h3 className={styles.columnTitle}>Навигация</h3>
 
                         <div className={styles.links}>
-                            <Link to="/" className={styles.link}>Главная</Link>
-                            <Link to="/restaurants" className={styles.link}>Рестораны</Link>
-                            <Link to="/booking" className={styles.link}>Бронирование</Link>
-                            <Link to="/profile" className={styles.link}>Профиль</Link>
+                            <Link to={RoutePaths.HOME} className={styles.link}>Главная</Link>
+                            <Link to={RoutePaths.RESTAURANTS} className={styles.link}>Рестораны</Link>
+                            <Link to={RoutePaths.BOOKING} className={styles.link}>Бронирование</Link>
+                            <Link to={RoutePaths.PROFILE} className={styles.link}>Профиль</Link>
                         </div>
                     </div>
 
@@ -28,9 +29,24 @@ export const Footer = () => {
                         <h3 className={styles.columnTitle}>О сервисе</h3>
 
                         <div className={styles.links}>
-                            <a href="#about" className={styles.link}>О нас</a>
-                            <a href="#advantages" className={styles.link}>Преимущества</a>
-                            <a href="#how-it-works" className={styles.link}>Как это работает</a>
+                            <Link
+                                to={{ pathname: RoutePaths.HOME, hash: '#about' }}
+                                className={styles.link}
+                            >
+                                О нас
+                            </Link>
+                            <Link
+                                to={{ pathname: RoutePaths.HOME, hash: '#advantages' }}
+                                className={styles.link}
+                            >
+                                Преимущества
+                            </Link>
+                            <Link
+                                to={{ pathname: RoutePaths.HOME, hash: '#how-it-works' }}
+                                className={styles.link}
+                            >
+                                Как это работает
+                            </Link>
                         </div>
                     </div>
 

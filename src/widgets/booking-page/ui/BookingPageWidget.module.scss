@@ -38,193 +38,136 @@
   flex-wrap: wrap;
 }
 
-.actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+.orderGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
 }
 
-.primaryButton,
-.secondaryButton,
-.dangerButton {
-  min-height: 42px;
-  padding: 0 16px;
-  border: none;
-  border-radius: 999px;
+.orderColumn {
+  min-width: 0;
+}
+
+.tableCardWrap {
+  display: grid;
+  gap: 12px;
+}
+
+.tableCardLabel {
+  color: $color-primary;
+  font-size: 14px;
+  line-height: 1.2;
   font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    background-color 0.2s ease,
-    color 0.2s ease,
-    opacity 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
-.primaryButton:hover:not(:disabled),
-.secondaryButton:hover:not(:disabled),
-.dangerButton:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 14px 28px rgba(17, 17, 17, 0.08);
+.stateCard {
+  min-height: 250px;
+  align-content: center;
+  color: rgba(17, 17, 17, 0.72);
 }
 
-.primaryButton:disabled,
-.secondaryButton:disabled,
-.dangerButton:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.primaryButton {
-  background-color: $color-primary;
-  color: $color-white;
-}
-
-.secondaryButton {
-  background-color: rgba(17, 17, 17, 0.08);
-  color: $color-text-primary;
-}
-
-.dangerButton {
-  background-color: rgba(220, 38, 38, 0.1);
-  color: #b91c1c;
-}
-
-.linkButton {
+.fallbackRestaurantCardLink {
+  display: block;
+  color: inherit;
   text-decoration: none;
 }
 
-.bookingList,
-.dishGroupList,
-.historyList {
-  display: grid;
-  gap: 16px;
+.fallbackRestaurantCard {
+  min-height: 250px;
+  align-content: end;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
-.bookingItemCard {
-  display: grid;
-  gap: 18px;
+.fallbackRestaurantCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 36px rgba(17, 17, 17, 0.08);
 }
 
-.bookingTitleBlock {
-  display: grid;
-  gap: 6px;
-}
-
-.bookingTitle {
+.cardTitle {
   margin: 0;
-  font-size: 22px;
-  line-height: 1.2;
-  font-weight: 700;
   color: $color-text-primary;
+  font-size: 28px;
+  line-height: 1.05;
+  font-weight: 700;
+}
+
+.iconDangerButton {
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background-color: rgba(220, 38, 38, 0.12);
+  color: #b91c1c;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+  font-weight: 700;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.iconDangerButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(17, 17, 17, 0.08);
+  background-color: rgba(220, 38, 38, 0.18);
 }
 
 .subtleText {
   color: rgba(17, 17, 17, 0.62);
   font-size: 15px;
-  line-height: 1.4;
-}
-
-.bookingMetaGrid {
-  display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.metaItem {
-  display: grid;
-  gap: 4px;
-}
-
-.metaLabel {
-  color: $color-primary;
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.metaValue {
-  color: $color-text-primary;
-  font-size: 16px;
   line-height: 1.5;
 }
 
-.dishItem {
+.dishCardsGrid {
   display: grid;
-  grid-template-columns: 72px minmax(0, 1fr) auto;
-  gap: 14px;
-  align-items: center;
-  padding: 14px 16px;
-  border-radius: 22px;
-  background-color: $color-white;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
 }
 
-.dishImageBox {
-  width: 72px;
-  height: 72px;
-  border-radius: 18px;
-  overflow: hidden;
-  background-color: rgba(17, 17, 17, 0.06);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(17, 17, 17, 0.48);
-  font-size: 12px;
-  font-weight: 600;
+.summaryCard {
+  gap: 20px;
 }
 
-.dishImage {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.dishInfo {
+.summaryBody {
   display: grid;
-  gap: 6px;
-  min-width: 0;
+  gap: 12px;
 }
 
-.dishName {
-  font-size: 18px;
-  line-height: 1.3;
-  font-weight: 700;
-  color: $color-text-primary;
-}
-
-.dishPrice {
-  color: $color-primary;
-  font-weight: 700;
-}
-
-.dishActions {
+.summaryLine {
   display: flex;
-  align-items: center;
-  justify-content: flex-end;
+  align-items: baseline;
   gap: 8px;
   flex-wrap: wrap;
 }
 
-.quantityValue {
-  min-width: 40px;
-  text-align: center;
-  font-weight: 700;
+.summaryLabel,
+.summaryDash {
   color: $color-text-primary;
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.summaryCount {
+  color: $color-text-primary;
+  font-size: 24px;
+  line-height: 1.1;
+  font-weight: 700;
 }
 
 .summaryValue {
+  color: $color-primary;
   font-size: 28px;
   line-height: 1.1;
-  font-weight: 700;
-  color: $color-primary;
-}
-
-.statusValue {
-  color: $color-text-primary;
-  font-size: 16px;
-  line-height: 1.3;
   font-weight: 700;
 }
 
@@ -232,18 +175,15 @@
   color: rgba(17, 17, 17, 0.66);
 }
 
-@media (max-width: 860px) {
-  .bookingMetaGrid {
+@media (max-width: 980px) {
+  .orderGrid {
     grid-template-columns: 1fr;
   }
+}
 
-  .dishItem {
-    grid-template-columns: 72px minmax(0, 1fr);
-  }
-
-  .dishActions {
-    grid-column: 1 / -1;
-    justify-content: flex-start;
+@media (max-width: 1100px) {
+  .dishCardsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -253,12 +193,20 @@
     border-radius: 24px;
   }
 
-  .dishItem {
+  .dishCardsGrid {
     grid-template-columns: 1fr;
   }
 
-  .dishImageBox {
-    width: 100%;
-    height: 180px;
+  .cardTitle {
+    font-size: 24px;
+  }
+
+  .summaryCount {
+    font-size: 22px;
+  }
+
+  .summaryLabel,
+  .summaryDash {
+    font-size: 20px;
   }
 }

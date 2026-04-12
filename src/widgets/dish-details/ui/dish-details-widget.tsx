@@ -1,11 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link, generatePath, useParams, useSearchParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
+import { useAuth } from '@/app/providers/auth/use-auth.ts';
 import { getRestaurantById } from '@/entities/restaurant/api/get-restaurant-by-id.ts';
-import type { Contact, Dish, Restaurant } from '@/entities/restaurant/model/types.ts';
-import { Footer } from '@/widgets/footer/Footer.tsx';
-import { RoutePaths } from '@/shared/config/routes/routes.ts';
+import { getPhotoByCategory } from '@/entities/restaurant/lib/get-photo-by-category.ts';
+import type { Dish, Restaurant } from '@/entities/restaurant/model/types.ts';
+import { dishCartStorage } from '@/shared/dish-cart/dish-cart.ts';
+import { useRestaurantOrderGuard } from '@/shared/lib/restaurant-order/use-restaurant-order-guard.ts';
 import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
 import { PhotoCarousel } from '@/shared/ui/photo-carousel/photo-carousel.tsx';
+import { RestaurantOrderConflictModal } from '@/shared/ui/restaurant-order-conflict-modal/RestaurantOrderConflictModal.tsx';
+import { Footer } from '@/widgets/footer/Footer.tsx';
 import styles from './DishDetailsWidget.module.scss';
 
 type NormalizedRestaurant = Restaurant & {
@@ -18,28 +22,34 @@ const formatPrice = (price: Dish['price']) => {
     return /₽|руб/u.test(normalizedPrice) ? normalizedPrice : `${normalizedPrice} ₽`;
 };
 
-const getContactLabel = (type: Contact['type']) => {
-    switch (type) {
-        case 'PHONE':
-            return 'Телефон';
-        case 'EMAIL':
-            return 'Email';
-        case 'WEBSITE':
-            return 'Сайт';
-        default:
-            return 'Контакт';
-    }
+const parsePriceValue = (price: Dish['price']) => {
+    const normalizedPrice = String(price).replace(',', '.').trim();
+    const parsed = Number.parseFloat(normalizedPrice);
+
+    return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const canSeeAvailability = (role?: string | null) => {
+    return role === 'ROLE_ADMIN' || role === 'ROLE_MANAGER';
 };
 
 export const DishDetailsWidget = () => {
+    const { user } = useAuth();
     const { id } = useParams<{ id: string }>();
     const [searchParams] = useSearchParams();
     const restaurantId = searchParams.get('restaurantId') ?? '';
 
     const [restaurant, setRestaurant] = useState<NormalizedRestaurant | null>(null);
     const [dish, setDish] = useState<Dish | null>(null);
+    const [dishCount, setDishCount] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
+    const {
+        conflict,
+        guardRestaurantOrder,
+        cancelRestaurantSwitch,
+        confirmRestaurantSwitch,
+    } = useRestaurantOrderGuard();
 
     useEffect(() => {
         const loadDish = async () => {
@@ -88,6 +98,28 @@ export const DishDetailsWidget = () => {
         void loadDish();
     }, [id, restaurantId]);
 
+    useEffect(() => {
+        if (!restaurantId || !id) {
+            setDishCount(0);
+            return;
+        }
+
+        const syncDishCount = () => {
+            const item = dishCartStorage
+                .getItemsByRestaurantId(restaurantId)
+                .find((cartItem) => cartItem.dishId === id);
+
+            setDishCount(item?.quantity ?? 0);
+        };
+
+        syncDishCount();
+        window.addEventListener('dish-cart:changed', syncDishCount);
+
+        return () => {
+            window.removeEventListener('dish-cart:changed', syncDishCount);
+        };
+    }, [id, restaurantId]);
+
     const dishPhotos = useMemo(() => {
         const photos = Array.isArray(dish?.photos) ? dish.photos.filter(Boolean) : [];
 
@@ -95,10 +127,38 @@ export const DishDetailsWidget = () => {
     }, [dish]);
 
     const priceLabel = useMemo(() => (dish ? formatPrice(dish.price) : ''), [dish]);
-    const contacts = useMemo(
-        () => (Array.isArray(restaurant?.contacts) ? restaurant.contacts : []),
-        [restaurant],
-    );
+    const showAvailabilityTag = canSeeAvailability(user?.role);
+
+    const handleAddToCart = () => {
+        if (!restaurant || !dish || !dish.available) {
+            return;
+        }
+
+        const photos = Array.isArray(dish.photos) ? dish.photos : [];
+        const banner = getPhotoByCategory(photos, 'BANNER') ?? photos[0] ?? null;
+
+        guardRestaurantOrder({
+            restaurantId: restaurant.id,
+            restaurantName: restaurant.name,
+            onAccept: () => dishCartStorage.addItem({
+                restaurantId: restaurant.id,
+                restaurantName: restaurant.name,
+                dishId: dish.id,
+                dishName: dish.name,
+                price: parsePriceValue(dish.price),
+                weight: dish.weight,
+                photoUrl: banner?.publicUrl ?? null,
+            }),
+        });
+    };
+
+    const handleDecreaseFromCart = () => {
+        if (!restaurant || !dish) {
+            return;
+        }
+
+        dishCartStorage.decrementItem(restaurant.id, dish.id);
+    };
 
     if (isLoading) {
         return (
@@ -116,17 +176,6 @@ export const DishDetailsWidget = () => {
             <>
                 <section className={`container ${styles.page}`}>
                     <div className={styles.stateBlock}>{error}</div>
-
-                    {restaurantId ? (
-                        <div className={styles.actions}>
-                            <Link
-                                to={generatePath(RoutePaths.RESTAURANT, { id: restaurantId })}
-                                className="secondary-button"
-                            >
-                                Вернуться к ресторану
-                            </Link>
-                        </div>
-                    ) : null}
                 </section>
                 <Footer />
             </>
@@ -144,9 +193,6 @@ export const DishDetailsWidget = () => {
         );
     }
 
-    const backToRestaurantPath = generatePath(RoutePaths.RESTAURANT, { id: restaurant.id });
-    const bookingPath = `${RoutePaths.BOOKING}?restaurantId=${restaurant.id}`;
-
     return (
         <>
             <section className={`container ${styles.page}`}>
@@ -157,108 +203,87 @@ export const DishDetailsWidget = () => {
                 />
 
                 <div className={styles.headingBlock}>
-                    <Link to={backToRestaurantPath} className={styles.backLink}>
-                        К ресторану
-                    </Link>
+                    <h1 className={styles.title}>{dish.name}</h1>
+                </div>
 
-                    <div className={styles.titleStack}>
-                        <h1 className={styles.title}>{dish.name}</h1>
-                        <p className={styles.subtitle}>Подается в ресторане {restaurant.name}</p>
-                    </div>
-
+                <article className={`${styles.card} ${styles.detailsCard}`}>
                     <div className={styles.tags}>
                         <span className={`${styles.tag} ${styles.primaryTag}`}>
                             {dish.category}
                         </span>
                         <span className={styles.tag}>{dish.weight} г</span>
-                        <span className={styles.tag}>{priceLabel}</span>
-                        <span
-                            className={`${styles.tag} ${
-                                dish.available ? styles.availableTag : styles.unavailableTag
-                            }`}
-                        >
-                            {dish.available ? 'Доступно для заказа' : 'Сейчас недоступно'}
-                        </span>
+
+                        {showAvailabilityTag ? (
+                            <span
+                                className={`${styles.tag} ${
+                                    dish.available
+                                        ? styles.availableTag
+                                        : styles.unavailableTag
+                                }`}
+                            >
+                                {dish.available ? 'Доступно для заказа' : 'Сейчас недоступно'}
+                            </span>
+                        ) : null}
                     </div>
-                </div>
 
-                <div className={styles.infoGrid}>
-                    <article className={styles.card}>
-                        <h2 className={styles.cardTitle}>О блюде</h2>
+                    {dishCount > 0 ? (
+                        <span className={styles.countBadge}>{dishCount}</span>
+                    ) : null}
 
-                        <p className={styles.description}>
-                            {dish.description?.trim() || 'Описание блюда пока не добавлено.'}
-                        </p>
+                    <p className={styles.description}>
+                        {dish.description?.trim() || 'Описание блюда пока не добавлено.'}
+                    </p>
 
-                        <div className={styles.factGrid}>
-                            <div className={styles.factItem}>
-                                <span className={styles.factLabel}>Категория</span>
-                                <span className={styles.factValue}>{dish.category}</span>
+                    <div className={styles.controlsSlot}>
+                        {dishCount > 0 ? (
+                            <div className={styles.cartControls}>
+                                <button
+                                    type="button"
+                                    className={styles.stepButton}
+                                    onClick={handleDecreaseFromCart}
+                                    aria-label={`Уменьшить количество блюда ${dish.name}`}
+                                >
+                                    -
+                                </button>
+
+                                <span className={styles.cartControlPrice}>{priceLabel}</span>
+
+                                <button
+                                    type="button"
+                                    className={styles.stepButton}
+                                    onClick={handleAddToCart}
+                                    disabled={!dish.available}
+                                    aria-label={`Увеличить количество блюда ${dish.name}`}
+                                >
+                                    +
+                                </button>
                             </div>
-
-                            <div className={styles.factItem}>
-                                <span className={styles.factLabel}>Цена</span>
-                                <span className={styles.factValue}>{priceLabel}</span>
-                            </div>
-
-                            <div className={styles.factItem}>
-                                <span className={styles.factLabel}>Вес</span>
-                                <span className={styles.factValue}>{dish.weight} г</span>
-                            </div>
-
-                            <div className={styles.factItem}>
-                                <span className={styles.factLabel}>Статус</span>
-                                <span className={styles.factValue}>
-                                    {dish.available ? 'Доступно' : 'Недоступно'}
-                                </span>
-                            </div>
-                        </div>
-                    </article>
-
-                    <aside className={`${styles.card} ${styles.sidebarCard}`}>
-                        <h2 className={styles.cardTitle}>Ресторан</h2>
-
-                        <div className={styles.restaurantBlock}>
-                            <div>
-                                <div className={styles.restaurantName}>{restaurant.name}</div>
-                                <div className={styles.restaurantMeta}>{restaurant.category}</div>
-                            </div>
-
-                            <div className={styles.restaurantAddress}>{restaurant.address}</div>
-
-                            {contacts.length > 0 ? (
-                                <div className={styles.contactList}>
-                                    {contacts.map((contact) => (
-                                        <div
-                                            key={`${contact.type}-${contact.value}`}
-                                            className={styles.contactItem}
-                                        >
-                                            <span className={styles.contactLabel}>
-                                                {getContactLabel(contact.type)}
-                                            </span>
-                                            <span className={styles.contactValue}>
-                                                {contact.value}
-                                            </span>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : null}
-                        </div>
-
-                        <div className={styles.actions}>
-                            <Link to={backToRestaurantPath} className="secondary-button">
-                                Открыть ресторан
-                            </Link>
-
-                            <Link to={bookingPath} className="primary-button">
-                                Перейти к бронированию
-                            </Link>
-                        </div>
-                    </aside>
-                </div>
+                        ) : (
+                            <button
+                                type="button"
+                                className={styles.singleActionButton}
+                                onClick={handleAddToCart}
+                                disabled={!dish.available}
+                                aria-label={`Добавить блюдо ${dish.name} в корзину`}
+                            >
+                                <span className={styles.singleActionPrefix}>+</span>
+                                <span>{priceLabel}</span>
+                            </button>
+                        )}
+                    </div>
+                </article>
             </section>
 
             <Footer />
+
+            {conflict ? (
+                <RestaurantOrderConflictModal
+                    currentRestaurantName={conflict.currentRestaurantName}
+                    nextRestaurantName={conflict.nextRestaurantName}
+                    onCancel={cancelRestaurantSwitch}
+                    onConfirm={confirmRestaurantSwitch}
+                />
+            ) : null}
         </>
     );
 };

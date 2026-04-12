@@ -1,104 +1,96 @@
 import { Link, generatePath } from 'react-router-dom';
 import type { BookingCartItem } from '@/entities/booking/model/types.ts';
-import { formatBookingDateTime } from '@/shared/lib/date/booking-date.ts';
+import type {
+    RestaurantCard as RestaurantCardType,
+    RestaurantTable,
+} from '@/entities/restaurant/model/types.ts';
+import { RestaurantCard } from '@/entities/restaurant/ui/restaurant-card.tsx';
+import { TableCard } from '@/entities/restaurant/ui/table-card.tsx';
 import { RoutePaths } from '@/shared/config/routes/routes.ts';
 import styles from '../BookingPageWidget.module.scss';
 
 type BookingOrderSectionProps = {
-    bookingItems: BookingCartItem[];
-    onClear: () => void;
-    onRemove: (id: string) => void;
+    restaurantId: string | null;
+    restaurantName: string;
+    restaurantCard: RestaurantCardType | null;
+    isRestaurantLoading: boolean;
+    restaurantLoadError: string;
+    bookingItem: BookingCartItem | null;
+    selectedTable: RestaurantTable | null;
+    onRemoveTable: (id: string) => void;
 };
 
 export const BookingOrderSection = ({
-    bookingItems,
-    onClear,
-    onRemove,
+    restaurantId,
+    restaurantName,
+    restaurantCard,
+    isRestaurantLoading,
+    restaurantLoadError,
+    bookingItem,
+    selectedTable,
+    onRemoveTable,
 }: BookingOrderSectionProps) => {
+    const restaurantPath = restaurantId
+        ? generatePath(RoutePaths.RESTAURANT, { id: restaurantId })
+        : RoutePaths.RESTAURANTS;
+
     return (
         <section className={styles.section}>
-            <div className={styles.headerRow}>
-                <h2 className="section-title">Текущий заказ</h2>
+            <h2 className="section-title">Текущий заказ</h2>
 
-                {bookingItems.length > 0 ? (
-                    <div className={styles.actions}>
-                        <button
-                            type="button"
-                            className={styles.dangerButton}
-                            onClick={onClear}
-                        >
-                            Очистить столы
-                        </button>
-                    </div>
-                ) : null}
-            </div>
-
-            {bookingItems.length > 0 ? (
-                <div className={styles.bookingList}>
-                    {bookingItems.map((item) => {
-                        const restaurantPath = generatePath(RoutePaths.RESTAURANT, { id: item.restaurantId });
-
-                        return (
-                            <article key={item.id} className={`${styles.card} ${styles.bookingItemCard}`}>
-                                <div className={styles.headerRow}>
-                                    <div className={styles.bookingTitleBlock}>
-                                        <h3 className={styles.bookingTitle}>{item.restaurantName}</h3>
-                                        <div className={styles.subtleText}>Стол №{item.tableNumber}</div>
-                                    </div>
-
-                                    <div className={styles.actions}>
-                                        <Link
-                                            to={restaurantPath}
-                                            className={`${styles.secondaryButton} ${styles.linkButton}`}
-                                        >
-                                            Открыть ресторан
-                                        </Link>
-
-                                        <button
-                                            type="button"
-                                            className={styles.dangerButton}
-                                            onClick={() => onRemove(item.id)}
-                                        >
-                                            Удалить
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <div className={styles.bookingMetaGrid}>
-                                    <div className={styles.metaItem}>
-                                        <span className={styles.metaLabel}>Дата</span>
-                                        <span className={styles.metaValue}>{item.date}</span>
-                                    </div>
-
-                                    <div className={styles.metaItem}>
-                                        <span className={styles.metaLabel}>Начало</span>
-                                        <span className={styles.metaValue}>{formatBookingDateTime(item.startAt)}</span>
-                                    </div>
-
-                                    <div className={styles.metaItem}>
-                                        <span className={styles.metaLabel}>Окончание</span>
-                                        <span className={styles.metaValue}>{formatBookingDateTime(item.endAt)}</span>
-                                    </div>
-
-                                    <div className={styles.metaItem}>
-                                        <span className={styles.metaLabel}>Гостей</span>
-                                        <span className={styles.metaValue}>{item.guests}</span>
-                                    </div>
-
-                                    <div className={styles.metaItem}>
-                                        <span className={styles.metaLabel}>Комментарий</span>
-                                        <span className={styles.metaValue}>{item.comment || 'Не указан'}</span>
-                                    </div>
+            <div className={styles.orderGrid}>
+                <div className={styles.orderColumn}>
+                    {isRestaurantLoading ? (
+                        <div className={`${styles.card} ${styles.stateCard}`}>
+                            Загружаем карточку ресторана...
+                        </div>
+                    ) : restaurantCard ? (
+                        <RestaurantCard restaurant={restaurantCard} />
+                    ) : (
+                        <Link to={restaurantPath} className={styles.fallbackRestaurantCardLink}>
+                            <article className={`${styles.card} ${styles.fallbackRestaurantCard}`}>
+                                <h3 className={styles.cardTitle}>{restaurantName || 'Ресторан'}</h3>
+                                <div className={styles.subtleText}>
+                                    Открыть страницу ресторана
                                 </div>
                             </article>
-                        );
-                    })}
+                        </Link>
+                    )}
                 </div>
-            ) : (
-                <div className={`${styles.card} ${styles.emptyCard}`}>
-                    Выбранных столов пока нет
+
+                <div className={styles.orderColumn}>
+                    {bookingItem && selectedTable ? (
+                        <div className={styles.tableCardWrap}>
+                            <div className={styles.tableCardLabel}>Выбранный стол</div>
+
+                            <TableCard
+                                table={selectedTable}
+                                actions={(
+                                    <button
+                                        type="button"
+                                        className={styles.iconDangerButton}
+                                        onClick={() => onRemoveTable(bookingItem.id)}
+                                        aria-label="Удалить стол из заказа"
+                                    >
+                                        X
+                                    </button>
+                                )}
+                            />
+                        </div>
+                    ) : (
+                        <article className={`${styles.card} ${styles.stateCard}`}>
+                            <h3 className={styles.cardTitle}>Стол пока не выбран</h3>
+                            <div className={styles.subtleText}>
+                                Сначала выберите подходящий стол на странице ресторана.
+                            </div>
+                        </article>
+                    )}
                 </div>
-            )}
+            </div>
+
+            {restaurantLoadError ? (
+                <div className={`${styles.card} ${styles.stateCard}`}>{restaurantLoadError}</div>
+            ) : null}
         </section>
     );
 };

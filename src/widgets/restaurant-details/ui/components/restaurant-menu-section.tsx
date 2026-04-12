@@ -1,9 +1,12 @@
+import { generatePath, useNavigate } from 'react-router-dom';
 import type { Dish } from '@/entities/restaurant/model/types.ts';
 import { DishCard } from '@/entities/restaurant/ui/dish-card.tsx';
+import { RoutePaths } from '@/shared/config/routes/routes.ts';
 import type { RestaurantDishCounters } from '../../model/types.ts';
 import styles from '../restaurant-details-widget.module.scss';
 
 type RestaurantMenuSectionProps = {
+    restaurantId: string;
     dishCategories: string[];
     selectedCategory: string;
     totalCartCount: number;
@@ -16,6 +19,7 @@ type RestaurantMenuSectionProps = {
 };
 
 export const RestaurantMenuSection = ({
+    restaurantId,
     dishCategories,
     selectedCategory,
     totalCartCount,
@@ -26,6 +30,14 @@ export const RestaurantMenuSection = ({
     onAddDish,
     onDecreaseDish,
 }: RestaurantMenuSectionProps) => {
+    const navigate = useNavigate();
+
+    const openDish = (dishId: string) => {
+        const path = generatePath(RoutePaths.DISH, { id: dishId });
+
+        navigate(`${path}?restaurantId=${restaurantId}`);
+    };
+
     return (
         <section className={styles.section}>
             <div className={styles.sectionHeader}>
@@ -63,6 +75,7 @@ export const RestaurantMenuSection = ({
                             key={dish.id}
                             dish={dish}
                             count={cartCounts[dish.id] ?? 0}
+                            onOpen={() => openDish(dish.id)}
                             onAddToCart={() => onAddDish(dish)}
                             onDecreaseFromCart={() => onDecreaseDish(dish.id)}
                         />

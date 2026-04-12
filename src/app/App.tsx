@@ -1,9 +1,10 @@
-import { Router } from "./providers/router";
+import { HashScrollManager, Router } from "./providers/router";
 
 
 function App() {
   return (
     <>
+      <HashScrollManager />
       <Router />
     </>
   )

@@ -24,13 +24,15 @@ const safeParse = (raw: string | null): BookingCartItem[] => {
     }
 };
 
+const normalizeItems = (items: BookingCartItem[]) => items.slice(0, 1);
+
 export const bookingCartStorage = {
     getItems(): BookingCartItem[] {
-        return safeParse(localStorage.getItem(BOOKING_CART_KEY));
+        return normalizeItems(safeParse(localStorage.getItem(BOOKING_CART_KEY)));
     },
 
     saveItems(items: BookingCartItem[]) {
-        localStorage.setItem(BOOKING_CART_KEY, JSON.stringify(items));
+        localStorage.setItem(BOOKING_CART_KEY, JSON.stringify(normalizeItems(items)));
         notify();
     },
 

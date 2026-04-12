@@ -23,6 +23,7 @@ type RestaurantBookingModalProps = {
     schemePhotoUrl: string | null;
     onClose: () => void;
     onAdded: () => void;
+    onRequestAddToOrder: (onAccept: () => void) => void;
 };
 
 export const RestaurantBookingModal = ({
@@ -31,6 +32,7 @@ export const RestaurantBookingModal = ({
     schemePhotoUrl,
     onClose,
     onAdded,
+    onRequestAddToOrder,
 }: RestaurantBookingModalProps) => {
     const [selectedDate, setSelectedDate] = useState(getTodayDateInputValue());
     const [availability, setAvailability] = useState<TableAvailabilityResponse | null>(null);
@@ -123,21 +125,23 @@ export const RestaurantBookingModal = ({
             return;
         }
 
-        bookingCartStorage.addItem(
-            createBookingCartItem(
-                restaurant,
-                table,
-                schemePhotoUrl,
-                selectedDate,
-                selectedStartTime,
-                selectedEndTime,
-                guests,
-                comment,
-            ),
-        );
+        onRequestAddToOrder(() => {
+            bookingCartStorage.addItem(
+                createBookingCartItem(
+                    restaurant,
+                    table,
+                    schemePhotoUrl,
+                    selectedDate,
+                    selectedStartTime,
+                    selectedEndTime,
+                    guests,
+                    comment,
+                ),
+            );
 
-        setSuccessMessage('Стол добавлен в корзину бронирований');
-        onAdded();
+            setSuccessMessage('Стол добавлен в корзину бронирования');
+            onAdded();
+        });
     };
 
     const isClosed = Boolean(
@@ -171,7 +175,7 @@ export const RestaurantBookingModal = ({
                         onClick={onClose}
                         aria-label="Закрыть окно бронирования"
                     >
-                        ×
+                        X
                     </button>
                 </div>
 
@@ -215,7 +219,7 @@ export const RestaurantBookingModal = ({
 
                     <div className={styles.scheduleBlock}>
                         <div className={styles.scheduleHeader}>
-                            <span className={styles.fieldLabel}>{'\u0420\u0430\u0441\u043f\u0438\u0441\u0430\u043d\u0438\u0435 \u0434\u043d\u044f'}</span>
+                            <span className={styles.fieldLabel}>Расписание дня</span>
                             {!isClosed && workingHoursItem?.openTime && workingHoursItem?.closeTime ? (
                                 <span className={styles.scheduleMeta}>
                                     Часы работы: {formatTimeLabel(workingHoursItem.openTime)} — {formatTimeLabel(workingHoursItem.closeTime)}

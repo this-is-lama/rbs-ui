@@ -1,0 +1,98 @@
+@use '@/app/styles/variables' as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background-color: rgba(17, 17, 17, 0.52);
+  backdrop-filter: blur(8px);
+}
+
+.dialog {
+  width: min(100%, 520px);
+  display: grid;
+  gap: 18px;
+  padding: 28px;
+  border-radius: 28px;
+  background-color: $color-surface;
+  box-shadow: 0 24px 64px rgba(17, 17, 17, 0.24);
+}
+
+.title {
+  margin: 0;
+  color: $color-primary;
+  font-size: 28px;
+  line-height: 1.05;
+  font-weight: 700;
+}
+
+.description {
+  margin: 0;
+  color: rgba(17, 17, 17, 0.72);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.secondaryButton,
+.primaryButton {
+  min-height: 44px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 700;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.secondaryButton:hover,
+.primaryButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(17, 17, 17, 0.12);
+}
+
+.secondaryButton {
+  background-color: rgba(17, 17, 17, 0.08);
+  color: $color-text-primary;
+}
+
+.primaryButton {
+  background-color: #b91c1c;
+  color: $color-white;
+}
+
+@media (max-width: 640px) {
+  .overlay {
+    padding: 16px;
+  }
+
+  .dialog {
+    padding: 24px 20px;
+    border-radius: 24px;
+  }
+
+  .actions {
+    flex-direction: column-reverse;
+  }
+
+  .secondaryButton,
+  .primaryButton {
+    width: 100%;
+  }
+}
