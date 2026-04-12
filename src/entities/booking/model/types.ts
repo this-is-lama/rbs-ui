@@ -56,3 +56,30 @@ export type Booking = {
     table: BookingTableSnapshot | null;
     dishes: BookingDish[];
 };
+
+export type TableAvailabilitySlot = {
+    startAt: string;
+    endAt: string;
+};
+
+export type TableAvailabilityResponse = {
+    restaurantId: string;
+    tableId: string;
+    date: string;
+    reservedSlots: TableAvailabilitySlot[];
+};
+
+export type BookingCartItem = {
+    id: string;
+    restaurantId: string;
+    restaurantName: string;
+    tableId: string;
+    tableNumber: number;
+    guests: number;
+    comment: string | null;
+    date: string;
+    startAt: string;
+    endAt: string;
+    schemePhotoUrl: string | null;
+    createdAt: string;
+};

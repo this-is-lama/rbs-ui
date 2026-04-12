@@ -35,7 +35,7 @@ export type Dish = {
     name: string;
     category: string;
     description: string | null;
-    price: string;
+    price: string | number;
     weight: number;
     available: boolean;
     photos: Photo[] | null;
@@ -47,6 +47,9 @@ export type RestaurantTable = {
     description: string | null;
     capacity: number;
     active: boolean;
+    positionX: number | null;
+    positionY: number | null;
+    markerSize: number | null;
 };
 
 export type RestaurantCard = {

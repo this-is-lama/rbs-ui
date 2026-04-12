@@ -5,6 +5,7 @@ import type { Dish, Restaurant } from '@/entities/restaurant/model/types.ts';
 import { getPhotoByCategory } from '@/entities/restaurant/lib/get-photo-by-category.ts';
 import { RoutePaths } from '@/shared/config/routes/routes.ts';
 import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
+import styles from './DishDetailsWidget.module.scss';
 
 type NormalizedRestaurant = Restaurant & {
     dishes: Dish[];
@@ -71,17 +72,20 @@ export const DishDetailsWidget = () => {
     }, [dish]);
 
     if (isLoading) {
-        return <div className="container">Загрузка блюда...</div>;
+        return <div className={`container ${styles.state}`}>Загрузка блюда...</div>;
     }
 
     if (error) {
         return (
-            <div className="container" style={{ display: 'grid', gap: '16px', paddingBottom: '48px' }}>
-                <div>{error}</div>
+            <div className={`container ${styles.page}`}>
+                <div className={styles.state}>{error}</div>
 
                 {restaurantId ? (
-                    <Link to={generatePath(RoutePaths.RESTAURANT, { id: restaurantId })}>
-                        <button className="secondary-button">Вернуться к ресторану</button>
+                    <Link
+                        to={generatePath(RoutePaths.RESTAURANT, { id: restaurantId })}
+                        className="secondary-button"
+                    >
+                        Вернуться к ресторану
                     </Link>
                 ) : null}
             </div>
@@ -89,18 +93,18 @@ export const DishDetailsWidget = () => {
     }
 
     if (!dish || !restaurant) {
-        return <div className="container">Блюдо не найдено</div>;
+        return <div className={`container ${styles.state}`}>Блюдо не найдено</div>;
     }
 
     const backToRestaurantPath = generatePath(RoutePaths.RESTAURANT, { id: restaurant.id });
     const bookingPath = `${RoutePaths.BOOKING}?restaurantId=${restaurant.id}`;
 
     return (
-        <section className="container" style={{ display: 'grid', gap: '24px', paddingBottom: '48px' }}>
-            <div className="surface-block" style={{ padding: '24px', display: 'grid', gap: '18px' }}>
-                <div style={{ display: 'grid', gap: '8px' }}>
+        <section className={`container ${styles.page}`}>
+            <div className={`surface-block ${styles.card}`}>
+                <div className={styles.meta}>
                     <h1 className="page-title">{dish.name}</h1>
-                    <div><strong>Ресторан:</strong> {restaurant.name}</div>
+                    <div><strong>{'\u0420\u0435\u0441\u0442\u043e\u0440\u0430\u043d:'}</strong> {restaurant.name}</div>
                     <div><strong>Категория:</strong> {dish.category}</div>
                     <div><strong>Цена:</strong> {dish.price}</div>
                     <div><strong>Вес:</strong> {dish.weight} г</div>
@@ -108,29 +112,31 @@ export const DishDetailsWidget = () => {
                     <div><strong>Описание:</strong> {dish.description || 'Не указано'}</div>
                 </div>
 
-                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-                    <Link to={backToRestaurantPath}>
-                        <button className="secondary-button">Вернуться к ресторану</button>
+                <div className={styles.actions}>
+                    <Link to={backToRestaurantPath} className="secondary-button">
+                        Вернуться к ресторану
                     </Link>
 
-                    <Link to={bookingPath}>
-                        <button className="primary-button">Перейти к бронированию</button>
+                    <Link to={bookingPath} className="primary-button">
+                        Перейти к бронированию
                     </Link>
                 </div>
 
                 {previewPhoto?.publicUrl ? (
-                    <div>
-                        <img src={previewPhoto.publicUrl} alt={dish.name} width={420} />
+                    <div className={styles.photoBox}>
+                        <img src={previewPhoto.publicUrl} alt={dish.name} className={styles.previewImage} />
                     </div>
                 ) : null}
             </div>
 
             {Array.isArray(dish.photos) && dish.photos.length > 1 ? (
-                <div className="surface-block" style={{ padding: '24px', display: 'grid', gap: '16px' }}>
+                <div className={`surface-block ${styles.card} ${styles.gallery}`}>
                     <h2 className="section-title">Фотографии блюда</h2>
-                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                    <div className={styles.galleryGrid}>
                         {dish.photos.map((photo) => (
-                            <img key={photo.id} src={photo.publicUrl} alt={dish.name} width={220} />
+                            <div key={photo.id} className={styles.galleryItem}>
+                                <img src={photo.publicUrl} alt={dish.name} className={styles.galleryImage} />
+                            </div>
                         ))}
                     </div>
                 </div>

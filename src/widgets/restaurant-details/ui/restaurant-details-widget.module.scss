@@ -1,0 +1,717 @@
+@use '@/app/styles/variables' as *;
+
+.page {
+  display: grid;
+  gap: 72px;
+  padding-top: 28px;
+  padding-bottom: 64px;
+  overflow-x: hidden;
+}
+
+.stateBlock,
+.emptyBlock,
+.noteBlock,
+.infoMessage,
+.errorMessage,
+.successMessage {
+  padding: 22px 24px;
+  border-radius: 28px;
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.stateBlock,
+.emptyBlock,
+.noteBlock,
+.infoMessage {
+  background-color: $color-surface;
+  color: $color-text-primary;
+}
+
+.errorMessage {
+  background-color: rgba(220, 38, 38, 0.08);
+  color: #b91c1c;
+}
+
+.successMessage {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: #15803d;
+}
+
+.heroSection {
+  position: relative;
+  min-width: 0;
+}
+
+.heroViewport {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.heroViewport::-webkit-scrollbar {
+  display: none;
+}
+
+.heroTrack {
+  display: flex;
+  gap: 24px;
+  width: max-content;
+  min-width: 100%;
+}
+
+.heroImageCard {
+  flex: 0 0 auto;
+  height: 50vh;
+  min-height: 320px;
+  max-height: 760px;
+  border-radius: 30px;
+  overflow: hidden;
+}
+
+.heroImage {
+  display: block;
+  width: auto;
+  height: 100%;
+  max-width: none;
+  object-fit: contain;
+}
+
+.heroPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 360px;
+  height: 50vh;
+  min-height: 320px;
+  max-height: 760px;
+  padding: 24px;
+  border-radius: 30px;
+  border: 2px dashed rgba(17, 17, 17, 0.12);
+  color: rgba(17, 17, 17, 0.55);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.arrowButton {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 56px;
+  height: 56px;
+  border: none;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.92);
+  color: $color-text-primary;
+  font-size: 28px;
+  line-height: 1;
+  box-shadow: 0 16px 32px rgba(17, 17, 17, 0.12);
+  transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease,
+          background-color 0.2s ease;
+}
+
+.arrowButton:hover {
+  transform: translateY(-50%) scale(1.04);
+  box-shadow: 0 18px 36px rgba(17, 17, 17, 0.16);
+}
+
+.leftArrow {
+  left: 14px;
+}
+
+.rightArrow {
+  right: 14px;
+}
+
+.title {
+  margin: 0;
+  text-align: center;
+  font-size: clamp(36px, 4vw, 56px);
+  line-height: 1.05;
+  font-weight: 700;
+  color: $color-text-primary;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.infoStack {
+  display: grid;
+  gap: 24px;
+}
+
+.card {
+  padding: 32px;
+  border-radius: 30px;
+  background-color: $color-surface;
+}
+
+.cardTitle {
+  margin: 0 0 24px;
+  font-size: 28px;
+  line-height: 1.15;
+  font-weight: 700;
+  color: $color-text-primary;
+}
+
+.cardText {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.6;
+  color: $color-text-primary;
+}
+
+.descriptionText {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.7;
+  color: $color-text-primary;
+}
+
+.contactList {
+  display: grid;
+  gap: 16px;
+}
+
+.contactItem {
+  display: grid;
+  gap: 6px;
+}
+
+.contactLabel {
+  font-size: 15px;
+  line-height: 1.2;
+  font-weight: 600;
+  color: $color-primary;
+}
+
+.contactValue {
+  font-size: 18px;
+  line-height: 1.5;
+  color: $color-text-primary;
+  word-break: break-word;
+}
+
+.section,
+.schemeSection {
+  display: grid;
+  gap: 28px;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-size: clamp(28px, 3vw, 40px);
+  line-height: 1.1;
+  font-weight: 700;
+  color: $color-text-primary;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.cartBadge,
+.bookingCartBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 0 18px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.cartBadge {
+  background-color: rgba(51, 76, 219, 0.1);
+  color: $color-primary;
+}
+
+.bookingCartBadge {
+  background-color: rgba(17, 17, 17, 0.08);
+  color: $color-text-primary;
+}
+
+.categoryNavWrapper {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.categoryNavWrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.categoryNav {
+  display: inline-flex;
+  gap: 12px;
+  min-width: max-content;
+}
+
+.categoryButton {
+  min-height: 48px;
+  padding: 0 20px;
+  border: none;
+  border-radius: 999px;
+  background-color: $color-surface;
+  color: $color-text-primary;
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease,
+          background-color 0.2s ease,
+          color 0.2s ease;
+}
+
+.categoryButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(17, 17, 17, 0.08);
+}
+
+.categoryButtonActive {
+  background-color: $color-primary;
+  color: $color-white;
+}
+
+.dishesGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.schemeCanvas {
+  position: relative;
+  width: 100%;
+  border-radius: 30px;
+  overflow: hidden;
+  background-color: $color-surface;
+}
+
+.schemeImage {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.schemeTableButton {
+  position: absolute;
+  left: var(--scheme-table-left, 50%);
+  top: var(--scheme-table-top, 50%);
+  width: var(--scheme-table-size, 46px);
+  height: var(--scheme-table-size, 46px);
+  transform: translate(-50%, -50%);
+  border: none;
+  border-radius: 999px;
+  background-color: $color-primary;
+  color: $color-white;
+  font-size: 15px;
+  font-weight: 700;
+  box-shadow: 0 14px 28px rgba(17, 17, 17, 0.18);
+  transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease,
+          background-color 0.2s ease;
+}
+
+.schemeTableButton:hover {
+  transform: translate(-50%, -50%) scale(1.06);
+  box-shadow: 0 18px 36px rgba(17, 17, 17, 0.2);
+}
+
+.schemeHint {
+  margin: 0;
+  color: rgba(17, 17, 17, 0.7);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.unplacedTablesBlock {
+  display: grid;
+  gap: 14px;
+}
+
+.unplacedTablesTitle {
+  margin: 0;
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: $color-text-primary;
+}
+
+.unplacedTablesList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.unplacedTableButton {
+  min-height: 46px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 999px;
+  background-color: $color-surface;
+  color: $color-text-primary;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background-color: rgba(17, 17, 17, 0.46);
+}
+
+.modalCard {
+  width: min(100%, 920px);
+  max-height: calc(100vh - 48px);
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  border-radius: 32px;
+  background-color: $color-white;
+  overflow: hidden;
+  box-shadow: 0 28px 56px rgba(17, 17, 17, 0.22);
+}
+
+.modalHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 28px 28px 20px;
+  border-bottom: 1px solid rgba(17, 17, 17, 0.08);
+}
+
+.modalHeaderText {
+  display: grid;
+  gap: 8px;
+}
+
+.modalTitle {
+  margin: 0;
+  font-size: clamp(28px, 2.6vw, 36px);
+  line-height: 1.05;
+  font-weight: 700;
+  color: $color-text-primary;
+}
+
+.modalSubtitle {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: rgba(17, 17, 17, 0.7);
+}
+
+.modalCloseButton {
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background-color: rgba(17, 17, 17, 0.08);
+  color: $color-text-primary;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.modalBody {
+  display: grid;
+  gap: 20px;
+  padding: 24px 28px;
+  overflow-y: auto;
+}
+
+.fieldGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.fieldLabel {
+  font-size: 14px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: $color-primary;
+}
+
+.fieldInput,
+.fieldTextarea {
+  width: 100%;
+  min-height: 50px;
+  padding: 0 16px;
+  border: 1px solid rgba(17, 17, 17, 0.12);
+  border-radius: 18px;
+  background-color: $color-white;
+  color: $color-text-primary;
+  outline: none;
+}
+
+.fieldInput:focus,
+.fieldTextarea:focus {
+  border-color: $color-primary;
+}
+
+.fieldTextarea {
+  min-height: 110px;
+  padding: 14px 16px;
+  resize: vertical;
+}
+
+.scheduleBlock {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+  border-radius: 24px;
+  background-color: $color-surface;
+}
+
+.scheduleHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.scheduleMeta {
+  font-size: 15px;
+  line-height: 1.3;
+  color: rgba(17, 17, 17, 0.65);
+}
+
+.scheduleGrid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.scheduleButton {
+  min-height: 48px;
+  border: none;
+  border-radius: 16px;
+  background-color: $color-white;
+  color: $color-text-primary;
+  font-size: 15px;
+  font-weight: 700;
+  transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease,
+          background-color 0.2s ease,
+          color 0.2s ease,
+          opacity 0.2s ease;
+}
+
+.scheduleButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(17, 17, 17, 0.08);
+}
+
+.scheduleButtonSelected {
+  background-color: $color-primary;
+  color: $color-white;
+}
+
+.scheduleButtonDisabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.busyBlock {
+  display: grid;
+  gap: 10px;
+}
+
+.busyTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: $color-text-primary;
+}
+
+.busyList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.busyItem {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background-color: rgba(17, 17, 17, 0.08);
+  display: inline-flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: $color-text-primary;
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 20px 28px 28px;
+  border-top: 1px solid rgba(17, 17, 17, 0.08);
+}
+
+.modalPrimaryButton,
+.modalSecondaryButton {
+  min-height: 50px;
+  padding: 0 22px;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 700;
+  transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease,
+          opacity 0.2s ease,
+          background-color 0.2s ease;
+}
+
+.modalPrimaryButton {
+  border: none;
+  background-color: $color-primary;
+  color: $color-white;
+}
+
+.modalSecondaryButton {
+  border: none;
+  background-color: rgba(17, 17, 17, 0.08);
+  color: $color-text-primary;
+}
+
+.modalPrimaryButton:hover:not(:disabled),
+.modalSecondaryButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(17, 17, 17, 0.08);
+}
+
+.modalPrimaryButton:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+@media (max-width: 1100px) {
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .dishesGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .scheduleGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .page {
+    gap: 48px;
+  }
+
+  .heroImageCard,
+  .heroPlaceholder {
+    height: 42vh;
+    min-height: 240px;
+    border-radius: 24px;
+  }
+
+  .arrowButton {
+    width: 46px;
+    height: 46px;
+    font-size: 22px;
+  }
+
+  .leftArrow {
+    left: 8px;
+  }
+
+  .rightArrow {
+    right: 8px;
+  }
+
+  .card {
+    padding: 24px;
+    border-radius: 24px;
+  }
+
+  .cardTitle {
+    margin-bottom: 20px;
+    font-size: 24px;
+  }
+
+  .cardText,
+  .descriptionText,
+  .contactValue {
+    font-size: 16px;
+  }
+
+  .section,
+  .schemeSection {
+    gap: 22px;
+  }
+
+  .dishesGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .fieldGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .scheduleGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .modalOverlay {
+    padding: 12px;
+  }
+
+  .modalCard {
+    max-height: calc(100vh - 24px);
+    border-radius: 24px;
+  }
+
+  .modalHeader,
+  .modalBody,
+  .modalActions {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .modalActions {
+    flex-direction: column-reverse;
+  }
+
+  .modalPrimaryButton,
+  .modalSecondaryButton {
+    width: 100%;
+  }
+}

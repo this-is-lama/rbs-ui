@@ -1,0 +1,61 @@
+@use '@/app/styles/variables' as *;
+
+.page {
+  display: grid;
+  gap: 24px;
+  padding-bottom: 48px;
+}
+
+.state {
+  color: rgba(17, 17, 17, 0.68);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.card {
+  display: grid;
+  gap: 18px;
+  padding: 24px;
+}
+
+.meta {
+  display: grid;
+  gap: 8px;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.photoBox {
+  width: min(100%, 420px);
+  border-radius: 24px;
+  overflow: hidden;
+  background-color: rgba(17, 17, 17, 0.06);
+}
+
+.previewImage,
+.galleryImage {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.gallery {
+  display: grid;
+  gap: 16px;
+}
+
+.galleryGrid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.galleryItem {
+  border-radius: 20px;
+  overflow: hidden;
+  background-color: rgba(17, 17, 17, 0.06);
+}

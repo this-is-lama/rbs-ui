@@ -6,6 +6,7 @@ import type { Booking } from '@/entities/booking/model/types.ts';
 import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
 import { formatBookingDateTime } from '@/shared/lib/date/booking-date.ts';
 import { RoutePaths } from '@/shared/config/routes/routes.ts';
+import styles from './BookingPageWidget.module.scss';
 
 type MyBookingsListProps = {
     refreshKey: number;
@@ -48,48 +49,81 @@ export const MyBookingsList = ({ refreshKey }: MyBookingsListProps) => {
     };
 
     if (isLoading) {
-        return <div>Загрузка ваших бронирований...</div>;
+        return <div className={styles.mutedText}>Загрузка ваших бронирований...</div>;
     }
 
     if (error) {
-        return <div>{error}</div>;
+        return <div className={styles.mutedText}>{error}</div>;
     }
 
     if (bookings.length === 0) {
-        return <div>У вас пока нет бронирований</div>;
+        return <div className={styles.mutedText}>У вас пока нет бронирований</div>;
     }
 
     return (
-        <div style={{ display: 'grid', gap: '16px' }}>
+        <div className={styles.historyList}>
             {bookings.map((booking) => {
                 const restaurantPath = booking.restaurant?.restaurantId
                     ? generatePath(RoutePaths.RESTAURANT, { id: booking.restaurant.restaurantId })
                     : null;
 
                 return (
-                    <article key={booking.id} className="surface-block" style={{ padding: '20px', display: 'grid', gap: '10px' }}>
-                        <div style={{ display: 'flex', gap: '12px', justifyContent: 'space-between', flexWrap: 'wrap' }}>
-                            <h3>{booking.restaurant?.name || 'Ресторан'}</h3>
-                            <strong>{booking.status}</strong>
+                    <article key={booking.id} className={`${styles.card} ${styles.bookingItemCard}`}>
+                        <div className={styles.headerRow}>
+                            <h3 className={styles.bookingTitle}>
+                                {booking.restaurant?.name || '\u0420\u0435\u0441\u0442\u043e\u0440\u0430\u043d'}
+                            </h3>
+                            <strong className={styles.statusValue}>{booking.status}</strong>
                         </div>
 
-                        <div><strong>Начало:</strong> {formatBookingDateTime(booking.startAt)}</div>
-                        <div><strong>Окончание:</strong> {formatBookingDateTime(booking.endAt)}</div>
-                        <div><strong>Гостей:</strong> {booking.guests}</div>
-                        <div><strong>Стол:</strong> {booking.table ? `№${booking.table.tableNumber}` : 'Не указан'}</div>
-                        <div><strong>Комментарий:</strong> {booking.comment || 'Не указан'}</div>
-                        <div><strong>Создано:</strong> {formatBookingDateTime(booking.createdAt)}</div>
+                        <div className={styles.bookingMetaGrid}>
+                            <div className={styles.metaItem}>
+                                <span className={styles.metaLabel}>Начало</span>
+                                <span className={styles.metaValue}>{formatBookingDateTime(booking.startAt)}</span>
+                            </div>
 
-                        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                            <div className={styles.metaItem}>
+                                <span className={styles.metaLabel}>Окончание</span>
+                                <span className={styles.metaValue}>{formatBookingDateTime(booking.endAt)}</span>
+                            </div>
+
+                            <div className={styles.metaItem}>
+                                <span className={styles.metaLabel}>Гостей</span>
+                                <span className={styles.metaValue}>{booking.guests}</span>
+                            </div>
+
+                            <div className={styles.metaItem}>
+                                <span className={styles.metaLabel}>Стол</span>
+                                <span className={styles.metaValue}>
+                                    {booking.table ? `№${booking.table.tableNumber}` : 'Не указан'}
+                                </span>
+                            </div>
+
+                            <div className={styles.metaItem}>
+                                <span className={styles.metaLabel}>Комментарий</span>
+                                <span className={styles.metaValue}>{booking.comment || 'Не указан'}</span>
+                            </div>
+
+                            <div className={styles.metaItem}>
+                                <span className={styles.metaLabel}>Создано</span>
+                                <span className={styles.metaValue}>{formatBookingDateTime(booking.createdAt)}</span>
+                            </div>
+                        </div>
+
+                        <div className={styles.actions}>
                             {restaurantPath ? (
-                                <Link to={restaurantPath}>
-                                    <button className="secondary-button">Открыть ресторан</button>
+                                <Link
+                                    to={restaurantPath}
+                                    className={`${styles.secondaryButton} ${styles.linkButton}`}
+                                >
+                                    Открыть ресторан
                                 </Link>
                             ) : null}
 
                             {booking.status !== 'CANCELLED' ? (
                                 <button
-                                    className="primary-button"
+                                    type="button"
+                                    className={styles.primaryButton}
                                     onClick={() => handleCancel(booking.id)}
                                     disabled={actionLoadingId === booking.id}
                                 >

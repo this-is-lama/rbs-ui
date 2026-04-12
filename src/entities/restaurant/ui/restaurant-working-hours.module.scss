@@ -1,0 +1,63 @@
+@use '@/app/styles/variables' as *;
+
+.list {
+  display: grid;
+  gap: 10px;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  min-height: 58px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background-color: $color-white;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.itemToday {
+  background-color: $color-primary;
+  box-shadow: 0 14px 28px rgba(51, 76, 219, 0.18);
+}
+
+.day,
+.value {
+  font-size: 16px;
+  line-height: 1.25;
+  font-weight: 600;
+  color: $color-text-primary;
+}
+
+.itemToday .day,
+.itemToday .value {
+  color: $color-white;
+}
+
+.value {
+  white-space: nowrap;
+}
+
+.empty {
+  color: rgba(17, 17, 17, 0.65);
+  font-size: 16px;
+}
+
+@media (max-width: 640px) {
+  .item {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    min-height: auto;
+    padding: 14px 18px;
+    border-radius: 22px;
+  }
+
+  .value {
+    white-space: normal;
+  }
+}

@@ -2,6 +2,7 @@ import type { Booking } from '@/entities/booking/model/types.ts';
 import type { RestaurantCard } from '@/entities/restaurant/model/types.ts';
 import { Input } from '@/shared/ui/input/input.tsx';
 import { useCreateBookingForm } from '../model/use-create-booking-form.ts';
+import styles from './CreateBookingForm.module.scss';
 
 type CreateBookingFormProps = {
     restaurants: RestaurantCard[];
@@ -11,11 +12,11 @@ type CreateBookingFormProps = {
 };
 
 export const CreateBookingForm = ({
-                                      restaurants,
-                                      initialRestaurantId,
-                                      initialTableId,
-                                      onCreated,
-                                  }: CreateBookingFormProps) => {
+    restaurants,
+    initialRestaurantId,
+    initialTableId,
+    onCreated,
+}: CreateBookingFormProps) => {
     const {
         register,
         formState: { errors, isSubmitting },
@@ -34,16 +35,16 @@ export const CreateBookingForm = ({
     });
 
     return (
-        <form onSubmit={onSubmit} className="surface-block" style={{ padding: '24px', display: 'grid', gap: '16px' }}>
-            <div style={{ display: 'grid', gap: '8px' }}>
+        <form onSubmit={onSubmit} className={`surface-block ${styles.form}`}>
+            <div className={styles.intro}>
                 <h2 className="section-title">Создать бронирование</h2>
-                <div style={{ color: '#777' }}>
+                <div className={styles.mutedText}>
                     Выбери ресторан, стол и временной интервал. Бронирование должно быть минимум на 1 час.
                 </div>
             </div>
 
-            <div style={{ display: 'grid', gap: '8px' }}>
-                <label htmlFor="restaurantId">Ресторан</label>
+            <div className={styles.field}>
+                <label htmlFor="restaurantId">{'\u0420\u0435\u0441\u0442\u043e\u0440\u0430\u043d'}</label>
                 <select id="restaurantId" className="base-input" {...register('restaurantId')}>
                     <option value="">Выберите ресторан</option>
                     {restaurantOptions.map((restaurant) => (
@@ -57,9 +58,14 @@ export const CreateBookingForm = ({
 
             {isRestaurantLoading ? <div>Загрузка столов ресторана...</div> : null}
 
-            <div style={{ display: 'grid', gap: '8px' }}>
+            <div className={styles.field}>
                 <label htmlFor="tableId">Стол</label>
-                <select id="tableId" className="base-input" {...register('tableId')} disabled={!selectedRestaurant || isRestaurantLoading}>
+                <select
+                    id="tableId"
+                    className="base-input"
+                    {...register('tableId')}
+                    disabled={!selectedRestaurant || isRestaurantLoading}
+                >
                     <option value="">Выберите стол</option>
                     {availableTables.map((table) => (
                         <option key={table.id} value={table.id}>
@@ -74,7 +80,7 @@ export const CreateBookingForm = ({
                 <div>В этом ресторане нет активных столов для выбора</div>
             ) : null}
 
-            <div style={{ display: 'grid', gap: '16px', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))' }}>
+            <div className={styles.fieldGrid}>
                 <Input
                     label="Начало"
                     type="datetime-local"
@@ -99,12 +105,11 @@ export const CreateBookingForm = ({
                 {...register('guests', { valueAsNumber: true })}
             />
 
-            <div style={{ display: 'grid', gap: '8px' }}>
+            <div className={styles.field}>
                 <label htmlFor="comment">Комментарий</label>
                 <textarea
                     id="comment"
-                    className="base-input"
-                    style={{ minHeight: '120px', paddingTop: '16px', paddingBottom: '16px' }}
+                    className={`base-input ${styles.textarea}`}
                     placeholder="Например: нужен стол у окна"
                     {...register('comment')}
                 />
@@ -112,7 +117,7 @@ export const CreateBookingForm = ({
             </div>
 
             {serverError ? <div>{serverError}</div> : null}
-            {successMessage ? <div style={{ color: 'green' }}>{successMessage}</div> : null}
+            {successMessage ? <div className={styles.successMessage}>{successMessage}</div> : null}
 
             <button className="primary-button" type="submit" disabled={isSubmitting}>
                 {isSubmitting ? 'Создание бронирования...' : 'Создать бронирование'}
