@@ -1,15 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { RestaurantTable } from '@/entities/restaurant/model/types.ts';
+import { useNavigate } from 'react-router-dom';
+import type { RestaurantTable, WorkingHours } from '@/entities/restaurant/model/types.ts';
 import { getTableAvailability } from '@/entities/booking/api/get-table-availability.ts';
 import type { TableAvailabilityResponse } from '@/entities/booking/model/types.ts';
 import { bookingCartStorage } from '@/shared/lib/booking-cart/booking-cart.ts';
 import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
+import { RoutePaths } from '@/shared/config/routes/routes.ts';
 import type { NormalizedRestaurant } from '../../model/types.ts';
 import {
     addHours,
     buildLocalDate,
     createBookingCartItem,
-    formatSlotInterval,
     formatTimeLabel,
     getTimeSlots,
     getTodayDateInputValue,
@@ -26,6 +27,161 @@ type RestaurantBookingModalProps = {
     onRequestAddToOrder: (onAccept: () => void) => void;
 };
 
+type CalendarCell = {
+    key: string;
+    dateValue: string | null;
+    dayNumber: number | null;
+    isDisabled: boolean;
+    isSelected: boolean;
+    isToday: boolean;
+};
+
+const monthTitleFormatter = new Intl.DateTimeFormat('ru-RU', { month: 'long' });
+const selectedDateFormatter = new Intl.DateTimeFormat('ru-RU', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+});
+
+const capitalize = (value: string) => {
+    if (!value) {
+        return value;
+    }
+
+    return value.charAt(0).toUpperCase() + value.slice(1);
+};
+
+const parseDateValue = (dateValue: string) => new Date(`${dateValue}T00:00:00`);
+
+const formatDateValue = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+};
+
+const getMonthStart = (date: Date) => new Date(date.getFullYear(), date.getMonth(), 1);
+
+const shiftMonth = (date: Date, amount: number) => {
+    return new Date(date.getFullYear(), date.getMonth() + amount, 1);
+};
+
+const isSameMonth = (left: Date, right: Date) => {
+    return left.getFullYear() === right.getFullYear() && left.getMonth() === right.getMonth();
+};
+
+const hasBookableWorkingHours = (workingHoursItem: WorkingHours | null) => {
+    return Boolean(
+        workingHoursItem
+        && !workingHoursItem.closed
+        && workingHoursItem.openTime
+        && workingHoursItem.closeTime,
+    );
+};
+
+const isDateBookable = (
+    workingHours: WorkingHours[],
+    dateValue: string,
+    minDateValue: string,
+) => {
+    if (dateValue < minDateValue) {
+        return false;
+    }
+
+    return hasBookableWorkingHours(getWorkingHoursForDate(workingHours, dateValue));
+};
+
+const findFirstBookableDate = (
+    workingHours: WorkingHours[],
+    minDateValue: string,
+) => {
+    const startDate = parseDateValue(minDateValue);
+
+    for (let dayOffset = 0; dayOffset < 366; dayOffset += 1) {
+        const currentDate = new Date(startDate);
+        currentDate.setDate(startDate.getDate() + dayOffset);
+
+        const dateValue = formatDateValue(currentDate);
+
+        if (isDateBookable(workingHours, dateValue, minDateValue)) {
+            return dateValue;
+        }
+    }
+
+    return minDateValue;
+};
+
+const buildCalendarCells = ({
+    visibleMonth,
+    selectedDate,
+    workingHours,
+    minDateValue,
+}: {
+    visibleMonth: Date;
+    selectedDate: string;
+    workingHours: WorkingHours[];
+    minDateValue: string;
+}): CalendarCell[] => {
+    const year = visibleMonth.getFullYear();
+    const month = visibleMonth.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const leadingEmptyCells = (firstDay.getDay() + 6) % 7;
+    const cells: CalendarCell[] = [];
+    const todayDateValue = getTodayDateInputValue();
+
+    for (let index = 0; index < leadingEmptyCells; index += 1) {
+        cells.push({
+            key: `empty-start-${index}`,
+            dateValue: null,
+            dayNumber: null,
+            isDisabled: true,
+            isSelected: false,
+            isToday: false,
+        });
+    }
+
+    for (let day = 1; day <= daysInMonth; day += 1) {
+        const date = new Date(year, month, day);
+        const dateValue = formatDateValue(date);
+
+        cells.push({
+            key: dateValue,
+            dateValue,
+            dayNumber: day,
+            isDisabled: !isDateBookable(workingHours, dateValue, minDateValue),
+            isSelected: dateValue === selectedDate,
+            isToday: dateValue === todayDateValue,
+        });
+    }
+
+    const trailingEmptyCells = (7 - (cells.length % 7 || 7)) % 7;
+
+    for (let index = 0; index < trailingEmptyCells; index += 1) {
+        cells.push({
+            key: `empty-end-${index}`,
+            dateValue: null,
+            dayNumber: null,
+            isDisabled: true,
+            isSelected: false,
+            isToday: false,
+        });
+    }
+
+    return cells;
+};
+
+const getSlotEndTimeValue = (dateValue: string, timeValue: string) => {
+    const next = addHours(buildLocalDate(dateValue, timeValue), 1);
+
+    return `${String(next.getHours()).padStart(2, '0')}:${String(next.getMinutes()).padStart(2, '0')}`;
+};
+
+const formatTimeInterval = (startTime: string, endTime: string) => {
+    return `${formatTimeLabel(startTime)} - ${formatTimeLabel(endTime)}`;
+};
+
 export const RestaurantBookingModal = ({
     restaurant,
     table,
@@ -34,14 +190,24 @@ export const RestaurantBookingModal = ({
     onAdded,
     onRequestAddToOrder,
 }: RestaurantBookingModalProps) => {
-    const [selectedDate, setSelectedDate] = useState(getTodayDateInputValue());
+    const navigate = useNavigate();
+    const todayDateValue = useMemo(() => getTodayDateInputValue(), []);
+    const firstBookableDate = useMemo(() => {
+        return findFirstBookableDate(restaurant.workingHours, todayDateValue);
+    }, [restaurant.workingHours, todayDateValue]);
+
+    const [selectedDate, setSelectedDate] = useState(firstBookableDate);
+    const [visibleMonth, setVisibleMonth] = useState(() => {
+        return getMonthStart(parseDateValue(firstBookableDate));
+    });
     const [availability, setAvailability] = useState<TableAvailabilityResponse | null>(null);
     const [isAvailabilityLoading, setIsAvailabilityLoading] = useState(true);
     const [availabilityError, setAvailabilityError] = useState('');
     const [selectedStartTime, setSelectedStartTime] = useState('');
     const [selectedEndTime, setSelectedEndTime] = useState('');
+    const [selectionAnchorTime, setSelectionAnchorTime] = useState<string | null>(null);
+    const [isAwaitingRangeEnd, setIsAwaitingRangeEnd] = useState(false);
     const [guests, setGuests] = useState(Math.min(table.capacity, 2));
-    const [comment, setComment] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
 
     useEffect(() => {
@@ -54,6 +220,15 @@ export const RestaurantBookingModal = ({
     }, []);
 
     useEffect(() => {
+        if (isDateBookable(restaurant.workingHours, selectedDate, todayDateValue)) {
+            return;
+        }
+
+        setSelectedDate(firstBookableDate);
+        setVisibleMonth(getMonthStart(parseDateValue(firstBookableDate)));
+    }, [firstBookableDate, restaurant.workingHours, selectedDate, todayDateValue]);
+
+    useEffect(() => {
         const loadAvailability = async () => {
             try {
                 setIsAvailabilityLoading(true);
@@ -61,6 +236,8 @@ export const RestaurantBookingModal = ({
                 setSuccessMessage('');
                 setSelectedStartTime('');
                 setSelectedEndTime('');
+                setSelectionAnchorTime(null);
+                setIsAwaitingRangeEnd(false);
 
                 const response = await getTableAvailability(restaurant.id, table.id, selectedDate);
                 setAvailability(response);
@@ -75,7 +252,7 @@ export const RestaurantBookingModal = ({
         };
 
         void loadAvailability();
-    }, [restaurant.id, table.id, selectedDate]);
+    }, [restaurant.id, selectedDate, table.id]);
 
     const workingHoursItem = useMemo(() => {
         return getWorkingHoursForDate(restaurant.workingHours, selectedDate);
@@ -87,30 +264,47 @@ export const RestaurantBookingModal = ({
 
     const scheduleButtons = useMemo(() => {
         return getTimeSlots(selectedDate, workingHoursItem, reservedSlots);
-    }, [selectedDate, workingHoursItem, reservedSlots]);
+    }, [reservedSlots, selectedDate, workingHoursItem]);
 
-    const selectedScheduleButton = useMemo(() => {
-        return scheduleButtons.find((item) => item.time === selectedStartTime) ?? null;
-    }, [scheduleButtons, selectedStartTime]);
-
-    const endOptions = useMemo(() => {
-        if (!selectedScheduleButton) {
-            return [];
-        }
-
-        return Array.from({ length: selectedScheduleButton.maxDuration }, (_, index) => {
-            const start = buildLocalDate(selectedDate, selectedScheduleButton.time);
-            const end = addHours(start, index + 1);
-
-            return `${String(end.getHours()).padStart(2, '0')}:${String(end.getMinutes()).padStart(2, '0')}`;
+    const calendarCells = useMemo(() => {
+        return buildCalendarCells({
+            visibleMonth,
+            selectedDate,
+            workingHours: restaurant.workingHours,
+            minDateValue: todayDateValue,
         });
-    }, [selectedDate, selectedScheduleButton]);
+    }, [restaurant.workingHours, selectedDate, todayDateValue, visibleMonth]);
 
-    useEffect(() => {
-        if (!endOptions.includes(selectedEndTime)) {
-            setSelectedEndTime(endOptions[0] ?? '');
+    const selectedRange = useMemo(() => {
+        if (!selectedStartTime || !selectedEndTime) {
+            return null;
         }
-    }, [endOptions, selectedEndTime]);
+
+        return {
+            start: buildLocalDate(selectedDate, selectedStartTime),
+            end: buildLocalDate(selectedDate, selectedEndTime),
+        };
+    }, [selectedDate, selectedEndTime, selectedStartTime]);
+
+    const selectedDateLabel = useMemo(() => {
+        return capitalize(selectedDateFormatter.format(parseDateValue(selectedDate)));
+    }, [selectedDate]);
+
+    const visibleMonthTitle = useMemo(() => {
+        return capitalize(monthTitleFormatter.format(visibleMonth));
+    }, [visibleMonth]);
+
+    const selectedIntervalLabel = useMemo(() => {
+        if (!selectedStartTime || !selectedEndTime) {
+            return 'Выберите время бронирования';
+        }
+
+        return formatTimeInterval(selectedStartTime, selectedEndTime);
+    }, [selectedEndTime, selectedStartTime]);
+
+    const canGoToPreviousMonth = useMemo(() => {
+        return !isSameMonth(visibleMonth, getMonthStart(parseDateValue(todayDateValue)));
+    }, [todayDateValue, visibleMonth]);
 
     const canAddToCart = Boolean(
         selectedDate
@@ -119,6 +313,62 @@ export const RestaurantBookingModal = ({
         && guests > 0
         && guests <= table.capacity,
     );
+
+    const isClosed = !hasBookableWorkingHours(workingHoursItem);
+
+    const selectSingleHour = (timeValue: string) => {
+        setSelectionAnchorTime(timeValue);
+        setIsAwaitingRangeEnd(true);
+        setSelectedStartTime(timeValue);
+        setSelectedEndTime(getSlotEndTimeValue(selectedDate, timeValue));
+    };
+
+    const handleTimeSlotClick = (timeValue: string) => {
+        const clickedIndex = scheduleButtons.findIndex((slot) => slot.time === timeValue);
+
+        if (clickedIndex === -1) {
+            return;
+        }
+
+        const clickedSlot = scheduleButtons[clickedIndex];
+
+        if (clickedSlot.isReserved || clickedSlot.isPast) {
+            return;
+        }
+
+        setSuccessMessage('');
+
+        if (!selectionAnchorTime || !isAwaitingRangeEnd) {
+            selectSingleHour(timeValue);
+            return;
+        }
+
+        const anchorIndex = scheduleButtons.findIndex((slot) => slot.time === selectionAnchorTime);
+
+        if (anchorIndex === -1) {
+            selectSingleHour(timeValue);
+            return;
+        }
+
+        const rangeStartIndex = Math.min(anchorIndex, clickedIndex);
+        const rangeEndIndex = Math.max(anchorIndex, clickedIndex);
+        const rangeIsAvailable = scheduleButtons
+            .slice(rangeStartIndex, rangeEndIndex + 1)
+            .every((slot) => !slot.isReserved && !slot.isPast);
+
+        if (!rangeIsAvailable) {
+            selectSingleHour(timeValue);
+            return;
+        }
+
+        const startSlot = scheduleButtons[rangeStartIndex];
+        const endSlot = scheduleButtons[rangeEndIndex];
+
+        setSelectedStartTime(startSlot.time);
+        setSelectedEndTime(getSlotEndTimeValue(selectedDate, endSlot.time));
+        setSelectionAnchorTime(startSlot.time);
+        setIsAwaitingRangeEnd(false);
+    };
 
     const handleAddToCart = () => {
         if (!canAddToCart) {
@@ -135,7 +385,7 @@ export const RestaurantBookingModal = ({
                     selectedStartTime,
                     selectedEndTime,
                     guests,
-                    comment,
+                    '',
                 ),
             );
 
@@ -143,13 +393,6 @@ export const RestaurantBookingModal = ({
             onAdded();
         });
     };
-
-    const isClosed = Boolean(
-        !workingHoursItem
-        || workingHoursItem.closed
-        || !workingHoursItem.openTime
-        || !workingHoursItem.closeTime,
-    );
 
     return (
         <div className={styles.modalOverlay} onClick={onClose}>
@@ -180,165 +423,206 @@ export const RestaurantBookingModal = ({
                 </div>
 
                 <div className={styles.modalBody}>
-                    <div className={styles.fieldGrid}>
-                        <label className={styles.field}>
-                            <span className={styles.fieldLabel}>Дата</span>
-                            <input
-                                type="date"
-                                className={styles.fieldInput}
-                                min={getTodayDateInputValue()}
-                                value={selectedDate}
-                                onChange={(event) => setSelectedDate(event.target.value)}
-                            />
-                        </label>
-
-                        <label className={styles.field}>
-                            <span className={styles.fieldLabel}>Гости</span>
-                            <input
-                                type="number"
-                                className={styles.fieldInput}
-                                min={1}
-                                max={table.capacity}
-                                value={guests}
-                                onChange={(event) => setGuests(Number(event.target.value))}
-                            />
-                        </label>
-                    </div>
-
-                    <label className={styles.field}>
-                        <span className={styles.fieldLabel}>Комментарий</span>
-                        <textarea
-                            className={styles.fieldTextarea}
-                            rows={3}
-                            maxLength={500}
-                            placeholder="Например: нужен стол ближе к окну"
-                            value={comment}
-                            onChange={(event) => setComment(event.target.value)}
-                        />
-                    </label>
-
-                    <div className={styles.scheduleBlock}>
-                        <div className={styles.scheduleHeader}>
-                            <span className={styles.fieldLabel}>Расписание дня</span>
-                            {!isClosed && workingHoursItem?.openTime && workingHoursItem?.closeTime ? (
-                                <span className={styles.scheduleMeta}>
-                                    Часы работы: {formatTimeLabel(workingHoursItem.openTime)} — {formatTimeLabel(workingHoursItem.closeTime)}
-                                </span>
-                            ) : null}
-                        </div>
-
-                        {isAvailabilityLoading ? (
-                            <div className={styles.infoMessage}>Загружаем занятость стола...</div>
-                        ) : availabilityError ? (
-                            <div className={styles.errorMessage}>{availabilityError}</div>
-                        ) : isClosed ? (
-                            <div className={styles.infoMessage}>В выбранный день ресторан закрыт</div>
-                        ) : scheduleButtons.length === 0 ? (
-                            <div className={styles.infoMessage}>Нет доступных часовых интервалов</div>
-                        ) : (
-                            <>
-                                <div className={styles.scheduleGrid}>
-                                    {scheduleButtons.map((slot) => {
-                                        const isSelected = selectedStartTime === slot.time;
-
-                                        return (
-                                            <button
-                                                key={slot.time}
-                                                type="button"
-                                                className={[
-                                                    styles.scheduleButton,
-                                                    slot.isReserved || slot.isPast ? styles.scheduleButtonDisabled : '',
-                                                    isSelected ? styles.scheduleButtonSelected : '',
-                                                ].join(' ').trim()}
-                                                disabled={slot.isReserved || slot.isPast}
-                                                onClick={() => {
-                                                    setSelectedStartTime(slot.time);
-                                                    setSuccessMessage('');
-                                                }}
-                                            >
-                                                {slot.label}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-
-                                {reservedSlots.length > 0 ? (
-                                    <div className={styles.busyBlock}>
-                                        <span className={styles.busyTitle}>Уже занято:</span>
-                                        <ul className={styles.busyList}>
-                                            {reservedSlots.map((slot) => (
-                                                <li key={`${slot.startAt}-${slot.endAt}`} className={styles.busyItem}>
-                                                    {formatSlotInterval(slot)}
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    </div>
-                                ) : null}
-                            </>
-                        )}
-                    </div>
-
-                    <div className={styles.fieldGrid}>
-                        <label className={styles.field}>
-                            <span className={styles.fieldLabel}>С</span>
-                            <input
-                                type="text"
-                                className={styles.fieldInput}
-                                value={selectedStartTime ? formatTimeLabel(selectedStartTime) : 'Не выбрано'}
-                                readOnly
-                            />
-                        </label>
-
-                        <label className={styles.field}>
-                            <span className={styles.fieldLabel}>До</span>
-                            <select
-                                className={styles.fieldInput}
-                                value={selectedEndTime}
-                                onChange={(event) => setSelectedEndTime(event.target.value)}
-                                disabled={!selectedStartTime || endOptions.length === 0}
-                            >
-                                {endOptions.length === 0 ? (
-                                    <option value="">Сначала выбери старт</option>
-                                ) : (
-                                    endOptions.map((value) => (
-                                        <option key={value} value={value}>
-                                            {formatTimeLabel(value)}
-                                        </option>
-                                    ))
-                                )}
-                            </select>
-                        </label>
-                    </div>
-
                     {successMessage ? (
-                        <div className={styles.successMessage}>{successMessage}</div>
-                    ) : null}
+                        <div className={styles.modalSuccessState}>
+                            <h4 className={styles.modalSuccessTitle}>{successMessage}</h4>
 
-                    {guests > table.capacity ? (
-                        <div className={styles.errorMessage}>
-                            Количество гостей не может быть больше вместимости стола
+                            <button
+                                type="button"
+                                className={styles.modalPrimaryButton}
+                                onClick={() => navigate(RoutePaths.BOOKING)}
+                            >
+                                Перейти к бронированию
+                            </button>
                         </div>
-                    ) : null}
+                    ) : (
+                        <>
+                            <div className={styles.bookingPlannerBoard}>
+                                <div className={styles.bookingPlannerGrid}>
+                                    <section className={styles.plannerPanel}>
+                                        <div className={styles.plannerPanelHeader}>
+                                            <h4 className={styles.plannerPanelTitle}>Календарь</h4>
+                                            <p className={styles.plannerPanelMeta}>{selectedDateLabel}</p>
+                                        </div>
+
+                                        <div className={styles.calendarToolbar}>
+                                            <button
+                                                type="button"
+                                                className={styles.calendarNavButton}
+                                                onClick={() => setVisibleMonth((current) => shiftMonth(current, -1))}
+                                                disabled={!canGoToPreviousMonth}
+                                                aria-label="Предыдущий месяц"
+                                            >
+                                                {'<'}
+                                            </button>
+
+                                            <div className={styles.calendarMonthLabel}>{visibleMonthTitle}</div>
+
+                                            <button
+                                                type="button"
+                                                className={styles.calendarNavButton}
+                                                onClick={() => setVisibleMonth((current) => shiftMonth(current, 1))}
+                                                aria-label="Следующий месяц"
+                                            >
+                                                {'>'}
+                                            </button>
+                                        </div>
+
+                                        <div className={styles.calendarGrid}>
+                                            {calendarCells.map((cell) => {
+                                                if (!cell.dateValue || !cell.dayNumber) {
+                                                    return (
+                                                        <div
+                                                            key={cell.key}
+                                                            className={styles.calendarDayPlaceholder}
+                                                            aria-hidden="true"
+                                                        />
+                                                    );
+                                                }
+
+                                                return (
+                                                    <button
+                                                        key={cell.key}
+                                                        type="button"
+                                                        className={[
+                                                            styles.calendarDayButton,
+                                                            cell.isDisabled ? styles.calendarDayButtonDisabled : '',
+                                                            cell.isSelected ? styles.calendarDayButtonSelected : '',
+                                                            cell.isToday ? styles.calendarDayButtonToday : '',
+                                                        ].join(' ').trim()}
+                                                        disabled={cell.isDisabled}
+                                                        onClick={() => {
+                                                            setSelectedDate(cell.dateValue ?? selectedDate);
+                                                            setVisibleMonth(getMonthStart(parseDateValue(cell.dateValue ?? selectedDate)));
+                                                            setSuccessMessage('');
+                                                        }}
+                                                        aria-label={`Выбрать дату ${cell.dayNumber}`}
+                                                    >
+                                                        {cell.dayNumber}
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+
+                                        <p className={styles.plannerFootnote}>
+                                            Серым отмечены недоступные для бронирования дни.
+                                        </p>
+                                    </section>
+
+                                    <section className={styles.plannerPanel}>
+                                        <div className={styles.plannerPanelHeader}>
+                                            <h4 className={styles.plannerPanelTitle}>Доступное время</h4>
+                                            <p className={styles.plannerPanelMeta}>{selectedIntervalLabel}</p>
+                                        </div>
+
+                                        {isAvailabilityLoading ? (
+                                            <div className={styles.plannerMessage}>
+                                                Загружаем занятость стола...
+                                            </div>
+                                        ) : availabilityError ? (
+                                            <div className={styles.plannerMessage}>
+                                                {availabilityError}
+                                            </div>
+                                        ) : isClosed ? (
+                                            <div className={styles.plannerMessage}>
+                                                В выбранный день ресторан не принимает бронирования.
+                                            </div>
+                                        ) : scheduleButtons.length === 0 ? (
+                                            <div className={styles.plannerMessage}>
+                                                На этот день нет доступных интервалов.
+                                            </div>
+                                        ) : (
+                                            <div className={styles.timeSlotList}>
+                                                {scheduleButtons.map((slot) => {
+                                                    const slotStart = buildLocalDate(selectedDate, slot.time);
+                                                    const slotEnd = addHours(slotStart, 1);
+                                                    const isSelected = Boolean(
+                                                        selectedRange
+                                                        && slotStart >= selectedRange.start
+                                                        && slotEnd <= selectedRange.end,
+                                                    );
+                                                    const slotEndTimeValue = getSlotEndTimeValue(selectedDate, slot.time);
+
+                                                    return (
+                                                        <button
+                                                            key={slot.time}
+                                                            type="button"
+                                                            className={[
+                                                                styles.timeSlotButton,
+                                                                slot.isReserved || slot.isPast ? styles.timeSlotButtonDisabled : '',
+                                                                isSelected ? styles.timeSlotButtonSelected : '',
+                                                            ].join(' ').trim()}
+                                                            disabled={slot.isReserved || slot.isPast}
+                                                            onClick={() => handleTimeSlotClick(slot.time)}
+                                                            aria-label={`Выбрать интервал ${formatTimeInterval(slot.time, slotEndTimeValue)}`}
+                                                        >
+                                                            {formatTimeInterval(slot.time, slotEndTimeValue)}
+                                                        </button>
+                                                    );
+                                                })}
+                                            </div>
+                                        )}
+
+                                        <p className={styles.plannerFootnote}>
+                                            Один клик выбирает один час. Второй клик расширяет бронь до конца диапазона.
+                                        </p>
+                                    </section>
+                                </div>
+                            </div>
+
+                            <div className={styles.fieldGrid}>
+                                <label className={styles.field}>
+                                    <span className={styles.fieldLabel}>Гости</span>
+                                    <input
+                                        type="number"
+                                        className={styles.fieldInput}
+                                        min={1}
+                                        max={table.capacity}
+                                        value={guests}
+                                        onChange={(event) => setGuests(Number(event.target.value))}
+                                    />
+                                </label>
+
+                                <label className={styles.field}>
+                                    <span className={styles.fieldLabel}>Выбранный интервал</span>
+                                    <input
+                                        type="text"
+                                        className={styles.fieldInput}
+                                        value={selectedIntervalLabel}
+                                        readOnly
+                                    />
+                                </label>
+                            </div>
+
+                            {guests > table.capacity ? (
+                                <div className={styles.errorMessage}>
+                                    Количество гостей не может быть больше вместимости стола
+                                </div>
+                            ) : null}
+                        </>
+                    )}
                 </div>
 
-                <div className={styles.modalActions}>
-                    <button
-                        type="button"
-                        className={styles.modalSecondaryButton}
-                        onClick={onClose}
-                    >
-                        Закрыть
-                    </button>
+                {!successMessage ? (
+                    <div className={styles.modalActions}>
+                        <button
+                            type="button"
+                            className={styles.modalSecondaryButton}
+                            onClick={onClose}
+                        >
+                            Закрыть
+                        </button>
 
-                    <button
-                        type="button"
-                        className={styles.modalPrimaryButton}
-                        onClick={handleAddToCart}
-                        disabled={!canAddToCart}
-                    >
-                        Забронировать
-                    </button>
-                </div>
+                        <button
+                            type="button"
+                            className={styles.modalPrimaryButton}
+                            onClick={handleAddToCart}
+                            disabled={!canAddToCart}
+                        >
+                            Добавить в бронирование
+                        </button>
+                    </div>
+                ) : null}
             </div>
         </div>
     );

@@ -34,7 +34,7 @@ export const RestaurantSchemeSection = ({
     onSelectTable,
 }: RestaurantSchemeSectionProps) => {
     return (
-        <section className={styles.schemeSection}>
+        <section className={styles.schemeSection} id="restaurant-scheme">
             <div className={styles.sectionHeader}>
                 <h2 className={styles.sectionTitle}>Схема зала</h2>
 

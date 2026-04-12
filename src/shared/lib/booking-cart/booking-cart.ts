@@ -56,6 +56,21 @@ export const bookingCartStorage = {
         bookingCartStorage.saveItems(items);
     },
 
+    updateItem(id: string, changes: Partial<Omit<BookingCartItem, 'id'>>) {
+        const items = bookingCartStorage.getItems().map((item) => {
+            if (item.id !== id) {
+                return item;
+            }
+
+            return {
+                ...item,
+                ...changes,
+            };
+        });
+
+        bookingCartStorage.saveItems(items);
+    },
+
     clear() {
         localStorage.removeItem(BOOKING_CART_KEY);
         notify();

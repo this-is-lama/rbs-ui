@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { createBooking } from '@/entities/booking/api/create-booking.ts';
 import type { BookingCartItem } from '@/entities/booking/model/types.ts';
 import { getRestaurantById } from '@/entities/restaurant/api/get-restaurant-by-id.ts';
 import { getPhotoByCategory } from '@/entities/restaurant/lib/get-photo-by-category.ts';
@@ -63,6 +64,10 @@ export const BookingPageWidget = () => {
     const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
     const [isRestaurantLoading, setIsRestaurantLoading] = useState(false);
     const [restaurantLoadError, setRestaurantLoadError] = useState('');
+    const [commentDraft, setCommentDraft] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitError, setSubmitError] = useState('');
+    const [submitSuccess, setSubmitSuccess] = useState('');
 
     useEffect(() => {
         const syncCart = () => {
@@ -84,6 +89,16 @@ export const BookingPageWidget = () => {
     const selectedBookingItem = bookingItems[0] ?? null;
     const currentRestaurantId = selectedBookingItem?.restaurantId ?? dishItems[0]?.restaurantId ?? null;
     const currentRestaurantName = selectedBookingItem?.restaurantName ?? dishItems[0]?.restaurantName ?? '';
+
+    useEffect(() => {
+        setCommentDraft(selectedBookingItem?.comment ?? '');
+    }, [selectedBookingItem]);
+
+    useEffect(() => {
+        if (bookingItems.length > 0 || dishItems.length > 0) {
+            setSubmitSuccess('');
+        }
+    }, [bookingItems.length, dishItems.length]);
 
     useEffect(() => {
         if (!currentRestaurantId) {
@@ -165,6 +180,54 @@ export const BookingPageWidget = () => {
     }, [dishItems]);
 
     const isCartEmpty = bookingItems.length === 0 && dishItems.length === 0;
+    const hasDishes = totalDishCount > 0;
+    const canSubmitBooking = Boolean(selectedBookingItem) && !isSubmitting;
+
+    const handleCommentChange = (value: string) => {
+        setCommentDraft(value);
+
+        if (!selectedBookingItem) {
+            return;
+        }
+
+        bookingCartStorage.updateItem(selectedBookingItem.id, {
+            comment: value || null,
+        });
+    };
+
+    const handleSubmitBooking = async () => {
+        if (!selectedBookingItem) {
+            return;
+        }
+
+        try {
+            setIsSubmitting(true);
+            setSubmitError('');
+            setSubmitSuccess('');
+
+            await createBooking({
+                restaurantId: selectedBookingItem.restaurantId,
+                tableId: selectedBookingItem.tableId,
+                startAt: selectedBookingItem.startAt,
+                endAt: selectedBookingItem.endAt,
+                guests: selectedBookingItem.guests,
+                comment: commentDraft.trim() || undefined,
+                dishes: dishItems.map((item) => ({
+                    dishId: item.dishId,
+                    quantity: item.quantity,
+                })),
+            });
+
+            bookingCartStorage.clear();
+            dishCartStorage.clear();
+            setCommentDraft('');
+            setSubmitSuccess('Бронирование успешно оформлено');
+        } catch (error) {
+            setSubmitError(getApiErrorMessage(error, 'Не удалось оформить бронирование'));
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     return (
         <section className={`container ${styles.page}`}>
@@ -175,13 +238,19 @@ export const BookingPageWidget = () => {
                 </div>
             </div>
 
+            {submitSuccess && isCartEmpty ? (
+                <div className={`${styles.card} ${styles.successCard}`}>{submitSuccess}</div>
+            ) : null}
+
             {isCartEmpty ? (
-                <div className={`${styles.card} ${styles.emptyCard}`}>
-                    <h2 className="section-title">Корзина пуста</h2>
-                    <div>
-                        Сначала выберите ресторан, добавьте стол и блюда, а затем вернитесь сюда.
+                !submitSuccess ? (
+                    <div className={`${styles.card} ${styles.emptyCard}`}>
+                        <h2 className="section-title">Корзина пуста</h2>
+                        <div>
+                            Сначала выберите ресторан, добавьте стол и блюда, а затем вернитесь сюда.
+                        </div>
                     </div>
-                </div>
+                ) : null
             ) : (
                 <>
                     <BookingOrderSection
@@ -215,11 +284,50 @@ export const BookingPageWidget = () => {
                         }}
                     />
 
-                    <BookingSummaryCard
-                        dishCount={totalDishCount}
-                        totalAmount={totalDishAmount}
-                        formatMoney={formatMoney}
-                    />
+                    {selectedBookingItem ? (
+                        <section className={styles.section}>
+                            <article className={`${styles.card} ${styles.commentCard}`}>
+                                <h2 className="section-title">Комментарий к бронированию</h2>
+                                <textarea
+                                    className={styles.commentTextarea}
+                                    rows={4}
+                                    maxLength={500}
+                                    placeholder="Например: нужен стол ближе к окну"
+                                    value={commentDraft}
+                                    onChange={(event) => handleCommentChange(event.target.value)}
+                                />
+                            </article>
+                        </section>
+                    ) : null}
+
+                    {hasDishes ? (
+                        <BookingSummaryCard
+                            dishCount={totalDishCount}
+                            totalAmount={totalDishAmount}
+                            formatMoney={formatMoney}
+                        />
+                    ) : null}
+
+                    {submitError ? (
+                        <div className={`${styles.card} ${styles.errorCard}`}>{submitError}</div>
+                    ) : null}
+
+                    {!selectedBookingItem ? (
+                        <div className={`${styles.card} ${styles.infoCard}`}>
+                            Чтобы оформить бронирование, сначала выберите стол.
+                        </div>
+                    ) : null}
+
+                    <div className={styles.bottomAction}>
+                        <button
+                            type="button"
+                            className={styles.primaryButton}
+                            onClick={handleSubmitBooking}
+                            disabled={!canSubmitBooking}
+                        >
+                            {isSubmitting ? 'Оформляем бронирование...' : 'Оформить бронирование'}
+                        </button>
+                    </div>
                 </>
             )}
         </section>
