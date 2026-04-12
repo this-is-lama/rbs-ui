@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { Footer } from '@/widgets/footer/Footer.tsx';
 import { useRestaurantDetails } from '../model/use-restaurant-details.ts';
@@ -11,7 +10,6 @@ import styles from './restaurant-details-widget.module.scss';
 
 export const RestaurantDetailsWidget = () => {
     const { id } = useParams<{ id: string }>();
-    const galleryRef = useRef<HTMLDivElement | null>(null);
     const {
         restaurant,
         isLoading,
@@ -36,21 +34,6 @@ export const RestaurantDetailsWidget = () => {
         handleDecreaseDish,
         handleBookingAdded,
     } = useRestaurantDetails(id);
-
-    const scrollGallery = (direction: 'left' | 'right') => {
-        const container = galleryRef.current;
-
-        if (!container) {
-            return;
-        }
-
-        const amount = container.clientWidth * 0.8;
-
-        container.scrollBy({
-            left: direction === 'left' ? -amount : amount,
-            behavior: 'smooth',
-        });
-    };
 
     if (isLoading) {
         return (
@@ -79,13 +62,7 @@ export const RestaurantDetailsWidget = () => {
     return (
         <>
             <div className={`container ${styles.page}`}>
-                <RestaurantGallery
-                    restaurantName={restaurant.name}
-                    galleryPhotos={galleryPhotos}
-                    galleryRef={galleryRef}
-                    onScrollLeft={() => scrollGallery('left')}
-                    onScrollRight={() => scrollGallery('right')}
-                />
+                <RestaurantGallery restaurantName={restaurant.name} galleryPhotos={galleryPhotos} />
 
                 <RestaurantInfoSection
                     restaurant={restaurant}

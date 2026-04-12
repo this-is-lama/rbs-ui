@@ -10,11 +10,11 @@ type DishCardProps = {
 };
 
 export const DishCard = ({
-                             dish,
-                             count = 0,
-                             onAddToCart,
-                             onDecreaseFromCart,
-                         }: DishCardProps) => {
+    dish,
+    count = 0,
+    onAddToCart,
+    onDecreaseFromCart,
+}: DishCardProps) => {
     const photos = Array.isArray(dish.photos) ? dish.photos : [];
     const banner = getPhotoByCategory(photos, 'BANNER') ?? photos[0] ?? null;
 
@@ -27,28 +27,32 @@ export const DishCard = ({
                     <div className={styles.imagePlaceholder}>Фото блюда</div>
                 )}
 
-                <div className={styles.overlayRow}>
+                {count > 0 ? <span className={styles.countBadge}>{count}</span> : null}
+            </div>
+
+            <div className={styles.content}>
+                <h3 className={styles.name}>{dish.name}</h3>
+
+                <div className={styles.footer}>
                     <span className={styles.weightBadge}>{dish.weight} г</span>
 
                     {dish.available ? (
                         count > 0 ? (
-                            <div className={styles.counterGroup}>
+                            <div className={styles.priceControls}>
                                 <button
                                     type="button"
-                                    className={styles.counterButton}
+                                    className={styles.stepButton}
                                     onClick={onDecreaseFromCart}
                                     aria-label={`Уменьшить количество блюда ${dish.name}`}
                                 >
-                                    −
+                                    -
                                 </button>
 
-                                <span className={styles.counterPrice}>
-                                    {dish.price} ₽
-                                </span>
+                                <span className={styles.priceValue}>{dish.price} ₽</span>
 
                                 <button
                                     type="button"
-                                    className={styles.counterButton}
+                                    className={styles.stepButton}
                                     onClick={onAddToCart}
                                     aria-label={`Увеличить количество блюда ${dish.name}`}
                                 >
@@ -58,22 +62,18 @@ export const DishCard = ({
                         ) : (
                             <button
                                 type="button"
-                                className={styles.actionButton}
+                                className={styles.priceButton}
                                 onClick={onAddToCart}
                                 aria-label={`Добавить блюдо ${dish.name} в корзину`}
                             >
-                                <span className={styles.actionSymbol}>+</span>
-                                <span>{dish.price} ₽</span>
+                                <span className={styles.pricePrefix}>+</span>
+                                <span className={styles.priceValue}>{dish.price} ₽</span>
                             </button>
                         )
                     ) : (
                         <div className={styles.unavailableBadge}>Нет в наличии</div>
                     )}
                 </div>
-            </div>
-
-            <div className={styles.content}>
-                <h3 className={styles.name}>{dish.name}</h3>
             </div>
         </article>
     );
