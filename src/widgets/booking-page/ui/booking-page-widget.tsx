@@ -264,25 +264,27 @@ export const BookingPageWidget = () => {
                         onRemoveTable={(id) => bookingCartStorage.removeItem(id)}
                     />
 
-                    <DishCartSection
-                        restaurantId={currentRestaurantId}
-                        items={cartDishItems}
-                        onClear={() => dishCartStorage.clear()}
-                        onDecrement={(restaurantId, dishId) => {
-                            dishCartStorage.decrementItem(restaurantId, dishId);
-                        }}
-                        onIncrement={(item) => {
-                            dishCartStorage.addItem({
-                                restaurantId: item.restaurantId,
-                                restaurantName: item.restaurantName,
-                                dishId: item.dishId,
-                                dishName: item.dishName,
-                                price: item.price,
-                                weight: item.weight,
-                                photoUrl: item.photoUrl,
-                            });
-                        }}
-                    />
+                    {hasDishes ? (
+                        <DishCartSection
+                            restaurantId={currentRestaurantId}
+                            items={cartDishItems}
+                            onClear={() => dishCartStorage.clear()}
+                            onDecrement={(restaurantId, dishId) => {
+                                dishCartStorage.decrementItem(restaurantId, dishId);
+                            }}
+                            onIncrement={(item) => {
+                                dishCartStorage.addItem({
+                                    restaurantId: item.restaurantId,
+                                    restaurantName: item.restaurantName,
+                                    dishId: item.dishId,
+                                    dishName: item.dishName,
+                                    price: item.price,
+                                    weight: item.weight,
+                                    photoUrl: item.photoUrl,
+                                });
+                            }}
+                        />
+                    ) : null}
 
                     {selectedBookingItem ? (
                         <section className={styles.section}>

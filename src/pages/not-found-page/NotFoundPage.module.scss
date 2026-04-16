@@ -1,0 +1,334 @@
+@use '@/app/styles/mixins' as *;
+@use '@/app/styles/variables' as *;
+
+.main {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(51, 76, 219, 0.1), transparent 34%),
+    linear-gradient(180deg, #ffffff 0%, #f7f8ff 52%, #ffffff 100%);
+}
+
+.section {
+  position: relative;
+  padding: 24px 0 72px;
+  overflow: hidden;
+}
+
+.container {
+  @include container;
+  display: grid;
+  gap: 30px;
+}
+
+.heroCard {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+  gap: 28px;
+  align-items: stretch;
+  padding: 38px;
+  border-radius: 36px;
+  background-color: $color-surface;
+  overflow: hidden;
+}
+
+.copyBlock {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  align-content: center;
+  gap: 22px;
+  min-width: 0;
+}
+
+.eyebrow {
+  width: fit-content;
+  min-height: 42px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background-color: rgba(51, 76, 219, 0.12);
+  color: $color-primary;
+  display: inline-flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.title {
+  max-width: 720px;
+  font-size: clamp(40px, 4.5vw, 64px);
+  line-height: 1;
+  font-weight: 700;
+  color: $color-text-primary;
+}
+
+.description {
+  max-width: 640px;
+  font-size: 19px;
+  line-height: 1.65;
+  color: rgba(17, 17, 17, 0.72);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+}
+
+.primaryAction,
+.secondaryAction {
+  min-height: 58px;
+  padding: 0 28px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  font-weight: 700;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.primaryAction {
+  background-color: $color-primary;
+  color: $color-white;
+}
+
+.secondaryAction {
+  background-color: rgba(255, 255, 255, 0.88);
+  color: $color-text-primary;
+  border: 1px solid rgba(17, 17, 17, 0.08);
+}
+
+.primaryAction:hover,
+.secondaryAction:hover {
+  transform: translateY(-1px);
+}
+
+.visualBlock {
+  position: relative;
+  min-height: 360px;
+  display: grid;
+  place-items: center;
+}
+
+.glow {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(51, 76, 219, 0.18), rgba(51, 76, 219, 0));
+  transform: translate(-50%, -50%);
+  filter: blur(10px);
+}
+
+.visualCard {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 420px);
+  min-height: 320px;
+  padding: 32px;
+  border-radius: 32px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.88));
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  display: grid;
+  align-content: space-between;
+  gap: 24px;
+}
+
+.visualCode {
+  display: block;
+  font-size: clamp(96px, 12vw, 150px);
+  line-height: 0.88;
+  font-weight: 700;
+  letter-spacing: -0.06em;
+  color: $color-primary;
+}
+
+.visualNote {
+  display: grid;
+  gap: 10px;
+  padding: 20px 22px;
+  border-radius: 24px;
+  background-color: $color-surface;
+}
+
+.noteTitle {
+  font-size: 18px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: $color-text-primary;
+}
+
+.noteText {
+  font-size: 15px;
+  line-height: 1.55;
+  color: rgba(17, 17, 17, 0.68);
+}
+
+.linksSection {
+  display: grid;
+  gap: 22px;
+}
+
+.linksHeader {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.linksTitle {
+  font-size: clamp(28px, 3vw, 40px);
+  line-height: 1.05;
+  font-weight: 700;
+  color: $color-text-primary;
+}
+
+.linksDescription {
+  max-width: 520px;
+  font-size: 17px;
+  line-height: 1.6;
+  color: rgba(17, 17, 17, 0.68);
+}
+
+.linksGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.linkCard {
+  min-width: 0;
+  min-height: 220px;
+  padding: 26px;
+  border-radius: 30px;
+  background-color: $color-surface;
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.linkCard:hover {
+  transform: translateY(-2px);
+  background-color: #f0f2ff;
+}
+
+.linkAccent {
+  width: fit-content;
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background-color: rgba(51, 76, 219, 0.12);
+  color: $color-primary;
+  display: inline-flex;
+  align-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.linkTitle {
+  font-size: 24px;
+  line-height: 1.1;
+  font-weight: 700;
+  color: $color-text-primary;
+}
+
+.linkText {
+  font-size: 16px;
+  line-height: 1.6;
+  color: rgba(17, 17, 17, 0.68);
+}
+
+.linkArrow {
+  margin-top: auto;
+  font-size: 16px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: $color-primary;
+}
+
+@media (max-width: 1100px) {
+  .heroCard {
+    grid-template-columns: 1fr;
+  }
+
+  .linksGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .visualBlock {
+    min-height: 300px;
+  }
+}
+
+@media (max-width: 720px) {
+  .section {
+    padding: 18px 0 52px;
+  }
+
+  .container {
+    gap: 24px;
+  }
+
+  .heroCard {
+    padding: 24px;
+    border-radius: 28px;
+  }
+
+  .title {
+    font-size: 36px;
+  }
+
+  .description {
+    font-size: 16px;
+  }
+
+  .actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .primaryAction,
+  .secondaryAction {
+    width: 100%;
+  }
+
+  .visualBlock {
+    min-height: 260px;
+  }
+
+  .visualCard {
+    min-height: 260px;
+    padding: 24px;
+    border-radius: 26px;
+  }
+
+  .visualNote {
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .linksHeader {
+    align-items: start;
+  }
+
+  .linkCard {
+    min-height: 0;
+    padding: 22px;
+    border-radius: 24px;
+  }
+}

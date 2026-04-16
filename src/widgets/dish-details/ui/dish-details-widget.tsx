@@ -7,6 +7,7 @@ import type { Dish, Restaurant } from '@/entities/restaurant/model/types.ts';
 import { dishCartStorage } from '@/shared/dish-cart/dish-cart.ts';
 import { useRestaurantOrderGuard } from '@/shared/lib/restaurant-order/use-restaurant-order-guard.ts';
 import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
+import { CartActionIcon } from '@/shared/ui/cart-action-icon/cart-action-icon.tsx';
 import { PhotoCarousel } from '@/shared/ui/photo-carousel/photo-carousel.tsx';
 import { RestaurantOrderConflictModal } from '@/shared/ui/restaurant-order-conflict-modal/RestaurantOrderConflictModal.tsx';
 import { Footer } from '@/widgets/footer/Footer.tsx';
@@ -243,7 +244,7 @@ export const DishDetailsWidget = () => {
                                     onClick={handleDecreaseFromCart}
                                     aria-label={`Уменьшить количество блюда ${dish.name}`}
                                 >
-                                    -
+                                    <CartActionIcon type="minus" className={styles.stepIcon} />
                                 </button>
 
                                 <span className={styles.cartControlPrice}>{priceLabel}</span>
@@ -255,7 +256,7 @@ export const DishDetailsWidget = () => {
                                     disabled={!dish.available}
                                     aria-label={`Увеличить количество блюда ${dish.name}`}
                                 >
-                                    +
+                                    <CartActionIcon type="plus" className={styles.stepIcon} />
                                 </button>
                             </div>
                         ) : (
@@ -266,7 +267,7 @@ export const DishDetailsWidget = () => {
                                 disabled={!dish.available}
                                 aria-label={`Добавить блюдо ${dish.name} в корзину`}
                             >
-                                <span className={styles.singleActionPrefix}>+</span>
+                                <CartActionIcon type="plus" className={styles.singleActionPrefix} />
                                 <span>{priceLabel}</span>
                             </button>
                         )}

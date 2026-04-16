@@ -52,6 +52,12 @@ export const BookingOrderSection = ({
     const restaurantPath = restaurantId
         ? generatePath(RoutePaths.RESTAURANT, { id: restaurantId })
         : RoutePaths.RESTAURANTS;
+    const selectedTableSubtitle = selectedTable
+        ? [
+            `Вместимость: ${selectedTable.capacity}`,
+            selectedTable.description?.trim() || null,
+        ].filter(Boolean).join(' • ')
+        : '';
 
     const openScheme = () => {
         if (!restaurantId) {
@@ -122,14 +128,12 @@ export const BookingOrderSection = ({
                             </button>
 
                             <div className={styles.selectedTableContent}>
-                                <h3 className={styles.cardTitle}>Стол №{bookingItem.tableNumber}</h3>
+                                <div className={styles.selectedTableHead}>
+                                    <h3 className={styles.selectedTableTitle}>Стол №{bookingItem.tableNumber}</h3>
+                                    <p className={styles.selectedTableSubtitle}>{selectedTableSubtitle}</p>
+                                </div>
 
                                 <div className={styles.tableInfoList}>
-                                    <div className={styles.tableInfoRow}>
-                                        <span className={styles.tableInfoLabel}>Вместимость</span>
-                                        <span className={styles.tableInfoValue}>{selectedTable.capacity}</span>
-                                    </div>
-
                                     <div className={styles.tableInfoRow}>
                                         <span className={styles.tableInfoLabel}>Дата</span>
                                         <span className={styles.tableInfoValue}>
@@ -148,14 +152,9 @@ export const BookingOrderSection = ({
                                         <span className={styles.tableInfoLabel}>Гостей</span>
                                         <span className={styles.tableInfoValue}>{bookingItem.guests}</span>
                                     </div>
-
-                                    <div className={styles.tableInfoRow}>
-                                        <span className={styles.tableInfoLabel}>Описание</span>
-                                        <span className={styles.tableInfoValue}>
-                                            {selectedTable.description || 'Не указано'}
-                                        </span>
-                                    </div>
                                 </div>
+
+                                <div className={styles.tableActionHint}>Нажмите, чтобы открыть схему зала</div>
                             </div>
                         </article>
                     ) : (

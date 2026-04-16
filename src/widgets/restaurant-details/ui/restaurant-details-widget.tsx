@@ -31,7 +31,6 @@ export const RestaurantDetailsWidget = () => {
         totalCartAmount,
         placedTables,
         notPlacedTables,
-        bookingCartCount,
         handleAddDish,
         handleDecreaseDish,
         handleBookingAdded,
@@ -102,7 +101,6 @@ export const RestaurantDetailsWidget = () => {
                     schemePhoto={schemePhoto}
                     placedTables={placedTables}
                     notPlacedTables={notPlacedTables}
-                    bookingCartCount={bookingCartCount}
                     onSelectTable={setSelectedTable}
                 />
 

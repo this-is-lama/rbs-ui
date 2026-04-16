@@ -1,11 +1,9 @@
 import type { UserProfile } from '../model/types.ts';
-import { UserAvatar } from './user-avatar.tsx';
 import styles from './UserProfileCard.module.scss';
 
 type UserProfileCardProps = {
     user: UserProfile;
     onEditProfile: () => void;
-    onOpenBookings: () => void;
     onLogout: () => void;
 };
 
@@ -31,20 +29,15 @@ const getRoleLabel = (role: string) => {
 };
 
 export const UserProfileCard = ({
-                                    user,
-                                    onEditProfile,
-                                    onOpenBookings,
-                                    onLogout,
-                                }: UserProfileCardProps) => {
+    user,
+    onEditProfile,
+    onLogout,
+}: UserProfileCardProps) => {
     const isRegularUser = user.role === 'ROLE_USER';
 
     return (
         <article className={styles.card}>
             <h1 className={styles.title}>Профиль</h1>
-
-            <div className={styles.visual}>
-                <UserAvatar />
-            </div>
 
             <div className={styles.info}>
                 <div className={styles.grid}>
@@ -88,14 +81,6 @@ export const UserProfileCard = ({
                         onClick={onEditProfile}
                     >
                         Редактировать профиль
-                    </button>
-
-                    <button
-                        type="button"
-                        className={styles.secondaryButton}
-                        onClick={onOpenBookings}
-                    >
-                        Мои бронирования
                     </button>
 
                     <button

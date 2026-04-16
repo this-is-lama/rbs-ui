@@ -425,7 +425,9 @@ export const RestaurantBookingModal = ({
                 <div className={styles.modalBody}>
                     {successMessage ? (
                         <div className={styles.modalSuccessState}>
-                            <h4 className={styles.modalSuccessTitle}>{successMessage}</h4>
+                            <div className={styles.modalSuccessBanner}>
+                                <h4 className={styles.modalSuccessTitle}>{successMessage}</h4>
+                            </div>
 
                             <button
                                 type="button"

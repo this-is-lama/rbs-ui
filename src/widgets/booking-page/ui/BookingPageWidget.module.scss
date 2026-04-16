@@ -95,8 +95,9 @@
 
 .selectedTableCard {
   position: relative;
-  min-height: 250px;
+  height: 250px;
   cursor: pointer;
+  overflow: hidden;
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease;
@@ -115,7 +116,37 @@
 
 .selectedTableContent {
   display: grid;
-  gap: 18px;
+  grid-template-rows: auto 1fr auto;
+  gap: 16px;
+  height: 100%;
+}
+
+.selectedTableHead {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding-right: 48px;
+}
+
+.selectedTableTitle {
+  margin: 0;
+  color: $color-primary;
+  font-size: clamp(24px, 2vw, 34px);
+  line-height: 1.02;
+  font-weight: 700;
+}
+
+.selectedTableSubtitle {
+  margin: 0;
+  color: rgba(17, 17, 17, 0.72);
+  font-size: 16px;
+  line-height: 1.45;
+  font-weight: 600;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-clamp: 2;
 }
 
 .cardTitle {
@@ -160,12 +191,15 @@
 
 .tableInfoList {
   display: grid;
-  gap: 12px;
+  gap: 10px;
+  align-content: start;
 }
 
 .tableInfoRow {
-  display: grid;
-  gap: 4px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
 }
 
 .tableInfoLabel {
@@ -179,6 +213,13 @@
   color: $color-text-primary;
   font-size: 16px;
   line-height: 1.5;
+  text-align: right;
+}
+
+.tableActionHint {
+  color: rgba(17, 17, 17, 0.6);
+  font-size: 14px;
+  line-height: 1.4;
 }
 
 .subtleText {
@@ -314,9 +355,31 @@
     font-size: 24px;
   }
 
+  .selectedTableCard {
+    height: auto;
+    min-height: 250px;
+  }
+
+  .selectedTableTitle {
+    font-size: 28px;
+  }
+
+  .selectedTableSubtitle {
+    font-size: 15px;
+  }
+
   .tableRemoveButton {
     top: 16px;
     right: 16px;
+  }
+
+  .tableInfoRow {
+    display: grid;
+    gap: 4px;
+  }
+
+  .tableInfoValue {
+    text-align: left;
   }
 
   .summaryCount {

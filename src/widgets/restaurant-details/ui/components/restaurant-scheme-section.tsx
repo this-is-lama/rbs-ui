@@ -7,7 +7,6 @@ type RestaurantSchemeSectionProps = {
     schemePhoto: Photo | null;
     placedTables: RestaurantTable[];
     notPlacedTables: RestaurantTable[];
-    bookingCartCount: number;
     onSelectTable: (table: RestaurantTable) => void;
 };
 
@@ -30,19 +29,12 @@ export const RestaurantSchemeSection = ({
     schemePhoto,
     placedTables,
     notPlacedTables,
-    bookingCartCount,
     onSelectTable,
 }: RestaurantSchemeSectionProps) => {
     return (
         <section className={styles.schemeSection} id="restaurant-scheme">
             <div className={styles.sectionHeader}>
                 <h2 className={styles.sectionTitle}>Схема зала</h2>
-
-                {bookingCartCount > 0 ? (
-                    <div className={styles.bookingCartBadge}>
-                        В корзине бронирований: {bookingCartCount}
-                    </div>
-                ) : null}
             </div>
 
             {schemePhoto?.publicUrl ? (

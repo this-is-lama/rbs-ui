@@ -127,6 +127,13 @@
   box-shadow: 0 14px 28px rgba(17, 17, 17, 0.16);
 }
 
+.cartControls {
+  width: fit-content;
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+}
+
 .singleActionButton {
   width: fit-content;
   padding: 0 28px;
@@ -152,34 +159,33 @@
 }
 
 .singleActionPrefix {
-  font-size: 28px;
-  line-height: 1;
-}
-
-.cartControls {
-  width: fit-content;
-  padding: 7px 8px;
-  gap: 8px;
+  display: block;
+  width: 20px;
+  height: 20px;
 }
 
 .stepButton {
-  width: 54px;
-  height: 54px;
+  width: 68px;
+  height: 68px;
+  flex: 0 0 68px;
+  padding: 0;
   border: none;
   border-radius: 50%;
   background-color: rgba(255, 255, 255, 0.16);
   color: $color-white;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 30px;
-  line-height: 1;
-  font-weight: 700;
+  display: inline-grid;
+  place-items: center;
   cursor: pointer;
   transition:
     transform 0.2s ease,
     background-color 0.2s ease,
     opacity 0.2s ease;
+}
+
+.stepIcon {
+  display: block;
+  width: 18px;
+  height: 18px;
 }
 
 .stepButton:hover:not(:disabled) {

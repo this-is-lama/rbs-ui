@@ -1,6 +1,7 @@
 import type { KeyboardEvent, MouseEvent } from 'react';
 import type { Dish } from '@/entities/restaurant/model/types.ts';
 import { getPhotoByCategory } from '@/entities/restaurant/lib/get-photo-by-category.ts';
+import { CartActionIcon } from '@/shared/ui/cart-action-icon/cart-action-icon.tsx';
 import styles from './dish-card.module.scss';
 
 type DishCardProps = {
@@ -75,7 +76,7 @@ export const DishCard = ({
                                     }
                                     aria-label={`Уменьшить количество блюда ${dish.name}`}
                                 >
-                                    -
+                                    <CartActionIcon type="minus" className={styles.stepIcon} />
                                 </button>
 
                                 <span className={styles.priceValue}>{dish.price} ₽</span>
@@ -86,7 +87,7 @@ export const DishCard = ({
                                     onClick={(event) => handleActionClick(event, onAddToCart)}
                                     aria-label={`Увеличить количество блюда ${dish.name}`}
                                 >
-                                    +
+                                    <CartActionIcon type="plus" className={styles.stepIcon} />
                                 </button>
                             </div>
                         ) : (
@@ -96,7 +97,7 @@ export const DishCard = ({
                                 onClick={(event) => handleActionClick(event, onAddToCart)}
                                 aria-label={`Добавить блюдо ${dish.name} в корзину`}
                             >
-                                <span className={styles.pricePrefix}>+</span>
+                                <CartActionIcon type="plus" className={styles.pricePrefix} />
                                 <span className={styles.priceValue}>{dish.price} ₽</span>
                             </button>
                         )

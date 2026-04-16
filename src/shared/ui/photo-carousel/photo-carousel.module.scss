@@ -28,9 +28,9 @@
 
 .imageCard {
   flex: 0 0 auto;
-  height: 50vh;
-  min-height: 320px;
-  max-height: 760px;
+  height: 55vh;
+  min-height: 352px;
+  max-height: 836px;
   border-radius: 30px;
   overflow: hidden;
 }
@@ -47,10 +47,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 360px;
-  height: 50vh;
-  min-height: 320px;
-  max-height: 760px;
+  min-width: 396px;
+  height: 55vh;
+  min-height: 352px;
+  max-height: 836px;
   padding: 24px;
   border-radius: 30px;
   border: 2px dashed rgba(17, 17, 17, 0.12);
@@ -95,8 +95,8 @@
 @media (max-width: 720px) {
   .imageCard,
   .placeholder {
-    height: 42vh;
-    min-height: 240px;
+    height: 46.2vh;
+    min-height: 264px;
     border-radius: 24px;
   }
 

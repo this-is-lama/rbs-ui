@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, generatePath } from 'react-router-dom';
 import { cancelBooking } from '@/entities/booking/api/cancel-booking.ts';
 import { getMyBookings } from '@/entities/booking/api/get-my-bookings.ts';
+import { getBookingStatusLabel } from '@/entities/booking/lib/format-booking.ts';
 import type { Booking } from '@/entities/booking/model/types.ts';
 import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
 import { formatBookingDateTime } from '@/shared/lib/date/booking-date.ts';
@@ -73,7 +74,9 @@ export const MyBookingsList = ({ refreshKey }: MyBookingsListProps) => {
                             <h3 className={styles.bookingTitle}>
                                 {booking.restaurant?.name || '\u0420\u0435\u0441\u0442\u043e\u0440\u0430\u043d'}
                             </h3>
-                            <strong className={styles.statusValue}>{booking.status}</strong>
+                            <strong className={styles.statusValue}>
+                                {getBookingStatusLabel(booking.status)}
+                            </strong>
                         </div>
 
                         <div className={styles.bookingMetaGrid}>
