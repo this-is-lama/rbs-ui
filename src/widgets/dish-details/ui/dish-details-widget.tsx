@@ -1,13 +1,17 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+import { Link, generatePath, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/app/providers/auth/use-auth.ts';
 import { getRestaurantById } from '@/entities/restaurant/api/get-restaurant-by-id.ts';
+import { checkRestaurantManagerAccess } from '@/entities/restaurant/api/management.ts';
 import { getPhotoByCategory } from '@/entities/restaurant/lib/get-photo-by-category.ts';
 import type { Dish, Restaurant } from '@/entities/restaurant/model/types.ts';
+import { RoutePaths } from '@/shared/config/routes/routes.ts';
 import { dishCartStorage } from '@/shared/dish-cart/dish-cart.ts';
+import { canManageRestaurants, isAdminRole } from '@/shared/lib/auth/roles.ts';
 import { useRestaurantOrderGuard } from '@/shared/lib/restaurant-order/use-restaurant-order-guard.ts';
 import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
 import { CartActionIcon } from '@/shared/ui/cart-action-icon/cart-action-icon.tsx';
+import { EditIcon } from '@/shared/ui/icons/action-icons.tsx';
 import { PhotoCarousel } from '@/shared/ui/photo-carousel/photo-carousel.tsx';
 import { RestaurantOrderConflictModal } from '@/shared/ui/restaurant-order-conflict-modal/RestaurantOrderConflictModal.tsx';
 import { Footer } from '@/widgets/footer/Footer.tsx';
@@ -45,6 +49,7 @@ export const DishDetailsWidget = () => {
     const [dishCount, setDishCount] = useState(0);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
+    const [canManageDish, setCanManageDish] = useState(false);
     const {
         conflict,
         guardRestaurantOrder,
@@ -100,6 +105,40 @@ export const DishDetailsWidget = () => {
     }, [id, restaurantId]);
 
     useEffect(() => {
+        if (!restaurantId || !canManageRestaurants(user?.role)) {
+            setCanManageDish(false);
+            return;
+        }
+
+        if (isAdminRole(user?.role)) {
+            setCanManageDish(true);
+            return;
+        }
+
+        let isDisposed = false;
+
+        const checkAccess = async () => {
+            try {
+                const response = await checkRestaurantManagerAccess(restaurantId);
+
+                if (!isDisposed) {
+                    setCanManageDish(response);
+                }
+            } catch {
+                if (!isDisposed) {
+                    setCanManageDish(false);
+                }
+            }
+        };
+
+        void checkAccess();
+
+        return () => {
+            isDisposed = true;
+        };
+    }, [restaurantId, user?.role]);
+
+    useEffect(() => {
         if (!restaurantId || !id) {
             setDishCount(0);
             return;
@@ -129,6 +168,16 @@ export const DishDetailsWidget = () => {
 
     const priceLabel = useMemo(() => (dish ? formatPrice(dish.price) : ''), [dish]);
     const showAvailabilityTag = canSeeAvailability(user?.role);
+    const editDishPath = useMemo(() => {
+        if (!restaurantId || !id) {
+            return '';
+        }
+
+        return generatePath(RoutePaths.MY_RESTAURANT_DISH_EDIT, {
+            restaurantId,
+            dishId: id,
+        });
+    }, [id, restaurantId]);
 
     const handleAddToCart = () => {
         if (!restaurant || !dish || !dish.available) {
@@ -227,8 +276,23 @@ export const DishDetailsWidget = () => {
                         ) : null}
                     </div>
 
-                    {dishCount > 0 ? (
-                        <span className={styles.countBadge}>{dishCount}</span>
+                    {canManageDish || dishCount > 0 ? (
+                        <div className={styles.topSide}>
+                            {canManageDish && editDishPath ? (
+                                <Link
+                                    to={editDishPath}
+                                    className={styles.managerEditButton}
+                                    aria-label={`Редактировать блюдо ${dish.name}`}
+                                    title="Редактировать"
+                                >
+                                    <EditIcon className={styles.managerEditIcon} />
+                                </Link>
+                            ) : null}
+
+                            {dishCount > 0 ? (
+                                <span className={styles.countBadge}>{dishCount}</span>
+                            ) : null}
+                        </div>
                     ) : null}
 
                     <p className={styles.description}>

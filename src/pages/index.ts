@@ -1,6 +1,11 @@
 export { HomePage } from '@/pages/home-page/HomePage';
 export { RestaurantsPage } from '@/pages/restaurants-page/RestaurantsPage';
 export { RestaurantPage } from '@/pages/restaurant-page/RestaurantPage';
+export { MyRestaurantsPage } from '@/pages/my-restaurants-page/MyRestaurantsPage';
+export { RestaurantManagePage } from '@/pages/restaurant-manage-page/RestaurantManagePage';
+export { RestaurantBookingsPage } from '@/pages/restaurant-bookings-page/RestaurantBookingsPage';
+export { RestaurantLayoutPage } from '@/pages/restaurant-layout-page/RestaurantLayoutPage';
+export { DishManagePage } from '@/pages/dish-manage-page/DishManagePage';
 export { BookingPage } from '@/pages/booking-page/BookingPage';
 export { ProfilePage } from '@/pages/profile-page/ProfilePage';
 export { LoginPage } from '@/pages/login-page/LoginPage';

@@ -57,6 +57,8 @@ export type Booking = {
     dishes: BookingDish[];
 };
 
+export type ManagerBookingListItem = Booking;
+
 export type TableAvailabilitySlot = {
     startAt: string;
     endAt: string;

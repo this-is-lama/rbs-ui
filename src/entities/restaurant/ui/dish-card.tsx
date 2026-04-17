@@ -1,4 +1,4 @@
-import type { KeyboardEvent, MouseEvent } from 'react';
+import type { KeyboardEvent, MouseEvent, ReactNode } from 'react';
 import type { Dish } from '@/entities/restaurant/model/types.ts';
 import { getPhotoByCategory } from '@/entities/restaurant/lib/get-photo-by-category.ts';
 import { CartActionIcon } from '@/shared/ui/cart-action-icon/cart-action-icon.tsx';
@@ -10,6 +10,7 @@ type DishCardProps = {
     onOpen?: () => void;
     onAddToCart?: () => void;
     onDecreaseFromCart?: () => void;
+    action?: ReactNode;
 };
 
 export const DishCard = ({
@@ -18,6 +19,7 @@ export const DishCard = ({
     onOpen,
     onAddToCart,
     onDecreaseFromCart,
+    action,
 }: DishCardProps) => {
     const photos = Array.isArray(dish.photos) ? dish.photos : [];
     const banner = getPhotoByCategory(photos, 'BANNER') ?? photos[0] ?? null;
@@ -35,10 +37,10 @@ export const DishCard = ({
 
     const handleActionClick = (
         event: MouseEvent<HTMLButtonElement>,
-        action?: () => void,
+        actionHandler?: () => void,
     ) => {
         event.stopPropagation();
-        action?.();
+        actionHandler?.();
     };
 
     return (
@@ -60,7 +62,18 @@ export const DishCard = ({
             </div>
 
             <div className={styles.content}>
-                <h3 className={styles.name}>{dish.name}</h3>
+                <div className={styles.head}>
+                    <h3 className={styles.name}>{dish.name}</h3>
+                    {action ? (
+                        <div
+                            className={styles.action}
+                            onClick={(event) => event.stopPropagation()}
+                            onKeyDown={(event) => event.stopPropagation()}
+                        >
+                            {action}
+                        </div>
+                    ) : null}
+                </div>
 
                 <div className={styles.footer}>
                     <span className={styles.weightBadge}>{dish.weight} г</span>

@@ -1,4 +1,7 @@
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { RestaurantManagerActions } from '@/features/restaurants/restaurant-manager-actions/ui/restaurant-manager-actions.tsx';
+import { RestaurantManagersSection } from '@/features/restaurants/restaurant-managers/ui/restaurant-managers-section.tsx';
 import { RestaurantOrderConflictModal } from '@/shared/ui/restaurant-order-conflict-modal/RestaurantOrderConflictModal.tsx';
 import { useRestaurantOrderGuard } from '@/shared/lib/restaurant-order/use-restaurant-order-guard.ts';
 import { Footer } from '@/widgets/footer/Footer.tsx';
@@ -12,6 +15,7 @@ import styles from './restaurant-details-widget.module.scss';
 
 export const RestaurantDetailsWidget = () => {
     const { id } = useParams<{ id: string }>();
+    const [isPhotoManagerOpen, setIsPhotoManagerOpen] = useState(false);
     const {
         restaurant,
         isLoading,
@@ -31,6 +35,8 @@ export const RestaurantDetailsWidget = () => {
         totalCartAmount,
         placedTables,
         notPlacedTables,
+        canManageRestaurant,
+        reloadRestaurant,
         handleAddDish,
         handleDecreaseDish,
         handleBookingAdded,
@@ -61,21 +67,48 @@ export const RestaurantDetailsWidget = () => {
     if (!restaurant) {
         return (
             <div className={`container ${styles.page}`}>
-                <div className={styles.stateBlock}>{'\u0420\u0435\u0441\u0442\u043e\u0440\u0430\u043d \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d'}</div>
+                <div className={styles.stateBlock}>Ресторан не найден</div>
             </div>
         );
     }
 
+    const handleOpenPhotoManager = () => {
+        setIsPhotoManagerOpen(true);
+        document.getElementById('restaurant-photos')?.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start',
+        });
+    };
+
     return (
         <>
             <div className={`container ${styles.page}`}>
-                <RestaurantGallery restaurantName={restaurant.name} galleryPhotos={galleryPhotos} />
+                {canManageRestaurant ? (
+                    <RestaurantManagerActions
+                        restaurantId={restaurant.id}
+                        onAddPhoto={handleOpenPhotoManager}
+                    />
+                ) : null}
+
+                <RestaurantGallery
+                    restaurantId={restaurant.id}
+                    restaurantName={restaurant.name}
+                    galleryPhotos={galleryPhotos}
+                    canManageRestaurant={canManageRestaurant}
+                    isPhotoManagerOpen={isPhotoManagerOpen}
+                    onPhotoManagerOpenChange={setIsPhotoManagerOpen}
+                    onPhotosChanged={reloadRestaurant}
+                />
 
                 <RestaurantInfoSection
                     restaurant={restaurant}
                     todayWeekDay={todayWeekDay}
                     workingHours={workingHours}
                 />
+
+                {canManageRestaurant ? (
+                    <RestaurantManagersSection restaurantId={restaurant.id} />
+                ) : null}
 
                 <RestaurantMenuSection
                     restaurantId={restaurant.id}
@@ -94,6 +127,7 @@ export const RestaurantDetailsWidget = () => {
                         });
                     }}
                     onDecreaseDish={handleDecreaseDish}
+                    canManageRestaurant={canManageRestaurant}
                 />
 
                 <RestaurantSchemeSection
@@ -120,6 +154,7 @@ export const RestaurantDetailsWidget = () => {
                         }}
                     />
                 ) : null}
+
             </div>
 
             <Footer />

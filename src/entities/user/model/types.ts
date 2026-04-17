@@ -1,3 +1,14 @@
+export type UserRole = 'ROLE_ADMIN' | 'ROLE_MANAGER' | 'ROLE_USER' | string;
+
+export type RestaurantLookupUser = {
+    id: string;
+    name: string;
+    surname: string;
+    email: string;
+    role: UserRole;
+    enabled: boolean;
+};
+
 export type UserProfile = {
     id: string;
     name: string;
@@ -5,7 +16,7 @@ export type UserProfile = {
     dateOfBirth: string | null;
     phone: string | null;
     email: string;
-    role: string;
+    role: UserRole;
     enabled: boolean;
     createdAt: string;
     updatedAt: string;

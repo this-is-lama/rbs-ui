@@ -1,3 +1,4 @@
+import { EditIcon } from '@/shared/ui/icons/action-icons.tsx';
 import type { UserProfile } from '../model/types.ts';
 import styles from './UserProfileCard.module.scss';
 
@@ -77,10 +78,12 @@ export const UserProfileCard = ({
                 <div className={styles.actions}>
                     <button
                         type="button"
-                        className={styles.primaryButton}
+                        className={styles.iconButton}
                         onClick={onEditProfile}
+                        aria-label="Редактировать профиль"
+                        title="Редактировать профиль"
                     >
-                        Редактировать профиль
+                        <EditIcon className={styles.iconButtonIcon} />
                     </button>
 
                     <button

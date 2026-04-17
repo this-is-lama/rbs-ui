@@ -1,20 +1,26 @@
 import { Route, Routes } from 'react-router-dom';
 import {
     BookingPage,
+    DishManagePage,
     DishPage,
     HomePage,
     LoginPage,
+    MyRestaurantsPage,
     NotFoundPage,
     ProfilePage,
     RegistrationPage,
+    RestaurantBookingsPage,
+    RestaurantLayoutPage,
+    RestaurantManagePage,
     RestaurantPage,
     RestaurantsPage,
 } from '@/pages';
+import { ProfileEditPage } from '@/pages/profile-edit-page/ProfileEditPage.tsx';
 import { RoutePaths } from '@/shared/config/routes/routes.ts';
 import { AuthLayout, HomeLayout, MainLayout } from '@/shared/ui/layouts';
-import { ProtectedRoute } from './protected-route.tsx';
 import { GuestOnlyRoute } from './guest-only-route.tsx';
-import { ProfileEditPage } from '@/pages/profile-edit-page/ProfileEditPage.tsx';
+import { ProtectedRoute } from './protected-route.tsx';
+import { RoleProtectedRoute } from './role-protected-route.tsx';
 
 export const Router = () => {
     return (
@@ -34,6 +40,18 @@ export const Router = () => {
                     <Route path={RoutePaths.PROFILE} element={<ProfilePage />} />
                     <Route path={RoutePaths.PROFILE_EDIT} element={<ProfileEditPage />} />
                     <Route path={RoutePaths.BOOKING} element={<BookingPage />} />
+                </Route>
+            </Route>
+
+            <Route element={<RoleProtectedRoute />}>
+                <Route element={<MainLayout />}>
+                    <Route path={RoutePaths.MY_RESTAURANTS} element={<MyRestaurantsPage />} />
+                    <Route path={RoutePaths.MY_RESTAURANT_NEW} element={<RestaurantManagePage />} />
+                    <Route path={RoutePaths.MY_RESTAURANT_EDIT} element={<RestaurantManagePage />} />
+                    <Route path={RoutePaths.MY_RESTAURANT_BOOKINGS} element={<RestaurantBookingsPage />} />
+                    <Route path={RoutePaths.MY_RESTAURANT_LAYOUT} element={<RestaurantLayoutPage />} />
+                    <Route path={RoutePaths.MY_RESTAURANT_DISH_NEW} element={<DishManagePage />} />
+                    <Route path={RoutePaths.MY_RESTAURANT_DISH_EDIT} element={<DishManagePage />} />
                 </Route>
             </Route>
 

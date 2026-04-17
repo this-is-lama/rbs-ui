@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
-import styles from './Navbar.module.scss';
 import { useAuth } from '@/app/providers/auth/use-auth.ts';
 import { RoutePaths } from '@/shared/config/routes/routes.ts';
+import styles from './Navbar.module.scss';
 
 export const Navbar = () => {
     const { isAuthenticated } = useAuth();

@@ -1,7 +1,9 @@
-import { generatePath, useNavigate } from 'react-router-dom';
+import { Link, generatePath, useNavigate } from 'react-router-dom';
 import type { Dish } from '@/entities/restaurant/model/types.ts';
 import { DishCard } from '@/entities/restaurant/ui/dish-card.tsx';
+import navbarStyles from '@/features/restaurants/filter-restaurants/ui/RestaurantCategoriesNavbar.module.scss';
 import { RoutePaths } from '@/shared/config/routes/routes.ts';
+import { EditIcon, PlusIcon } from '@/shared/ui/icons/action-icons.tsx';
 import type { RestaurantDishCounters } from '../../model/types.ts';
 import styles from '../restaurant-details-widget.module.scss';
 
@@ -16,6 +18,7 @@ type RestaurantMenuSectionProps = {
     onSelectCategory: (category: string) => void;
     onAddDish: (dish: Dish) => void;
     onDecreaseDish: (dishId: string) => void;
+    canManageRestaurant?: boolean;
 };
 
 export const RestaurantMenuSection = ({
@@ -29,14 +32,18 @@ export const RestaurantMenuSection = ({
     onSelectCategory,
     onAddDish,
     onDecreaseDish,
+    canManageRestaurant,
 }: RestaurantMenuSectionProps) => {
     const navigate = useNavigate();
+    const createDishPath = generatePath(RoutePaths.MY_RESTAURANT_DISH_NEW, { restaurantId });
 
     const openDish = (dishId: string) => {
         const path = generatePath(RoutePaths.DISH, { id: dishId });
 
         navigate(`${path}?restaurantId=${restaurantId}`);
     };
+
+    const shouldRenderGrid = visibleDishes.length > 0 || canManageRestaurant;
 
     return (
         <section className={styles.section}>
@@ -51,14 +58,14 @@ export const RestaurantMenuSection = ({
                 ) : null}
             </div>
 
-            <div className={styles.categoryNavWrapper}>
-                <div className={styles.categoryNav}>
+            <div className={navbarStyles.wrapper}>
+                <div className={navbarStyles.navbar}>
                     {dishCategories.map((category) => (
                         <button
                             key={category}
                             type="button"
-                            className={`${styles.categoryButton} ${
-                                selectedCategory === category ? styles.categoryButtonActive : ''
+                            className={`${navbarStyles.button} ${
+                                selectedCategory === category ? navbarStyles.buttonActive : ''
                             }`}
                             onClick={() => onSelectCategory(category)}
                         >
@@ -68,8 +75,26 @@ export const RestaurantMenuSection = ({
                 </div>
             </div>
 
-            {visibleDishes.length > 0 ? (
+            {shouldRenderGrid ? (
                 <div className={styles.dishesGrid}>
+                    {canManageRestaurant ? (
+                        <Link
+                            to={createDishPath}
+                            className={styles.managerDishAddCard}
+                            aria-label="Добавить блюдо"
+                        >
+                            <span className={styles.managerDishAddVisual}>
+                                <span className={styles.managerDishAddIconBox}>
+                                    <PlusIcon className={styles.managerDishAddIcon} />
+                                </span>
+                            </span>
+                            <span className={styles.managerDishAddTitle}>Добавить блюдо</span>
+                            <span className={styles.managerDishAddDescription}>
+                                Создайте новое блюдо для этого ресторана.
+                            </span>
+                        </Link>
+                    ) : null}
+
                     {visibleDishes.map((dish) => (
                         <DishCard
                             key={dish.id}
@@ -78,6 +103,19 @@ export const RestaurantMenuSection = ({
                             onOpen={() => openDish(dish.id)}
                             onAddToCart={() => onAddDish(dish)}
                             onDecreaseFromCart={() => onDecreaseDish(dish.id)}
+                            action={canManageRestaurant ? (
+                                <Link
+                                    to={generatePath(RoutePaths.MY_RESTAURANT_DISH_EDIT, {
+                                        restaurantId,
+                                        dishId: dish.id,
+                                    })}
+                                    className={styles.managerDishButton}
+                                    aria-label={`Редактировать блюдо ${dish.name}`}
+                                    title="Редактировать"
+                                >
+                                    <EditIcon className={styles.managerDishButtonIcon} />
+                                </Link>
+                            ) : undefined}
                         />
                     ))}
                 </div>

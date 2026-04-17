@@ -63,6 +63,105 @@ export type RestaurantCard = {
     bannerPhoto?: Photo | null;
 };
 
+export type ManagerRestaurantCard = RestaurantCard;
+
+export type RestaurantManager = {
+    id: string;
+    name: string | null;
+    surname: string | null;
+    email: string | null;
+    role: string;
+    enabled: boolean;
+    assignedAt: string;
+};
+
+export type TableLayoutItem = {
+    id: string;
+    positionX: number;
+    positionY: number;
+    markerSize: number;
+};
+
+export type UpdateRestaurantLayoutRequest = {
+    tables: TableLayoutItem[];
+};
+
+export type RestaurantManageFormValues = {
+    name: string;
+    category: string;
+    description: string;
+    address: string;
+    active: boolean;
+    workingHours: WorkingHours[];
+    contacts: Contact[];
+};
+
+export type DishManageFormValues = {
+    name: string;
+    category: string;
+    description: string;
+    price: string;
+    weight: string;
+    available: boolean;
+};
+
+export type RestaurantManageRequest = {
+    name: string;
+    category: string;
+    description: string | null;
+    address: string;
+    active: boolean;
+    workingHours: WorkingHours[];
+    contacts: Contact[];
+};
+
+export type DishManageRequest = {
+    name: string;
+    category: string;
+    description: string | null;
+    price: number;
+    weight: number;
+    available: boolean;
+};
+
+export type TableManageRequest = {
+    tableNumber: number;
+    description: string | null;
+    capacity: number;
+    active: boolean;
+    positionX: number | null;
+    positionY: number | null;
+    markerSize: number | null;
+};
+
+export type PhotoUploadDraft = {
+    file: File;
+    contentType: string;
+    category: PhotoCategory;
+    sortOrder: number;
+};
+
+export type PhotoUploadRequestItem = {
+    contentType: string;
+    category: PhotoCategory;
+    sortOrder: number;
+};
+
+export type PhotoUploadPendingItem = {
+    id: string;
+    objectKey: string;
+    presignedUrl: string;
+    publicUrl: string;
+    contentType: string;
+    category: PhotoCategory;
+    sortOrder: number;
+};
+
+export type PhotoConfirmRequestItem = {
+    id: string;
+    objectKey: string;
+};
+
 export type Restaurant = {
     id: string;
     name: string;

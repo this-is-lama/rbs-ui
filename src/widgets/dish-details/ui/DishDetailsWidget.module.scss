@@ -41,7 +41,7 @@
 .detailsCard {
   grid-template-columns: minmax(0, 1fr) auto;
   grid-template-areas:
-    'tags badge'
+    'tags side'
     'description .'
     'description controls';
   align-items: start;
@@ -86,9 +86,46 @@
   color: rgba(17, 17, 17, 0.78);
 }
 
+.topSide {
+  grid-area: side;
+  display: grid;
+  justify-items: end;
+  gap: 12px;
+}
+
+.managerEditButton {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background-color: rgba(51, 76, 219, 0.12);
+  color: $color-primary;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.managerEditButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(17, 17, 17, 0.08);
+}
+
+.managerEditButton:focus-visible {
+  outline: 3px solid rgba(51, 76, 219, 0.24);
+  outline-offset: 4px;
+}
+
+.managerEditIcon {
+  width: 20px;
+  height: 20px;
+}
+
 .countBadge {
-  grid-area: badge;
-  justify-self: end;
   width: 54px;
   height: 54px;
   border-radius: 50%;
@@ -218,7 +255,7 @@
     min-height: auto;
   }
 
-  .countBadge,
+  .topSide,
   .controlsSlot {
     justify-self: start;
   }

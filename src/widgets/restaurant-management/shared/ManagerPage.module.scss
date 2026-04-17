@@ -1,0 +1,116 @@
+@use '@/app/styles/variables' as *;
+
+.page {
+  display: grid;
+  gap: 72px;
+  padding-top: 32px;
+  padding-bottom: 0;
+}
+
+.section {
+  display: grid;
+  gap: 28px;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.titleBlock {
+  display: grid;
+  gap: 8px;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(34px, 4vw, 52px);
+  line-height: 1.05;
+  font-weight: 700;
+  color: $color-text-primary;
+}
+
+.subtitle {
+  margin: 0;
+  color: rgba(17, 17, 17, 0.68);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.link,
+.primaryLink {
+  min-height: 48px;
+  padding: 0 18px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 700;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.link {
+  background-color: $color-surface;
+  color: $color-text-primary;
+}
+
+.primaryLink {
+  background-color: $color-primary;
+  color: $color-white;
+}
+
+.link:hover,
+.primaryLink:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(17, 17, 17, 0.08);
+}
+
+.state,
+.note {
+  padding: 22px 24px;
+  border-radius: 28px;
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.state {
+  background-color: $color-surface;
+  color: $color-text-primary;
+}
+
+.note {
+  background-color: rgba(21, 128, 61, 0.12);
+  color: #166534;
+}
+
+@media (max-width: 640px) {
+  .page {
+    gap: 52px;
+    padding-top: 24px;
+  }
+
+  .actions {
+    display: grid;
+    width: 100%;
+  }
+
+  .link,
+  .primaryLink {
+    width: 100%;
+  }
+}

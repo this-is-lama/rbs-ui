@@ -63,13 +63,12 @@
   margin-top: auto;
 }
 
-.primaryButton,
+.iconButton,
 .ghostButton {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: 52px;
-  padding: 0 22px;
   border-radius: 999px;
   font-size: 16px;
   line-height: 1;
@@ -82,7 +81,9 @@
     opacity 0.2s ease;
 }
 
-.primaryButton {
+.iconButton {
+  width: 52px;
+  padding: 0;
   border: none;
   background-color: $color-primary;
   color: $color-white;
@@ -92,12 +93,24 @@
   border: none;
   background-color: rgba(17, 17, 17, 0.08);
   color: $color-text-primary;
+  padding: 0 22px;
 }
 
-.primaryButton:hover,
+.iconButton:hover,
 .ghostButton:hover {
   transform: translateY(-1px);
   box-shadow: 0 14px 28px rgba(17, 17, 17, 0.08);
+}
+
+.iconButton:focus-visible,
+.ghostButton:focus-visible {
+  outline: 3px solid rgba(51, 76, 219, 0.24);
+  outline-offset: 4px;
+}
+
+.iconButtonIcon {
+  width: 20px;
+  height: 20px;
 }
 
 @media (max-width: 960px) {
@@ -142,11 +155,10 @@
 
   .actions {
     display: grid;
+    grid-template-columns: 52px minmax(0, 1fr);
     gap: 12px;
-    justify-content: stretch;
   }
 
-  .primaryButton,
   .ghostButton {
     width: 100%;
   }

@@ -6,6 +6,7 @@
 }
 
 .card {
+  position: relative;
   display: grid;
   grid-template-columns: 220px minmax(0, 1fr);
   gap: 18px;
@@ -21,6 +22,22 @@
 .card:hover {
   transform: translateY(-2px);
   box-shadow: 0 18px 36px rgba(17, 17, 17, 0.08);
+}
+
+.cardInteractive {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.cardInteractive:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 36px rgba(17, 17, 17, 0.08);
+}
+
+.cardDimmed {
+  opacity: 0.72;
+  filter: saturate(0.6) brightness(0.92);
 }
 
 .imageWrapper {
@@ -129,6 +146,136 @@
   word-break: break-word;
 }
 
+.cardCoverLink {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  text-decoration: none;
+}
+
+.cardCoverLink:focus-visible {
+  outline: 3px solid rgba(51, 76, 219, 0.26);
+  outline-offset: 4px;
+}
+
+.editButton {
+  position: absolute;
+  top: 22px;
+  left: 22px;
+  z-index: 2;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.94);
+  color: $color-primary;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-shadow: 0 14px 28px rgba(17, 17, 17, 0.12);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.editButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 30px rgba(17, 17, 17, 0.16);
+}
+
+.editButton:focus-visible {
+  outline: 3px solid rgba(51, 76, 219, 0.26);
+  outline-offset: 4px;
+}
+
+.editIcon {
+  width: 20px;
+  height: 20px;
+}
+
+.actionCardLink {
+  display: block;
+  height: 100%;
+  text-decoration: none;
+}
+
+.actionCard {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 18px;
+  height: 250px;
+  padding: 14px;
+  border-radius: 30px;
+  background-color: $color-surface;
+  border: 2px dashed rgba(51, 76, 219, 0.22);
+}
+
+.actionCardLink:focus-visible .actionCard {
+  outline: 3px solid rgba(51, 76, 219, 0.26);
+  outline-offset: 4px;
+}
+
+.actionVisual {
+  height: 100%;
+  min-height: 0;
+  border-radius: 24px;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background-color: #ececec;
+}
+
+.actionIconBox {
+  width: 96px;
+  height: 96px;
+  border-radius: 30px;
+  background-color: rgba(255, 255, 255, 0.96);
+  color: $color-primary;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 18px 36px rgba(17, 17, 17, 0.1);
+}
+
+.actionIcon {
+  width: 34px;
+  height: 34px;
+}
+
+.actionContent {
+  display: grid;
+  align-content: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 8px 0;
+}
+
+.actionEyebrow {
+  color: $color-primary;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.actionTitle {
+  margin: 0;
+  color: $color-text-primary;
+  font-size: clamp(28px, 2.3vw, 38px);
+  line-height: 1.05;
+  font-weight: 700;
+}
+
+.actionDescription {
+  margin: 0;
+  color: rgba(17, 17, 17, 0.7);
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
 @media (max-width: 1100px) {
   .card {
     grid-template-columns: 1fr;
@@ -136,8 +283,18 @@
     min-height: 430px;
   }
 
+  .actionCard {
+    grid-template-columns: 1fr;
+    height: auto;
+    min-height: 430px;
+  }
+
   .imageWrapper {
     height: 240px;
+  }
+
+  .actionVisual {
+    min-height: 240px;
   }
 
   .content {
@@ -157,6 +314,10 @@
   .info {
     min-height: 150px;
   }
+
+  .actionContent {
+    min-height: 150px;
+  }
 }
 
 @media (max-width: 640px) {
@@ -167,8 +328,20 @@
     min-height: auto;
   }
 
+  .actionCard {
+    gap: 16px;
+    padding: 12px;
+    border-radius: 24px;
+    min-height: auto;
+  }
+
   .imageWrapper {
     height: 200px;
+    border-radius: 20px;
+  }
+
+  .actionVisual {
+    min-height: 200px;
     border-radius: 20px;
   }
 
@@ -207,5 +380,26 @@
     font-size: 15px;
     -webkit-line-clamp: 2;
     line-clamp: 2;
+  }
+
+  .editButton {
+    top: 18px;
+    left: 18px;
+    width: 42px;
+    height: 42px;
+  }
+
+  .actionIconBox {
+    width: 88px;
+    height: 88px;
+    border-radius: 26px;
+  }
+
+  .actionTitle {
+    font-size: 30px;
+  }
+
+  .actionDescription {
+    font-size: 15px;
   }
 }

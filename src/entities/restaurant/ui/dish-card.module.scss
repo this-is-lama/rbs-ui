@@ -76,12 +76,23 @@
   min-height: 104px;
 }
 
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .name {
   margin: 0;
   color: $color-primary;
   font-size: 21px;
   line-height: 1.2;
   font-weight: 700;
+}
+
+.action {
+  flex-shrink: 0;
 }
 
 .footer {
@@ -139,10 +150,6 @@
 .priceButton:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 16px 30px rgba(17, 17, 17, 0.18);
-}
-
-.priceControls {
-  padding: 0;
 }
 
 .stepButton {
@@ -224,17 +231,6 @@
 
   .footer {
     gap: 10px;
-  }
-
-  .priceControls {
-    padding: 0;
-    gap: 0;
-  }
-
-  .stepButton {
-    width: 40px;
-    height: 40px;
-    flex-basis: 40px;
   }
 
   .priceValue {

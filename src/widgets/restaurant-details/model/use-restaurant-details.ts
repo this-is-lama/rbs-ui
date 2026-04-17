@@ -1,10 +1,13 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useAuth } from '@/app/providers/auth/use-auth.ts';
 import { getRestaurantById } from '@/entities/restaurant/api/get-restaurant-by-id.ts';
+import { checkRestaurantManagerAccess } from '@/entities/restaurant/api/management.ts';
 import type { Dish, Photo, RestaurantTable, WorkingHours } from '@/entities/restaurant/model/types.ts';
 import { getPhotoByCategory } from '@/entities/restaurant/lib/get-photo-by-category.ts';
-import { bookingCartStorage } from '@/shared/lib/booking-cart/booking-cart.ts';
 import { dishCartStorage } from '@/shared/dish-cart/dish-cart.ts';
 import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
+import { bookingCartStorage } from '@/shared/lib/booking-cart/booking-cart.ts';
+import { canManageRestaurants, isAdminRole } from '@/shared/lib/auth/roles.ts';
 import type { NormalizedRestaurant, RestaurantDishCounters } from './types.ts';
 import {
     getTodayWeekDay,
@@ -18,37 +21,73 @@ import {
 const DEFAULT_DISH_CATEGORY = 'Все';
 
 export const useRestaurantDetails = (id?: string) => {
+    const { user } = useAuth();
     const [restaurant, setRestaurant] = useState<NormalizedRestaurant | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
+    const [canManageRestaurant, setCanManageRestaurant] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(DEFAULT_DISH_CATEGORY);
     const [cartCounts, setCartCounts] = useState<RestaurantDishCounters>({});
     const [bookingCartCount, setBookingCartCount] = useState(0);
     const [selectedTable, setSelectedTable] = useState<RestaurantTable | null>(null);
 
+    const loadRestaurant = useCallback(async () => {
+        if (!id) {
+            setError('Не найден идентификатор ресторана');
+            setIsLoading(false);
+            return;
+        }
+
+        try {
+            setIsLoading(true);
+            setError('');
+
+            const response = await getRestaurantById(id);
+            setRestaurant(normalizeRestaurant(response));
+        } catch (requestError) {
+            setError(getApiErrorMessage(requestError, 'Не удалось загрузить страницу ресторана'));
+        } finally {
+            setIsLoading(false);
+        }
+    }, [id]);
+
     useEffect(() => {
-        const loadRestaurant = async () => {
-            if (!id) {
-                setError('Не найден идентификатор ресторана');
-                setIsLoading(false);
-                return;
-            }
+        void loadRestaurant();
+    }, [loadRestaurant]);
 
+    useEffect(() => {
+        if (!id || !canManageRestaurants(user?.role)) {
+            setCanManageRestaurant(false);
+            return;
+        }
+
+        if (isAdminRole(user?.role)) {
+            setCanManageRestaurant(true);
+            return;
+        }
+
+        let isDisposed = false;
+
+        const checkAccess = async () => {
             try {
-                setIsLoading(true);
-                setError('');
+                const response = await checkRestaurantManagerAccess(id);
 
-                const response = await getRestaurantById(id);
-                setRestaurant(normalizeRestaurant(response));
-            } catch (requestError) {
-                setError(getApiErrorMessage(requestError, 'Не удалось загрузить страницу ресторана'));
-            } finally {
-                setIsLoading(false);
+                if (!isDisposed) {
+                    setCanManageRestaurant(response);
+                }
+            } catch {
+                if (!isDisposed) {
+                    setCanManageRestaurant(false);
+                }
             }
         };
 
-        void loadRestaurant();
-    }, [id]);
+        void checkAccess();
+
+        return () => {
+            isDisposed = true;
+        };
+    }, [id, user?.role]);
 
     useEffect(() => {
         const syncBookingCartCount = () => {
@@ -72,9 +111,9 @@ export const useRestaurantDetails = (id?: string) => {
         const syncDishCart = () => {
             const items = dishCartStorage.getItemsByRestaurantId(restaurant.id);
 
-            const nextCounts = items.reduce<RestaurantDishCounters>((acc, item) => {
-                acc[item.dishId] = item.quantity;
-                return acc;
+            const nextCounts = items.reduce<RestaurantDishCounters>((accumulator, item) => {
+                accumulator[item.dishId] = item.quantity;
+                return accumulator;
             }, {});
 
             setCartCounts(nextCounts);
@@ -243,6 +282,8 @@ export const useRestaurantDetails = (id?: string) => {
         placedTables,
         notPlacedTables,
         bookingCartCount,
+        canManageRestaurant,
+        reloadRestaurant: loadRestaurant,
         handleAddDish,
         handleDecreaseDish,
         handleBookingAdded,

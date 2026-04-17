@@ -1,0 +1,408 @@
+@use '@/app/styles/variables' as *;
+
+.layoutGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.canvasCard,
+.panel {
+  display: grid;
+  gap: 18px;
+  padding: 24px;
+  border-radius: 30px;
+  background-color: $color-surface;
+}
+
+.canvasHeader,
+.panelHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.panelTitle {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.15;
+  font-weight: 700;
+  color: $color-text-primary;
+}
+
+.panelDescription {
+  margin: 0;
+  color: rgba(17, 17, 17, 0.68);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.saveButton,
+.actionButton,
+.secondaryButton,
+.dangerButton {
+  min-height: 46px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.saveButton,
+.actionButton {
+  background-color: $color-primary;
+  color: $color-white;
+}
+
+.secondaryButton {
+  background-color: $color-white;
+  color: $color-text-primary;
+}
+
+.dangerButton {
+  background-color: rgba(185, 28, 28, 0.12);
+  color: #b91c1c;
+}
+
+.saveButton:hover:not(:disabled),
+.actionButton:hover:not(:disabled),
+.secondaryButton:hover:not(:disabled),
+.dangerButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(17, 17, 17, 0.08);
+}
+
+.saveButton:disabled,
+.actionButton:disabled,
+.secondaryButton:disabled,
+.dangerButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.message,
+.error {
+  padding: 16px 18px;
+  border-radius: 22px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+.message {
+  background-color: rgba(21, 128, 61, 0.12);
+  color: #166534;
+}
+
+.error {
+  background-color: rgba(185, 28, 28, 0.08);
+  color: #b91c1c;
+}
+
+.canvas {
+  position: relative;
+  min-height: 520px;
+  border-radius: 26px;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(51, 76, 219, 0.06), rgba(51, 76, 219, 0.02)),
+    $color-white;
+  border: 1px solid rgba(17, 17, 17, 0.08);
+}
+
+.canvasImage {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+}
+
+.canvasEmpty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  text-align: center;
+  color: rgba(17, 17, 17, 0.62);
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+.marker {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 999px;
+  background-color: $color-primary;
+  color: $color-white;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 14px 28px rgba(17, 17, 17, 0.18);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.markerDragging {
+  cursor: grabbing;
+  box-shadow: 0 18px 36px rgba(17, 17, 17, 0.24);
+}
+
+.markerInactive {
+  background-color: rgba(17, 17, 17, 0.72);
+}
+
+.unplacedBlock {
+  display: grid;
+  gap: 12px;
+}
+
+.unplacedTitle {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: $color-text-primary;
+}
+
+.unplacedList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.unplacedButton {
+  min-height: 42px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 999px;
+  background-color: $color-white;
+  color: $color-text-primary;
+  font-size: 14px;
+  font-weight: 700;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.unplacedButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(17, 17, 17, 0.08);
+}
+
+.sidebar {
+  display: grid;
+  gap: 24px;
+}
+
+.list {
+  display: grid;
+  gap: 12px;
+}
+
+.listItem {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border-radius: 24px;
+  background-color: $color-white;
+}
+
+.listItemSelected {
+  outline: 2px solid rgba(51, 76, 219, 0.24);
+}
+
+.listItemTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.listItemTitle {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: $color-text-primary;
+}
+
+.listItemMeta {
+  color: rgba(17, 17, 17, 0.68);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.listItemActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.miniButton,
+.miniDangerButton {
+  min-height: 38px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.miniButton {
+  background-color: rgba(51, 76, 219, 0.1);
+  color: $color-primary;
+}
+
+.miniDangerButton {
+  background-color: rgba(185, 28, 28, 0.12);
+  color: #b91c1c;
+}
+
+.miniButton:hover:not(:disabled),
+.miniDangerButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(17, 17, 17, 0.08);
+}
+
+.miniButton:disabled,
+.miniDangerButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.form {
+  display: grid;
+  gap: 16px;
+}
+
+.formGrid {
+  display: grid;
+  gap: 14px;
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.label {
+  padding-left: 8px;
+  color: $color-primary;
+  font-size: 14px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: 20px;
+  background-color: $color-white;
+  color: $color-text-primary;
+  outline: none;
+}
+
+.input {
+  min-height: 52px;
+  padding: 0 18px;
+}
+
+.textarea {
+  min-height: 120px;
+  padding: 14px 18px;
+  resize: vertical;
+}
+
+.input:focus,
+.textarea:focus {
+  border-color: rgba(51, 76, 219, 0.45);
+  box-shadow: 0 0 0 4px rgba(51, 76, 219, 0.12);
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 0 18px;
+  border-radius: 20px;
+  background-color: $color-white;
+}
+
+.checkboxInput {
+  width: 18px;
+  height: 18px;
+  accent-color: $color-primary;
+}
+
+.checkboxLabel {
+  font-size: 15px;
+  line-height: 1.4;
+  font-weight: 600;
+  color: $color-text-primary;
+}
+
+.hint {
+  color: rgba(17, 17, 17, 0.62);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+@media (max-width: 1100px) {
+  .layoutGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .canvasCard,
+  .panel {
+    padding: 20px;
+    border-radius: 24px;
+  }
+
+  .canvas {
+    min-height: 360px;
+    border-radius: 22px;
+  }
+
+  .listItemActions {
+    display: grid;
+  }
+
+  .saveButton,
+  .actionButton,
+  .secondaryButton,
+  .dangerButton,
+  .miniButton,
+  .miniDangerButton {
+    width: 100%;
+  }
+}
