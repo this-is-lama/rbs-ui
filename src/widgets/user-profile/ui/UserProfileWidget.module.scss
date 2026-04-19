@@ -205,9 +205,13 @@
 
 .bookingComment {
   margin: 0;
+  padding: 18px 20px;
+  border-radius: 22px;
+  background-color: #f3f3f3;
   font-size: 15px;
   line-height: 1.5;
   color: rgba(17, 17, 17, 0.72);
+  white-space: pre-wrap;
 }
 
 .emptyText,

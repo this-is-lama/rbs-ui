@@ -21,7 +21,6 @@ import {
 import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
 import { RoutePaths } from '@/shared/config/routes/routes.ts';
 import pageStyles from '@/widgets/restaurant-management/shared/ManagerPage.module.scss';
-import { DishPhotoGalleryManager } from './components/dish-photo-gallery-manager.tsx';
 
 type LocationState = {
     message?: string;
@@ -109,15 +108,6 @@ export const DishManageWidget = () => {
         });
     };
 
-    const refreshDish = async () => {
-        if (!restaurantId || !dishId) {
-            return;
-        }
-
-        const response = await getRestaurantDishById(restaurantId, dishId);
-        setDish(response);
-    };
-
     if (isLoading) {
         return (
             <div className={`container ${pageStyles.page}`}>
@@ -149,13 +139,6 @@ export const DishManageWidget = () => {
                 </div>
 
                 {flashMessage ? <div className={pageStyles.note}>{flashMessage}</div> : null}
-
-                <DishPhotoGalleryManager
-                    dishId={dishId}
-                    dishName={dish?.name ?? 'Новое блюдо'}
-                    photos={dish?.photos}
-                    onPhotosChanged={refreshDish}
-                />
 
                 <DishManageForm
                     initialValues={initialValues}

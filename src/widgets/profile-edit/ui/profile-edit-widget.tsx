@@ -1,4 +1,3 @@
-import { UserAvatar } from '@/entities/user/ui/user-avatar.tsx';
 import { EditProfileForm } from '@/features/user/edit-profile/ui/edit-profile-form.tsx';
 import { ChangePasswordForm } from '@/features/user/change-password/ui/change-password-form.tsx';
 import styles from './ProfileEditWidget.module.scss';
@@ -7,10 +6,11 @@ export const ProfileEditWidget = () => {
     return (
         <div className={`container ${styles.wrapper}`}>
             <article className={styles.card}>
-                <h1 className={styles.title}>Редактирование профиля</h1>
-
-                <div className={styles.visual}>
-                    <UserAvatar />
+                <div className={styles.pageHeader}>
+                    <h1 className={styles.title}>Редактирование профиля</h1>
+                    <p className={styles.pageDescription}>
+                        Обновите личные данные и настройки входа в одном месте.
+                    </p>
                 </div>
 
                 <div className={styles.content}>

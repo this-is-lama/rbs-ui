@@ -180,9 +180,7 @@ export const useRestaurantDetails = (id?: string) => {
             return photo.category === 'BANNER' || photo.category === 'GALLERY';
         });
 
-        const source = candidates.length > 0 ? candidates : restaurant.photos;
-
-        return uniquePhotos([...source].sort((left, right) => left.sortOrder - right.sortOrder));
+        return uniquePhotos([...candidates].sort((left, right) => left.sortOrder - right.sortOrder));
     }, [restaurant]);
 
     const schemePhoto = useMemo(() => {

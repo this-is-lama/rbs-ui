@@ -167,13 +167,12 @@
   width: 46px;
   height: 46px;
   border-radius: 50%;
-  background-color: rgba(255, 255, 255, 0.94);
+  background-color: rgba(51, 76, 219, 0.12);
   color: $color-primary;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   text-decoration: none;
-  box-shadow: 0 14px 28px rgba(17, 17, 17, 0.12);
   transition:
     transform 0.2s ease,
     box-shadow 0.2s ease,
@@ -183,7 +182,7 @@
 
 .editButton:hover {
   transform: translateY(-1px);
-  box-shadow: 0 16px 30px rgba(17, 17, 17, 0.16);
+  box-shadow: 0 14px 28px rgba(17, 17, 17, 0.08);
 }
 
 .editButton:focus-visible {

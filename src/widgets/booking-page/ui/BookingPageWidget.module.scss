@@ -3,12 +3,18 @@
 .page {
   display: grid;
   gap: 24px;
+  padding-top: 28px;
   padding-bottom: 48px;
 }
 
 .intro {
   display: grid;
   gap: 8px;
+  margin-bottom: 24px;
+}
+
+.intro .mutedText {
+  display: none;
 }
 
 .mutedText {
@@ -182,6 +188,11 @@
   background-color: rgba(220, 38, 38, 0.18);
 }
 
+.iconDangerButtonIcon {
+  width: 18px;
+  height: 18px;
+}
+
 .tableRemoveButton {
   position: absolute;
   top: 20px;
@@ -342,6 +353,14 @@
 }
 
 @media (max-width: 560px) {
+  .page {
+    padding-top: 20px;
+  }
+
+  .intro {
+    margin-bottom: 16px;
+  }
+
   .card {
     padding: 20px;
     border-radius: 24px;

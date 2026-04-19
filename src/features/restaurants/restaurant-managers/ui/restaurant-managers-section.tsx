@@ -39,8 +39,8 @@ const getLookupFullName = (user: RestaurantLookupUser) => {
 };
 
 export const RestaurantManagersSection = ({
-    restaurantId,
-}: RestaurantManagersSectionProps) => {
+                                              restaurantId,
+                                          }: RestaurantManagersSectionProps) => {
     const [managers, setManagers] = useState<RestaurantManager[]>([]);
     const [email, setEmail] = useState('');
     const [lookupResult, setLookupResult] = useState<RestaurantLookupUser | null>(null);
@@ -100,7 +100,7 @@ export const RestaurantManagersSection = ({
             setIsAdding(true);
             setError('');
             setSuccessMessage('');
-            await addRestaurantManager(restaurantId, lookupResult.email);
+            await addRestaurantManager(restaurantId, lookupResult.id);
             await loadManagers();
             setEmail('');
             setLookupResult(null);

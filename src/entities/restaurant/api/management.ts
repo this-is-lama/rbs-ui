@@ -5,6 +5,7 @@ import type {
     DishManageRequest,
     ManagerRestaurantCard,
     PhotoConfirmRequestItem,
+    PhotoOrderUpdateItem,
     PhotoUploadDraft,
     PhotoUploadPendingItem,
     PhotoUploadRequestItem,
@@ -100,6 +101,40 @@ const deletePhotos = async (path: string, ids: string[]) => {
     });
 };
 
+const shouldRetryPhotoOrderRequest = (error: unknown) => {
+    const status = (error as { response?: { status?: number } })?.response?.status;
+    return status === 400 || status === 404 || status === 405 || status === 415;
+};
+
+const updatePhotoOrder = async (path: string, items: PhotoOrderUpdateItem[]) => {
+    const payloadVariants: Array<PhotoOrderUpdateItem[] | { photos: PhotoOrderUpdateItem[] }> = [
+        { photos: items },
+        items,
+    ];
+    const routeVariants = ['/order', '/reorder', ''];
+    const methodVariants: Array<'put' | 'patch'> = ['put', 'patch'];
+    let lastError: unknown = null;
+
+    for (const route of routeVariants) {
+        for (const payload of payloadVariants) {
+            for (const method of methodVariants) {
+                try {
+                    await apiClient[method](`${path}${route}`, payload);
+                    return;
+                } catch (error) {
+                    lastError = error;
+
+                    if (!shouldRetryPhotoOrderRequest(error)) {
+                        throw error;
+                    }
+                }
+            }
+        }
+    }
+
+    throw lastError ?? new Error('Не удалось обновить порядок фотографий');
+};
+
 const uploadPhotosWithConfirm = async (path: string, drafts: PhotoUploadDraft[]) => {
     const pending = await requestPhotoUploads(
         path,
@@ -169,8 +204,13 @@ export const setRestaurantActive = async (id: string, active: boolean): Promise<
     return normalizeRestaurant(response.data);
 };
 
+export const updateDishPhotoOrder = async (dishId: string, items: PhotoOrderUpdateItem[]) => {
+    return updatePhotoOrder(`/api/v1/dishes/${dishId}/photos`, items);
+};
+
+
 export const checkRestaurantManagerAccess = async (restId: string): Promise<boolean> => {
-    const response = await apiClient.get<boolean>(`/api/v1/internal/restaurants/${restId}/manager-access`);
+    const response = await apiClient.get<boolean>(`/api/v1/restaurants/${restId}/manager-access`);
     return Boolean(response.data);
 };
 
@@ -179,10 +219,10 @@ export const getRestaurantManagers = async (restId: string): Promise<RestaurantM
     return Array.isArray(response.data) ? response.data : [];
 };
 
-export const addRestaurantManager = async (restId: string, email: string): Promise<string> => {
-    const response = await apiClient.post<string>(`/api/v1/restaurants/${restId}/managers`, {
-        email,
-    });
+export const addRestaurantManager = async (restId: string, managerId: string): Promise<string> => {
+    const response = await apiClient.post<string>(
+        `/api/v1/restaurants/${restId}/managers/${managerId}`
+    );
 
     return response.data;
 };
@@ -279,6 +319,13 @@ export const uploadRestaurantPhotos = async (restaurantId: string, drafts: Photo
     return uploadPhotosWithConfirm(`/api/v1/restaurants/${restaurantId}/photos`, drafts);
 };
 
+export const updateRestaurantPhotoOrder = async (
+    restaurantId: string,
+    items: PhotoOrderUpdateItem[],
+) => {
+    return updatePhotoOrder(`/api/v1/restaurants/${restaurantId}/photos`, items);
+};
+
 export const requestDishPhotoUploads = async (dishId: string, items: PhotoUploadRequestItem[]) => {
     return requestPhotoUploads(`/api/v1/dishes/${dishId}/photos`, items);
 };
@@ -294,3 +341,4 @@ export const deleteDishPhotos = async (dishId: string, ids: string[]) => {
 export const uploadDishPhotos = async (dishId: string, drafts: PhotoUploadDraft[]) => {
     return uploadPhotosWithConfirm(`/api/v1/dishes/${dishId}/photos`, drafts);
 };
+

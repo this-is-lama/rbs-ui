@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
     deleteDishPhotos,
+    updateDishPhotoOrder,
     uploadDishPhotos,
 } from '@/entities/restaurant/api/management.ts';
 import type { Photo, PhotoUploadDraft } from '@/entities/restaurant/model/types.ts';
@@ -18,6 +19,7 @@ type DishPhotoGalleryManagerProps = {
     dishId?: string;
     dishName: string;
     photos?: Photo[] | null;
+    canManagePhotos?: boolean;
     onPhotosChanged?: () => Promise<void>;
 };
 
@@ -33,10 +35,18 @@ const uploadCategories = [
 
 const allowedContentTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
+const normalizePhotoOrder = (photos: Photo[]) => {
+    return photos.map((photo, index) => ({
+        ...photo,
+        sortOrder: index,
+    }));
+};
+
 export const DishPhotoGalleryManager = ({
     dishId,
     dishName,
     photos,
+    canManagePhotos = true,
     onPhotosChanged,
 }: DishPhotoGalleryManagerProps) => {
     const [selectedCategory, setSelectedCategory] = useState<'BANNER' | 'GALLERY'>('BANNER');
@@ -45,13 +55,14 @@ export const DishPhotoGalleryManager = ({
     const [orderedPhotos, setOrderedPhotos] = useState<Photo[]>([]);
     const [toast, setToast] = useState<GalleryToast | null>(null);
     const [isUploading, setIsUploading] = useState(false);
+    const [isReordering, setIsReordering] = useState(false);
     const [deletingPhotoId, setDeletingPhotoId] = useState<string | null>(null);
     const categoryRef = useRef<HTMLSelectElement | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     useEffect(() => {
         const nextPhotos = Array.isArray(photos)
-            ? [...photos].sort((left, right) => left.sortOrder - right.sortOrder)
+            ? normalizePhotoOrder([...photos].sort((left, right) => left.sortOrder - right.sortOrder))
             : [];
 
         setOrderedPhotos(nextPhotos);
@@ -89,10 +100,10 @@ export const DishPhotoGalleryManager = ({
         setToast({ type, message });
     };
 
-    const canManagePhotos = Boolean(dishId);
+    const canUploadOrDeletePhotos = Boolean(dishId) && canManagePhotos;
 
     const handleUpload = async () => {
-        if (!canManagePhotos || !dishId) {
+        if (!canUploadOrDeletePhotos || !dishId) {
             showToast('error', 'Сначала сохраните блюдо, затем добавьте фотографии');
             return;
         }
@@ -161,19 +172,44 @@ export const DishPhotoGalleryManager = ({
         }
     };
 
-    const handleMovePhoto = (index: number, direction: 'left' | 'right') => {
-        setOrderedPhotos((currentPhotos) => {
-            const targetIndex = direction === 'left' ? index - 1 : index + 1;
+    const handleMovePhoto = async (index: number, direction: 'left' | 'right') => {
+        if (!dishId || isReordering) {
+            return;
+        }
 
-            if (targetIndex < 0 || targetIndex >= currentPhotos.length) {
-                return currentPhotos;
-            }
+        const targetIndex = direction === 'left' ? index - 1 : index + 1;
 
-            const nextPhotos = [...currentPhotos];
-            const [movedPhoto] = nextPhotos.splice(index, 1);
-            nextPhotos.splice(targetIndex, 0, movedPhoto);
-            return nextPhotos;
-        });
+        if (targetIndex < 0 || targetIndex >= orderedPhotos.length) {
+            return;
+        }
+
+        const previousPhotos = [...orderedPhotos];
+        const nextPhotos = [...orderedPhotos];
+        const [movedPhoto] = nextPhotos.splice(index, 1);
+        nextPhotos.splice(targetIndex, 0, movedPhoto);
+        const normalizedPhotos = normalizePhotoOrder(nextPhotos);
+
+        setOrderedPhotos(normalizedPhotos);
+
+        try {
+            setIsReordering(true);
+            setToast(null);
+
+            await updateDishPhotoOrder(
+                dishId,
+                normalizedPhotos.map((photo) => ({
+                    id: photo.id,
+                    sortOrder: photo.sortOrder,
+                })),
+            );
+            await onPhotosChanged?.();
+            showToast('success', 'Порядок фотографий сохранен');
+        } catch (requestError) {
+            setOrderedPhotos(previousPhotos);
+            showToast('error', getApiErrorMessage(requestError, 'Не удалось сохранить порядок фотографий'));
+        } finally {
+            setIsReordering(false);
+        }
     };
 
     const addPhotoCard = (
@@ -181,7 +217,7 @@ export const DishPhotoGalleryManager = ({
             <div className={styles.addPhotoHead}>
                 <h2 className={styles.addPhotoTitle}>Фотографии блюда</h2>
                 <p className={styles.addPhotoDescription}>
-                    {canManagePhotos
+                    {canUploadOrDeletePhotos
                         ? 'Добавляйте обложку и фотографии галереи блюда.'
                         : 'Сначала сохраните блюдо, затем сможете добавить фотографии.'}
                 </p>
@@ -194,7 +230,7 @@ export const DishPhotoGalleryManager = ({
                         ref={categoryRef}
                         className={styles.select}
                         value={selectedCategory}
-                        disabled={!canManagePhotos}
+                        disabled={!canUploadOrDeletePhotos}
                         onChange={(event) => {
                             setSelectedCategory(event.target.value as 'BANNER' | 'GALLERY');
                         }}
@@ -213,7 +249,7 @@ export const DishPhotoGalleryManager = ({
                         className={styles.input}
                         inputMode="numeric"
                         value={sortOrderInput}
-                        disabled={!canManagePhotos}
+                        disabled={!canUploadOrDeletePhotos}
                         onChange={(event) => setSortOrderInput(event.target.value)}
                         placeholder="1"
                     />
@@ -226,7 +262,7 @@ export const DishPhotoGalleryManager = ({
                         type="file"
                         accept="image/jpeg,image/png,image/webp"
                         className={styles.fileInputHidden}
-                        disabled={!canManagePhotos}
+                        disabled={!canUploadOrDeletePhotos}
                         onChange={(event) => {
                             setSelectedFile(event.target.files?.[0] ?? null);
                         }}
@@ -237,7 +273,7 @@ export const DishPhotoGalleryManager = ({
                             type="button"
                             className={styles.filePickerButton}
                             onClick={() => fileInputRef.current?.click()}
-                            disabled={!canManagePhotos}
+                            disabled={!canUploadOrDeletePhotos}
                         >
                             Выбрать файл
                         </button>
@@ -253,7 +289,7 @@ export const DishPhotoGalleryManager = ({
                     type="button"
                     className={styles.uploadIconButton}
                     onClick={() => void handleUpload()}
-                    disabled={isUploading || !canManagePhotos}
+                    disabled={isUploading || !canUploadOrDeletePhotos}
                     aria-label={isUploading ? 'Добавление фото' : 'Добавить фото'}
                     title={isUploading ? 'Добавление...' : 'Добавить фото'}
                 >
@@ -286,17 +322,17 @@ export const DishPhotoGalleryManager = ({
                 photos={orderedPhotos}
                 altText={dishName}
                 placeholderText="Фотографии блюда отсутствуют"
-                leadingCard={addPhotoCard}
-                leadingCardClassName={styles.leadingCardCompact}
+                leadingCard={canManagePhotos ? addPhotoCard : undefined}
+                leadingCardClassName={canManagePhotos ? styles.leadingCardCompact : undefined}
                 size="large"
-                renderPhotoActions={canManagePhotos ? (photo, index) => (
+                renderPhotoActions={canUploadOrDeletePhotos ? (photo, index) => (
                     <>
                         <div className={styles.orderControls}>
                             <button
                                 type="button"
                                 className={styles.orderButton}
-                                onClick={() => handleMovePhoto(index, 'left')}
-                                disabled={index === 0}
+                                onClick={() => void handleMovePhoto(index, 'left')}
+                                disabled={isReordering || index === 0}
                                 aria-label="Переместить фото влево"
                             >
                                 <ChevronLeftIcon className={styles.orderIcon} />
@@ -305,8 +341,8 @@ export const DishPhotoGalleryManager = ({
                             <button
                                 type="button"
                                 className={styles.orderButton}
-                                onClick={() => handleMovePhoto(index, 'right')}
-                                disabled={index === orderedPhotos.length - 1}
+                                onClick={() => void handleMovePhoto(index, 'right')}
+                                disabled={isReordering || index === orderedPhotos.length - 1}
                                 aria-label="Переместить фото вправо"
                             >
                                 <ChevronRightIcon className={styles.orderIcon} />

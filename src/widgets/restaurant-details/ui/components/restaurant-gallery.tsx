@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
     deleteRestaurantPhotos,
+    updateRestaurantPhotoOrder,
     uploadRestaurantPhotos,
 } from '@/entities/restaurant/api/management.ts';
 import type { Photo, PhotoUploadDraft } from '@/entities/restaurant/model/types.ts';
@@ -36,6 +37,13 @@ const uploadCategories = [
 
 const allowedContentTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
+const normalizePhotoOrder = (photos: Photo[]) => {
+    return photos.map((photo, index) => ({
+        ...photo,
+        sortOrder: index,
+    }));
+};
+
 export const RestaurantGallery = ({
     restaurantId,
     restaurantName,
@@ -51,12 +59,13 @@ export const RestaurantGallery = ({
     const [orderedPhotos, setOrderedPhotos] = useState<Photo[]>([]);
     const [toast, setToast] = useState<GalleryToast | null>(null);
     const [isUploading, setIsUploading] = useState(false);
+    const [isReordering, setIsReordering] = useState(false);
     const [deletingPhotoId, setDeletingPhotoId] = useState<string | null>(null);
     const categoryRef = useRef<HTMLSelectElement | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     useEffect(() => {
-        setOrderedPhotos(galleryPhotos);
+        setOrderedPhotos(normalizePhotoOrder(galleryPhotos));
     }, [galleryPhotos]);
 
     const nextSortOrder = useMemo(() => {
@@ -155,19 +164,44 @@ export const RestaurantGallery = ({
         }
     };
 
-    const handleMovePhoto = (index: number, direction: 'left' | 'right') => {
-        setOrderedPhotos((currentPhotos) => {
-            const targetIndex = direction === 'left' ? index - 1 : index + 1;
+    const handleMovePhoto = async (index: number, direction: 'left' | 'right') => {
+        if (isReordering) {
+            return;
+        }
 
-            if (targetIndex < 0 || targetIndex >= currentPhotos.length) {
-                return currentPhotos;
-            }
+        const targetIndex = direction === 'left' ? index - 1 : index + 1;
 
-            const nextPhotos = [...currentPhotos];
-            const [movedPhoto] = nextPhotos.splice(index, 1);
-            nextPhotos.splice(targetIndex, 0, movedPhoto);
-            return nextPhotos;
-        });
+        if (targetIndex < 0 || targetIndex >= orderedPhotos.length) {
+            return;
+        }
+
+        const previousPhotos = [...orderedPhotos];
+        const nextPhotos = [...orderedPhotos];
+        const [movedPhoto] = nextPhotos.splice(index, 1);
+        nextPhotos.splice(targetIndex, 0, movedPhoto);
+        const normalizedPhotos = normalizePhotoOrder(nextPhotos);
+
+        setOrderedPhotos(normalizedPhotos);
+
+        try {
+            setIsReordering(true);
+            setToast(null);
+
+            await updateRestaurantPhotoOrder(
+                restaurantId,
+                normalizedPhotos.map((photo) => ({
+                    id: photo.id,
+                    sortOrder: photo.sortOrder,
+                })),
+            );
+            await onPhotosChanged?.();
+            showToast('success', 'Порядок фотографий сохранен');
+        } catch (requestError) {
+            setOrderedPhotos(previousPhotos);
+            showToast('error', getApiErrorMessage(requestError, 'Не удалось сохранить порядок фотографий'));
+        } finally {
+            setIsReordering(false);
+        }
     };
 
     const addPhotoCard = canManageRestaurant ? (
@@ -283,8 +317,8 @@ export const RestaurantGallery = ({
                             <button
                                 type="button"
                                 className={styles.orderButton}
-                                onClick={() => handleMovePhoto(index, 'left')}
-                                disabled={index === 0}
+                                onClick={() => void handleMovePhoto(index, 'left')}
+                                disabled={isReordering || index === 0}
                                 aria-label="Переместить фото влево"
                             >
                                 <ChevronLeftIcon className={styles.orderIcon} />
@@ -293,8 +327,8 @@ export const RestaurantGallery = ({
                             <button
                                 type="button"
                                 className={styles.orderButton}
-                                onClick={() => handleMovePhoto(index, 'right')}
-                                disabled={index === orderedPhotos.length - 1}
+                                onClick={() => void handleMovePhoto(index, 'right')}
+                                disabled={isReordering || index === orderedPhotos.length - 1}
                                 aria-label="Переместить фото вправо"
                             >
                                 <ChevronRightIcon className={styles.orderIcon} />

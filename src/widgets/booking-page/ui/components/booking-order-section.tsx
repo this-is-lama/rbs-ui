@@ -7,6 +7,7 @@ import type {
 } from '@/entities/restaurant/model/types.ts';
 import { RestaurantCard } from '@/entities/restaurant/ui/restaurant-card.tsx';
 import { RoutePaths } from '@/shared/config/routes/routes.ts';
+import { CloseIcon } from '@/shared/ui/icons/action-icons.tsx';
 import styles from '../BookingPageWidget.module.scss';
 
 type BookingOrderSectionProps = {
@@ -124,7 +125,7 @@ export const BookingOrderSection = ({
                                 onClick={handleRemoveClick}
                                 aria-label="Удалить стол из заказа"
                             >
-                                X
+                                <CloseIcon className={styles.iconDangerButtonIcon} />
                             </button>
 
                             <div className={styles.selectedTableContent}>

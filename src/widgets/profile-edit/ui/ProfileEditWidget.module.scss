@@ -2,7 +2,7 @@
 
 .wrapper {
   width: 100%;
-  max-width: 1028px;
+  max-width: 920px;
   margin: 0 auto;
   display: grid;
   gap: 24px;
@@ -11,16 +11,18 @@
 
 .card {
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
-  grid-template-rows: auto 1fr;
-  gap: 36px 28px;
+  gap: 28px;
   padding: 40px 44px;
   border-radius: 38px;
   background-color: #f3f3f3;
 }
 
+.pageHeader {
+  display: grid;
+  gap: 12px;
+}
+
 .title {
-  grid-column: 1 / -1;
   margin: 0;
   font-size: clamp(48px, 5.2vw, 64px);
   line-height: 0.95;
@@ -28,11 +30,12 @@
   color: $color-text-primary;
 }
 
-.visual {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding-top: 4px;
+.pageDescription {
+  margin: 0;
+  max-width: 620px;
+  font-size: 16px;
+  line-height: 1.5;
+  color: rgba(17, 17, 17, 0.68);
 }
 
 .content {
@@ -72,14 +75,8 @@
 
 @media (max-width: 960px) {
   .card {
-    grid-template-columns: 1fr;
     gap: 30px;
     padding: 32px 28px;
-  }
-
-  .visual {
-    justify-content: center;
-    padding-top: 0;
   }
 }
 
@@ -96,6 +93,10 @@
 
   .title {
     font-size: 42px;
+  }
+
+  .pageDescription {
+    font-size: 15px;
   }
 
   .section {

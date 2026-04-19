@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, generatePath, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/app/providers/auth/use-auth.ts';
 import { getRestaurantById } from '@/entities/restaurant/api/get-restaurant-by-id.ts';
@@ -15,6 +15,7 @@ import { EditIcon } from '@/shared/ui/icons/action-icons.tsx';
 import { PhotoCarousel } from '@/shared/ui/photo-carousel/photo-carousel.tsx';
 import { RestaurantOrderConflictModal } from '@/shared/ui/restaurant-order-conflict-modal/RestaurantOrderConflictModal.tsx';
 import { Footer } from '@/widgets/footer/Footer.tsx';
+import { DishPhotoGalleryManager } from '@/widgets/dish-manage/ui/components/dish-photo-gallery-manager.tsx';
 import styles from './DishDetailsWidget.module.scss';
 
 type NormalizedRestaurant = Restaurant & {
@@ -57,52 +58,52 @@ export const DishDetailsWidget = () => {
         confirmRestaurantSwitch,
     } = useRestaurantOrderGuard();
 
-    useEffect(() => {
-        const loadDish = async () => {
-            if (!restaurantId) {
-                setError('Для этой страницы нужен restaurantId в query параметрах');
-                setIsLoading(false);
-                return;
-            }
+    const loadDish = useCallback(async () => {
+        if (!restaurantId) {
+            setError('Для этой страницы нужен restaurantId в query параметрах');
+            setIsLoading(false);
+            return;
+        }
 
-            if (!id) {
-                setError('Не найден идентификатор блюда');
-                setIsLoading(false);
-                return;
-            }
+        if (!id) {
+            setError('Не найден идентификатор блюда');
+            setIsLoading(false);
+            return;
+        }
 
-            try {
-                setIsLoading(true);
-                setError('');
+        try {
+            setIsLoading(true);
+            setError('');
 
-                const response = await getRestaurantById(restaurantId);
-                const normalizedRestaurant: NormalizedRestaurant = {
-                    ...response,
-                    dishes: Array.isArray(response.dishes) ? response.dishes : [],
-                };
+            const response = await getRestaurantById(restaurantId);
+            const normalizedRestaurant: NormalizedRestaurant = {
+                ...response,
+                dishes: Array.isArray(response.dishes) ? response.dishes : [],
+            };
 
-                const foundDish = normalizedRestaurant.dishes.find(
-                    (currentDish) => currentDish.id === id,
-                );
+            const foundDish = normalizedRestaurant.dishes.find(
+                (currentDish) => currentDish.id === id,
+            );
 
-                if (!foundDish) {
-                    setError('Блюдо не найдено в выбранном ресторане');
-                    setRestaurant(normalizedRestaurant);
-                    setDish(null);
-                    return;
-                }
-
+            if (!foundDish) {
+                setError('Блюдо не найдено в выбранном ресторане');
                 setRestaurant(normalizedRestaurant);
-                setDish(foundDish);
-            } catch (loadError) {
-                setError(getApiErrorMessage(loadError, 'Не удалось загрузить страницу блюда'));
-            } finally {
-                setIsLoading(false);
+                setDish(null);
+                return;
             }
-        };
 
-        void loadDish();
+            setRestaurant(normalizedRestaurant);
+            setDish(foundDish);
+        } catch (loadError) {
+            setError(getApiErrorMessage(loadError, 'Не удалось загрузить страницу блюда'));
+        } finally {
+            setIsLoading(false);
+        }
     }, [id, restaurantId]);
+
+    useEffect(() => {
+        void loadDish();
+    }, [loadDish]);
 
     useEffect(() => {
         if (!restaurantId || !canManageRestaurants(user?.role)) {
@@ -246,11 +247,21 @@ export const DishDetailsWidget = () => {
     return (
         <>
             <section className={`container ${styles.page}`}>
-                <PhotoCarousel
-                    photos={dishPhotos}
-                    altText={dish.name}
-                    placeholderText="Фотографии блюда отсутствуют"
-                />
+                {canManageDish ? (
+                    <DishPhotoGalleryManager
+                        dishId={dish.id}
+                        dishName={dish.name}
+                        photos={dish.photos}
+                        canManagePhotos
+                        onPhotosChanged={loadDish}
+                    />
+                ) : (
+                    <PhotoCarousel
+                        photos={dishPhotos}
+                        altText={dish.name}
+                        placeholderText="Фотографии блюда отсутствуют"
+                    />
+                )}
 
                 <div className={styles.headingBlock}>
                     <h1 className={styles.title}>{dish.name}</h1>

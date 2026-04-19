@@ -82,11 +82,12 @@
 }
 
 .iconButton {
-  width: 52px;
+  width: 46px;
+  min-height: 46px;
   padding: 0;
   border: none;
-  background-color: $color-primary;
-  color: $color-white;
+  background-color: rgba(51, 76, 219, 0.12);
+  color: $color-primary;
 }
 
 .ghostButton {
@@ -155,7 +156,7 @@
 
   .actions {
     display: grid;
-    grid-template-columns: 52px minmax(0, 1fr);
+    grid-template-columns: 46px minmax(0, 1fr);
     gap: 12px;
   }
 

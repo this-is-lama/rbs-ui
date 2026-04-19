@@ -2,6 +2,7 @@ import { generatePath, useNavigate } from 'react-router-dom';
 import type { DishCartItem } from '@/shared/dish-cart/dish-cart.ts';
 import { DishCard } from '@/entities/restaurant/ui/dish-card.tsx';
 import { RoutePaths } from '@/shared/config/routes/routes.ts';
+import { CloseIcon } from '@/shared/ui/icons/action-icons.tsx';
 import type { BookingPageDishCardItem } from '../booking-page.types.ts';
 import styles from '../BookingPageWidget.module.scss';
 
@@ -43,7 +44,7 @@ export const DishCartSection = ({
                         onClick={onClear}
                         aria-label="Очистить блюда"
                     >
-                        X
+                        <CloseIcon className={styles.iconDangerButtonIcon} />
                     </button>
                 ) : null}
             </div>

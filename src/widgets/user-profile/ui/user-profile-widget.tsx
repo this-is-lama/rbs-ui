@@ -5,13 +5,20 @@ import {
     formatBookingAmount,
     getBookingStatusLabel,
 } from '@/entities/booking/lib/format-booking.ts';
-import type { Booking, BookingStatus } from '@/entities/booking/model/types.ts';
+import {
+    formatBookingDate,
+    formatBookingTimeRange,
+    getBookingTableLabel,
+    resolveBookingTable,
+} from '@/entities/booking/lib/booking-details.ts';
+import type { Booking } from '@/entities/booking/model/types.ts';
+import { BookingAccordionItem } from '@/entities/booking/ui/booking-accordion-item.tsx';
+import bookingPanelStyles from '@/entities/booking/ui/BookingAccordionItem.module.scss';
 import { getRestaurantById } from '@/entities/restaurant/api/get-restaurant-by-id.ts';
 import { getPhotoByCategory } from '@/entities/restaurant/lib/get-photo-by-category.ts';
 import type {
     Restaurant,
     RestaurantCard as RestaurantCardData,
-    RestaurantTable,
     WeekDay,
 } from '@/entities/restaurant/model/types.ts';
 import { RestaurantCard } from '@/entities/restaurant/ui/restaurant-card.tsx';
@@ -32,51 +39,12 @@ const jsDayToWeekDay: Record<number, WeekDay> = {
     6: 'SATURDAY',
 };
 
-const dateFormatter = new Intl.DateTimeFormat('ru-RU', {
-    dateStyle: 'medium',
-});
-
-const timeFormatter = new Intl.DateTimeFormat('ru-RU', {
-    hour: '2-digit',
-    minute: '2-digit',
-});
-
 const getTodayWeekDay = (): WeekDay => {
     return jsDayToWeekDay[new Date().getDay()];
 };
 
-const getStatusClassName = (status: BookingStatus) => {
-    return status === 'CANCELLED'
-        ? styles.statusChipCancelled
-        : styles.statusChipReserved;
-};
-
 const getRestaurantIdentifier = (booking: Booking) => {
     return booking.restaurant?.restaurantId || booking.restaurantId;
-};
-
-const getTableLabel = (booking: Booking) => {
-    if (!booking.table) {
-        return 'Стол не указан';
-    }
-
-    return `Стол №${booking.table.tableNumber}`;
-};
-
-const formatBookingDate = (value?: string | null) => {
-    if (!value) {
-        return 'Не указана';
-    }
-
-    return dateFormatter.format(new Date(value));
-};
-
-const formatBookingTimeRange = (startAt?: string | null, endAt?: string | null) => {
-    if (!startAt || !endAt) {
-        return 'Не указано';
-    }
-
-    return `${timeFormatter.format(new Date(startAt))} - ${timeFormatter.format(new Date(endAt))}`;
 };
 
 const buildRestaurantCardData = (
@@ -105,31 +73,8 @@ const buildRestaurantCardData = (
     };
 };
 
-const buildSelectedTable = (
-    booking: Booking,
-    restaurant: Restaurant | null,
-): RestaurantTable | null => {
-    if (!booking.table) {
-        return null;
-    }
-
-    const tables = Array.isArray(restaurant?.tables) ? restaurant.tables : [];
-    const restaurantTable = tables.find((table) => table.id === booking.table?.tableId);
-
-    if (restaurantTable) {
-        return restaurantTable;
-    }
-
-    return {
-        id: booking.table.tableId,
-        tableNumber: booking.table.tableNumber,
-        description: booking.table.description,
-        capacity: booking.table.capacity,
-        active: true,
-        positionX: null,
-        positionY: null,
-        markerSize: null,
-    };
+const getStatusTone = (status: Booking['status']) => {
+    return status === 'CANCELLED' ? 'cancelled' : 'reserved';
 };
 
 export const UserProfileWidget = () => {
@@ -270,7 +215,8 @@ export const UserProfileWidget = () => {
                             const restaurantId = getRestaurantIdentifier(booking);
                             const restaurant = restaurantId ? restaurantsById[restaurantId] : null;
                             const restaurantCardData = buildRestaurantCardData(booking, restaurant);
-                            const selectedTable = buildSelectedTable(booking, restaurant);
+                            const selectedTable = resolveBookingTable(booking, restaurant);
+                            const orderedDishes = Array.isArray(booking.dishes) ? booking.dishes : [];
                             const selectedTableSubtitle = selectedTable
                                 ? [
                                     `Вместимость: ${selectedTable.capacity}`,
@@ -279,198 +225,181 @@ export const UserProfileWidget = () => {
                                 : '';
 
                             return (
-                                <article key={booking.id} className={styles.bookingItem}>
-                                    <button
-                                        type="button"
-                                        className={styles.bookingToggle}
-                                        onClick={() => {
-                                            setExpandedBookingId((currentValue) => {
-                                                return currentValue === booking.id
-                                                    ? null
-                                                    : booking.id;
-                                            });
-                                        }}
-                                        aria-expanded={isExpanded}
-                                    >
-                                        <div className={styles.bookingSummaryMain}>
-                                            <h3 className={styles.bookingName}>
-                                                {booking.restaurant?.name || 'Ресторан'}
-                                            </h3>
-
-                                            <div className={styles.bookingSummaryMeta}>
-                                                <span className={styles.summaryChip}>
-                                                    {formatBookingDateTime(booking.startAt)}
-                                                </span>
-                                                <span className={styles.summaryChip}>
-                                                    {getTableLabel(booking)}
-                                                </span>
-                                                <span className={styles.summaryChip}>
-                                                    Гостей: {booking.guests}
-                                                </span>
-                                                <span
-                                                    className={`${styles.summaryChip} ${
-                                                        styles.statusChip
-                                                    } ${getStatusClassName(booking.status)}`}
+                                <BookingAccordionItem
+                                    key={booking.id}
+                                    title={booking.restaurant?.name || 'Ресторан'}
+                                    expanded={isExpanded}
+                                    onToggle={() => {
+                                        setExpandedBookingId((currentValue) => {
+                                            return currentValue === booking.id
+                                                ? null
+                                                : booking.id;
+                                        });
+                                    }}
+                                    statusLabel={getBookingStatusLabel(booking.status)}
+                                    statusTone={getStatusTone(booking.status)}
+                                    metaChips={(
+                                        <>
+                                            <span className={bookingPanelStyles.summaryChip}>
+                                                {formatBookingDateTime(booking.startAt)}
+                                            </span>
+                                            <span className={bookingPanelStyles.summaryChip}>
+                                                {getBookingTableLabel(booking, restaurant)}
+                                            </span>
+                                            <span className={bookingPanelStyles.summaryChip}>
+                                                Гостей: {booking.guests}
+                                            </span>
+                                        </>
+                                    )}
+                                >
+                                    <div className={bookingStyles.orderGrid}>
+                                        <div className={bookingStyles.orderColumn}>
+                                            {restaurantCardData ? (
+                                                <RestaurantCard restaurant={restaurantCardData} />
+                                            ) : (
+                                                <article
+                                                    className={`${bookingStyles.card} ${bookingStyles.stateCard}`}
                                                 >
-                                                    {getBookingStatusLabel(booking.status)}
-                                                </span>
-                                            </div>
+                                                    Ресторан не найден
+                                                </article>
+                                            )}
                                         </div>
 
-                                        <span
-                                            className={`${styles.bookingToggleIcon} ${
-                                                isExpanded ? styles.bookingToggleIconExpanded : ''
-                                            }`}
-                                            aria-hidden="true"
-                                        >
-                                            <svg
-                                                viewBox="0 0 16 10"
-                                                className={styles.bookingToggleIconSvg}
-                                            >
-                                                <path
-                                                    d="M1.5 1.5L8 8L14.5 1.5"
-                                                    fill="none"
-                                                    stroke="currentColor"
-                                                    strokeWidth="2"
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                />
-                                            </svg>
-                                        </span>
-                                    </button>
+                                        <div className={bookingStyles.orderColumn}>
+                                            {selectedTable ? (
+                                                <article
+                                                    className={`${bookingStyles.card} ${bookingStyles.selectedTableCard}`}
+                                                    onClick={() => {
+                                                        if (!restaurantId) {
+                                                            return;
+                                                        }
 
-                                    {isExpanded ? (
-                                        <div className={styles.bookingDetails}>
-                                            <div className={bookingStyles.orderGrid}>
-                                                <div className={bookingStyles.orderColumn}>
-                                                    {restaurantCardData ? (
-                                                        <RestaurantCard restaurant={restaurantCardData} />
-                                                    ) : (
-                                                        <article
-                                                            className={`${bookingStyles.card} ${bookingStyles.stateCard}`}
-                                                        >
-                                                            Ресторан не найден
-                                                        </article>
-                                                    )}
-                                                </div>
+                                                        const restaurantPath = generatePath(
+                                                            RoutePaths.RESTAURANT,
+                                                            { id: restaurantId },
+                                                        );
 
-                                                <div className={bookingStyles.orderColumn}>
-                                                    {selectedTable ? (
-                                                        <article
-                                                            className={`${bookingStyles.card} ${bookingStyles.selectedTableCard}`}
-                                                            onClick={() => {
-                                                                if (!restaurantId) {
-                                                                    return;
-                                                                }
+                                                        navigate(`${restaurantPath}#restaurant-scheme`);
+                                                    }}
+                                                    onKeyDown={(event) => {
+                                                        if (event.key !== 'Enter' && event.key !== ' ') {
+                                                            return;
+                                                        }
 
-                                                                const restaurantPath = generatePath(
-                                                                    RoutePaths.RESTAURANT,
-                                                                    { id: restaurantId },
-                                                                );
+                                                        event.preventDefault();
 
-                                                                navigate(`${restaurantPath}#restaurant-scheme`);
-                                                            }}
-                                                            onKeyDown={(event) => {
-                                                                if (
-                                                                    event.key !== 'Enter'
-                                                                    && event.key !== ' '
-                                                                ) {
-                                                                    return;
-                                                                }
+                                                        if (!restaurantId) {
+                                                            return;
+                                                        }
 
-                                                                event.preventDefault();
+                                                        const restaurantPath = generatePath(
+                                                            RoutePaths.RESTAURANT,
+                                                            { id: restaurantId },
+                                                        );
 
-                                                                if (!restaurantId) {
-                                                                    return;
-                                                                }
+                                                        navigate(`${restaurantPath}#restaurant-scheme`);
+                                                    }}
+                                                    role="link"
+                                                    tabIndex={0}
+                                                    aria-label={`Открыть схему ресторана для ${getBookingTableLabel(booking, restaurant)}`}
+                                                >
+                                                    <div className={bookingStyles.selectedTableContent}>
+                                                        <div className={bookingStyles.selectedTableHead}>
+                                                            <h3 className={bookingStyles.selectedTableTitle}>
+                                                                Стол №{selectedTable.tableNumber}
+                                                            </h3>
+                                                            <p className={bookingStyles.selectedTableSubtitle}>
+                                                                {selectedTableSubtitle}
+                                                            </p>
+                                                        </div>
 
-                                                                const restaurantPath = generatePath(
-                                                                    RoutePaths.RESTAURANT,
-                                                                    { id: restaurantId },
-                                                                );
-
-                                                                navigate(`${restaurantPath}#restaurant-scheme`);
-                                                            }}
-                                                            role="link"
-                                                            tabIndex={0}
-                                                            aria-label={`Открыть схему ресторана для ${getTableLabel(booking)}`}
-                                                        >
-                                                            <div className={bookingStyles.selectedTableContent}>
-                                                                <div className={bookingStyles.selectedTableHead}>
-                                                                    <h3 className={bookingStyles.selectedTableTitle}>
-                                                                        Стол №{selectedTable.tableNumber}
-                                                                    </h3>
-                                                                    <p className={bookingStyles.selectedTableSubtitle}>
-                                                                        {selectedTableSubtitle}
-                                                                    </p>
-                                                                </div>
-
-                                                                <div className={bookingStyles.tableInfoList}>
-                                                                    <div className={bookingStyles.tableInfoRow}>
-                                                                        <span className={bookingStyles.tableInfoLabel}>
-                                                                            Дата
-                                                                        </span>
-                                                                        <span className={bookingStyles.tableInfoValue}>
-                                                                            {formatBookingDate(booking.startAt)}
-                                                                        </span>
-                                                                    </div>
-
-                                                                    <div className={bookingStyles.tableInfoRow}>
-                                                                        <span className={bookingStyles.tableInfoLabel}>
-                                                                            Время
-                                                                        </span>
-                                                                        <span className={bookingStyles.tableInfoValue}>
-                                                                            {formatBookingTimeRange(
-                                                                                booking.startAt,
-                                                                                booking.endAt,
-                                                                            )}
-                                                                        </span>
-                                                                    </div>
-
-                                                                    <div className={bookingStyles.tableInfoRow}>
-                                                                        <span className={bookingStyles.tableInfoLabel}>
-                                                                            Гостей
-                                                                        </span>
-                                                                        <span className={bookingStyles.tableInfoValue}>
-                                                                            {booking.guests}
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div className={bookingStyles.tableActionHint}>
-                                                                    Нажмите, чтобы открыть схему зала
-                                                                </div>
+                                                        <div className={bookingStyles.tableInfoList}>
+                                                            <div className={bookingStyles.tableInfoRow}>
+                                                                <span className={bookingStyles.tableInfoLabel}>
+                                                                    Дата
+                                                                </span>
+                                                                <span className={bookingStyles.tableInfoValue}>
+                                                                    {formatBookingDate(booking.startAt)}
+                                                                </span>
                                                             </div>
-                                                        </article>
-                                                    ) : (
-                                                        <article
-                                                            className={`${bookingStyles.card} ${bookingStyles.stateCard}`}
-                                                        >
-                                                            Стол не найден
-                                                        </article>
-                                                    )}
-                                                </div>
-                                            </div>
 
-                                            <div className={styles.bookingFooter}>
-                                                <div className={styles.bookingPriceBlock}>
-                                                    <span className={styles.bookingPriceLabel}>
-                                                        Итоговая сумма
-                                                    </span>
-                                                    <strong className={styles.bookingPriceValue}>
-                                                        {formatBookingAmount(booking.totalAmount)}
-                                                    </strong>
-                                                </div>
+                                                            <div className={bookingStyles.tableInfoRow}>
+                                                                <span className={bookingStyles.tableInfoLabel}>
+                                                                    Время
+                                                                </span>
+                                                                <span className={bookingStyles.tableInfoValue}>
+                                                                    {formatBookingTimeRange(
+                                                                        booking.startAt,
+                                                                        booking.endAt,
+                                                                    )}
+                                                                </span>
+                                                            </div>
 
-                                                {booking.comment?.trim() ? (
-                                                    <p className={styles.bookingComment}>
-                                                        Комментарий: {booking.comment}
-                                                    </p>
-                                                ) : null}
-                                            </div>
+                                                            <div className={bookingStyles.tableInfoRow}>
+                                                                <span className={bookingStyles.tableInfoLabel}>
+                                                                    Гостей
+                                                                </span>
+                                                                <span className={bookingStyles.tableInfoValue}>
+                                                                    {booking.guests}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className={bookingStyles.tableActionHint}>
+                                                            Нажмите, чтобы открыть схему зала
+                                                        </div>
+                                                    </div>
+                                                </article>
+                                            ) : (
+                                                <article
+                                                    className={`${bookingStyles.card} ${bookingStyles.stateCard}`}
+                                                >
+                                                    Стол не найден
+                                                </article>
+                                            )}
                                         </div>
-                                    ) : null}
-                                </article>
+                                    </div>
+
+                                    <div className={bookingPanelStyles.footer}>
+                                        <div className={bookingPanelStyles.priceBlock}>
+                                            <span className={bookingPanelStyles.priceLabel}>
+                                                Итоговая сумма
+                                            </span>
+                                            <strong className={bookingPanelStyles.priceValue}>
+                                                {formatBookingAmount(booking.totalAmount)}
+                                            </strong>
+                                        </div>
+
+                                        {orderedDishes.length > 0 ? (
+                                            <div className={bookingPanelStyles.dishesBlock}>
+                                                <span className={bookingPanelStyles.dishesTitle}>
+                                                    Заказанные блюда
+                                                </span>
+                                                <div className={bookingPanelStyles.dishesList}>
+                                                    {orderedDishes.map((dish) => (
+                                                        <span
+                                                            key={dish.id}
+                                                            className={bookingPanelStyles.dishChip}
+                                                        >
+                                                            {dish.name} × {dish.quantity}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ) : null}
+
+                                        {booking.comment?.trim() ? (
+                                            <div className={bookingPanelStyles.infoBlock}>
+                                                <span className={bookingPanelStyles.infoTitle}>
+                                                    Комментарий
+                                                </span>
+                                                <p className={bookingPanelStyles.infoText}>
+                                                    {booking.comment}
+                                                </p>
+                                            </div>
+                                        ) : null}
+                                    </div>
+                                </BookingAccordionItem>
                             );
                         })}
                     </div>
