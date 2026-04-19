@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { useLanguage } from '@/app/providers/language';
 import styles from './RestaurantOrderConflictModal.module.scss';
 
 type RestaurantOrderConflictModalProps = {
@@ -14,6 +15,23 @@ export const RestaurantOrderConflictModal = ({
     onConfirm,
     onCancel,
 }: RestaurantOrderConflictModalProps) => {
+    const { language } = useLanguage();
+    const copy = language === 'en'
+        ? {
+            ariaLabel: 'Confirm restaurant change',
+            cancel: 'Cancel',
+            confirm: 'Clear and add',
+            description: `The order already contains items from "${currentRestaurantName}". You can clear it and add an item from "${nextRestaurantName}".`,
+            title: 'Switch restaurant?',
+        }
+        : {
+            ariaLabel: 'Подтверждение смены ресторана',
+            cancel: 'Отмена',
+            confirm: 'Очистить и добавить',
+            description: `В заказе уже есть позиции из ресторана "${currentRestaurantName}". Можно очистить текущий заказ и добавить позицию из ресторана "${nextRestaurantName}".`,
+            title: 'Сменить ресторан?',
+        };
+
     useEffect(() => {
         const previousOverflow = document.body.style.overflow;
         document.body.style.overflow = 'hidden';
@@ -30,14 +48,11 @@ export const RestaurantOrderConflictModal = ({
                 onClick={(event) => event.stopPropagation()}
                 role="dialog"
                 aria-modal="true"
-                aria-label="Подтверждение смены ресторана"
+                aria-label={copy.ariaLabel}
             >
-                <h3 className={styles.title}>Сменить ресторан?</h3>
+                <h3 className={styles.title}>{copy.title}</h3>
 
-                <p className={styles.description}>
-                    В заказе уже есть позиции из ресторана "{currentRestaurantName}".
-                    Можно очистить текущий заказ и добавить позицию из ресторана "{nextRestaurantName}".
-                </p>
+                <p className={styles.description}>{copy.description}</p>
 
                 <div className={styles.actions}>
                     <button
@@ -45,7 +60,7 @@ export const RestaurantOrderConflictModal = ({
                         className={styles.secondaryButton}
                         onClick={onCancel}
                     >
-                        Отмена
+                        {copy.cancel}
                     </button>
 
                     <button
@@ -53,7 +68,7 @@ export const RestaurantOrderConflictModal = ({
                         className={styles.primaryButton}
                         onClick={onConfirm}
                     >
-                        Очистить и добавить
+                        {copy.confirm}
                     </button>
                 </div>
             </div>

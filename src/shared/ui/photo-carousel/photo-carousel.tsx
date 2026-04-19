@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
+import { useLanguage } from '@/app/providers/language';
 import type { Photo } from '@/entities/restaurant/model/types.ts';
 import { ChevronLeftIcon, ChevronRightIcon } from '@/shared/ui/icons/action-icons.tsx';
 import styles from './photo-carousel.module.scss';
@@ -23,10 +24,20 @@ export const PhotoCarousel = ({
     size = 'default',
     renderPhotoActions,
 }: PhotoCarouselProps) => {
+    const { language } = useLanguage();
     const viewportRef = useRef<HTMLDivElement | null>(null);
     const visibleCardCount = photos.length + (leadingCard ? 1 : 0);
     const [canScrollLeft, setCanScrollLeft] = useState(false);
     const [canScrollRight, setCanScrollRight] = useState(visibleCardCount > 1);
+    const copy = language === 'en'
+        ? {
+            scrollLeft: 'Scroll photos left',
+            scrollRight: 'Scroll photos right',
+        }
+        : {
+            scrollLeft: 'Прокрутить фотографии влево',
+            scrollRight: 'Прокрутить фотографии вправо',
+        };
 
     useEffect(() => {
         const container = viewportRef.current;
@@ -49,7 +60,7 @@ export const PhotoCarousel = ({
             container.removeEventListener('scroll', updateScrollState);
             window.removeEventListener('resize', updateScrollState);
         };
-    }, [photos.length, visibleCardCount, Boolean(leadingCard)]);
+    }, [visibleCardCount]);
 
     const scrollGallery = (direction: 'left' | 'right') => {
         const container = viewportRef.current;
@@ -74,7 +85,7 @@ export const PhotoCarousel = ({
                         type="button"
                         className={`${styles.arrowButton} ${styles.leftArrow}`}
                         onClick={() => scrollGallery('left')}
-                        aria-label="Прокрутить фотографии влево"
+                        aria-label={copy.scrollLeft}
                     >
                         <ChevronLeftIcon className={styles.arrowIcon} />
                     </button>
@@ -87,7 +98,7 @@ export const PhotoCarousel = ({
                         type="button"
                         className={`${styles.arrowButton} ${styles.rightArrow}`}
                         onClick={() => scrollGallery('right')}
-                        aria-label="Прокрутить фотографии вправо"
+                        aria-label={copy.scrollRight}
                     >
                         <ChevronRightIcon className={styles.arrowIcon} />
                     </button>

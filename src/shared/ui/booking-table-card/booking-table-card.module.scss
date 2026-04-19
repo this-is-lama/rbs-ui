@@ -1,0 +1,162 @@
+@use '@/app/styles/variables' as *;
+
+.card {
+  position: relative;
+  display: grid;
+  gap: 16px;
+  height: 250px;
+  padding: 24px;
+  border: none;
+  border-radius: 28px;
+  background-color: $color-surface;
+  cursor: pointer;
+  overflow: hidden;
+  text-align: left;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.card:hover,
+.card:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 18px 36px rgba(17, 17, 17, 0.08);
+}
+
+.card:focus-visible {
+  outline: 3px solid rgba(51, 76, 219, 0.22);
+  outline-offset: 4px;
+}
+
+.content {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 16px;
+  height: 100%;
+}
+
+.head {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.headWithAction {
+  padding-right: 48px;
+}
+
+.title {
+  margin: 0;
+  color: $color-primary;
+  font-size: clamp(24px, 2vw, 34px);
+  line-height: 1.02;
+  font-weight: 700;
+}
+
+.subtitle {
+  margin: 0;
+  color: rgba(17, 17, 17, 0.72);
+  font-size: 16px;
+  line-height: 1.45;
+  font-weight: 600;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  line-clamp: 2;
+}
+
+.infoList {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+
+.infoRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.infoLabel {
+  color: $color-primary;
+  font-size: 17px;
+  line-height: 1.4;
+  font-weight: 700;
+}
+
+.infoValue {
+  color: $color-text-primary;
+  font-size: 17px;
+  line-height: 1.5;
+  text-align: right;
+}
+
+.hint {
+  color: rgba(17, 17, 17, 0.6);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.removeButton {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 1;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background-color: rgba(220, 38, 38, 0.12);
+  color: #b91c1c;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.removeButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(17, 17, 17, 0.08);
+  background-color: rgba(220, 38, 38, 0.18);
+}
+
+.removeIcon {
+  width: 18px;
+  height: 18px;
+}
+
+@media (max-width: 560px) {
+  .card {
+    height: auto;
+    min-height: 250px;
+    padding: 20px;
+    border-radius: 24px;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .subtitle {
+    font-size: 15px;
+  }
+
+  .removeButton {
+    top: 16px;
+    right: 16px;
+  }
+
+  .infoRow {
+    display: grid;
+    gap: 4px;
+  }
+
+  .infoValue {
+    text-align: left;
+  }
+}

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { cancelBookingForManagerOrOwner } from '@/entities/booking/api/cancel-booking.ts';
 import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
-import { useConfirmDialog } from '@/shared/ui/confirm-dialog/ConfirmDialogProvider.tsx';
+import { useConfirmDialog } from '@/shared/ui/confirm-dialog/use-confirm-dialog.ts';
 
 type CancelManagerBookingButtonProps = {
     bookingId: string;

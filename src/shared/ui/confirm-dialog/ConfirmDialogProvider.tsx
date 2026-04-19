@@ -1,38 +1,18 @@
 import {
-    createContext,
     useCallback,
-    useContext,
     useEffect,
     useMemo,
     useRef,
     useState,
     type PropsWithChildren,
 } from 'react';
+import {
+    ConfirmDialogContext,
+    type ConfirmDialogContextValue,
+    type ConfirmDialogOptions,
+    type NormalizedConfirmDialogOptions,
+} from './confirm-dialog-context.ts';
 import styles from './ConfirmDialogProvider.module.scss';
-
-type ConfirmDialogTone = 'danger' | 'primary';
-
-export type ConfirmDialogOptions = {
-    title: string;
-    description?: string;
-    confirmText?: string;
-    cancelText?: string;
-    tone?: ConfirmDialogTone;
-};
-
-type NormalizedConfirmDialogOptions = {
-    title: string;
-    description: string;
-    confirmText: string;
-    cancelText: string;
-    tone: ConfirmDialogTone;
-};
-
-type ConfirmDialogContextValue = {
-    confirm: (options: ConfirmDialogOptions) => Promise<boolean>;
-};
-
-const ConfirmDialogContext = createContext<ConfirmDialogContextValue | null>(null);
 
 const normalizeOptions = (options: ConfirmDialogOptions): NormalizedConfirmDialogOptions => {
     return {
@@ -164,14 +144,4 @@ export const ConfirmDialogProvider = ({ children }: PropsWithChildren) => {
             ) : null}
         </ConfirmDialogContext.Provider>
     );
-};
-
-export const useConfirmDialog = () => {
-    const context = useContext(ConfirmDialogContext);
-
-    if (!context) {
-        throw new Error('useConfirmDialog must be used within ConfirmDialogProvider');
-    }
-
-    return context.confirm;
 };

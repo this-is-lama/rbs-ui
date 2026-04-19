@@ -7,15 +7,31 @@ import type {
     WorkingHours,
 } from '@/entities/restaurant/model/types.ts';
 import type { BookingCartItem, TableAvailabilitySlot } from '@/entities/booking/model/types.ts';
+import {
+    getCurrentWeekDay,
+    getWeekDayFromDate as resolveWeekDayFromDate,
+} from '@/entities/restaurant/lib/week-day.ts';
+import { resolveIntlLocale, type AppLanguage } from '@/shared/config/language.ts';
 import type { NormalizedRestaurant } from '../model/types.ts';
 
-export const contactTypeLabels: Record<string, string> = {
-    PHONE: 'Телефон',
-    EMAIL: 'Email',
-    WEBSITE: 'Сайт',
+const contactTypeLabels: Record<AppLanguage, Record<string, string>> = {
+    ru: {
+        PHONE: 'Телефон',
+        EMAIL: 'Email',
+        WEBSITE: 'Сайт',
+    },
+    en: {
+        PHONE: 'Phone',
+        EMAIL: 'Email',
+        WEBSITE: 'Website',
+    },
 };
 
-const weekOrder: WeekDay[] = [
+export const formatContactTypeLabel = (type: string, language: AppLanguage) => {
+    return contactTypeLabels[language][type] ?? type;
+};
+
+const weekOrder = [
     'MONDAY',
     'TUESDAY',
     'WEDNESDAY',
@@ -23,17 +39,7 @@ const weekOrder: WeekDay[] = [
     'FRIDAY',
     'SATURDAY',
     'SUNDAY',
-];
-
-const jsDayToWeekDay: Record<number, WeekDay> = {
-    0: 'SUNDAY',
-    1: 'MONDAY',
-    2: 'TUESDAY',
-    3: 'WEDNESDAY',
-    4: 'THURSDAY',
-    5: 'FRIDAY',
-    6: 'SATURDAY',
-};
+] as const;
 
 export type ScheduleButton = {
     time: string;
@@ -93,7 +99,7 @@ export const parsePriceValue = (price: string | number) => {
 };
 
 export const getTodayWeekDay = (): WeekDay => {
-    return jsDayToWeekDay[new Date().getDay()];
+    return getCurrentWeekDay();
 };
 
 export const getTodayDateInputValue = () => {
@@ -104,8 +110,7 @@ export const getTodayDateInputValue = () => {
 };
 
 export const getWeekDayFromDate = (dateValue: string): WeekDay => {
-    const date = new Date(`${dateValue}T00:00:00`);
-    return jsDayToWeekDay[date.getDay()];
+    return resolveWeekDayFromDate(dateValue);
 };
 
 export const getWorkingHoursForDate = (
@@ -145,16 +150,19 @@ export const rangesOverlap = (
     return startA < endB && endA > startB;
 };
 
-export const formatSlotInterval = (slot: TableAvailabilitySlot) => {
+export const formatSlotInterval = (
+    slot: TableAvailabilitySlot,
+    language: AppLanguage = 'ru',
+) => {
     const start = new Date(slot.startAt);
     const end = new Date(slot.endAt);
 
-    const formatter = new Intl.DateTimeFormat('ru-RU', {
+    const formatter = new Intl.DateTimeFormat(resolveIntlLocale(language), {
         hour: '2-digit',
         minute: '2-digit',
     });
 
-    return `${formatter.format(start)} — ${formatter.format(end)}`;
+    return `${formatter.format(start)} - ${formatter.format(end)}`;
 };
 
 export const createBookingCartItem = (

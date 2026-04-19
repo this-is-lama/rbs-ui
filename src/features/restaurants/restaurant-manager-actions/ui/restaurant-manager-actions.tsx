@@ -1,4 +1,5 @@
 import { Link, generatePath } from 'react-router-dom';
+import { useLanguage } from '@/app/providers/language';
 import { RoutePaths } from '@/shared/config/routes/routes.ts';
 import styles from './restaurant-manager-actions.module.scss';
 
@@ -11,12 +12,33 @@ export const RestaurantManagerActions = ({
     restaurantId,
     onAddPhoto,
 }: RestaurantManagerActionsProps) => {
+    const { language } = useLanguage();
+    const copy = language === 'en'
+        ? {
+            addDish: 'Add dish',
+            addPhoto: 'Add photo',
+            bookings: 'Restaurant bookings',
+            description: 'Quick actions for editing the card, floor plan, photos, and menu.',
+            editRestaurant: 'Edit restaurant',
+            layoutEditor: 'Floor plan editor',
+            title: 'Restaurant management',
+        }
+        : {
+            addDish: 'Добавить блюдо',
+            addPhoto: 'Добавить фото',
+            bookings: 'Бронирования ресторана',
+            description: 'Быстрые действия для редактирования карточки, схемы, фотографий и меню.',
+            editRestaurant: 'Редактировать ресторан',
+            layoutEditor: 'Редактор схемы',
+            title: 'Управление рестораном',
+        };
+
     return (
         <section className={styles.wrapper}>
             <div>
-                <h2 className={styles.title}>Управление рестораном</h2>
+                <h2 className={styles.title}>{copy.title}</h2>
                 <p className={styles.description}>
-                    Быстрые действия для редактирования карточки, схемы, фотографий и меню.
+                    {copy.description}
                 </p>
             </div>
 
@@ -25,21 +47,21 @@ export const RestaurantManagerActions = ({
                     to={generatePath(RoutePaths.MY_RESTAURANT_EDIT, { id: restaurantId })}
                     className={styles.button}
                 >
-                    Редактировать ресторан
+                    {copy.editRestaurant}
                 </Link>
 
                 <Link
                     to={generatePath(RoutePaths.MY_RESTAURANT_BOOKINGS, { id: restaurantId })}
                     className={styles.button}
                 >
-                    Бронирования ресторана
+                    {copy.bookings}
                 </Link>
 
                 <Link
                     to={generatePath(RoutePaths.MY_RESTAURANT_DISH_NEW, { restaurantId })}
                     className={styles.button}
                 >
-                    Добавить блюдо
+                    {copy.addDish}
                 </Link>
 
                 <button
@@ -47,14 +69,14 @@ export const RestaurantManagerActions = ({
                     className={styles.button}
                     onClick={onAddPhoto}
                 >
-                    Добавить фото
+                    {copy.addPhoto}
                 </button>
 
                 <Link
                     to={generatePath(RoutePaths.MY_RESTAURANT_LAYOUT, { id: restaurantId })}
                     className={styles.primaryButton}
                 >
-                    Редактор схемы
+                    {copy.layoutEditor}
                 </Link>
             </div>
         </section>

@@ -2,10 +2,12 @@ import { useEffect, useMemo, useState } from 'react';
 import { useLanguage } from '@/app/providers/language';
 import { getRestaurants } from '@/entities/restaurant/api/get-restaurants.ts';
 import type { RestaurantCard as RestaurantCardType } from '@/entities/restaurant/model/types.ts';
-import { RestaurantCard } from '@/entities/restaurant/ui/restaurant-card.tsx';
 import { useRestaurantFilters } from '@/features/restaurants/filter-restaurants/model/use-restaurant-filters.ts';
-import { RestaurantCategoriesNavbar } from '@/features/restaurants/filter-restaurants/ui/restaurant-categories-navbar.tsx';
-import { RestaurantsFilterForm } from '@/features/restaurants/filter-restaurants/ui/restaurants-filter-form.tsx';
+import { RestaurantCard } from '@/entities/restaurant/ui';
+import {
+    RestaurantCategoriesNavbar,
+    RestaurantsFilterForm,
+} from '@/features/restaurants/filter-restaurants/ui';
 import type { PageResponse } from '@/shared/api';
 import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
 import { Footer } from '@/widgets/footer/Footer';

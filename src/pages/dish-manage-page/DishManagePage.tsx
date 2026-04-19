@@ -1,4 +1,4 @@
-import { DishManageWidget } from '@/widgets/dish-manage/ui/dish-manage-widget.tsx';
+import { DishManageWidget } from '@/widgets/dish-manage';
 
 export const DishManagePage = () => {
     return <DishManageWidget />;

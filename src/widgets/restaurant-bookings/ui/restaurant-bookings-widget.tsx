@@ -23,8 +23,9 @@ import { CancelManagerBookingButton } from '@/features/booking/cancel-booking/ui
 import { RoutePaths } from '@/shared/config/routes/routes.ts';
 import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
 import { formatBookingDateTime } from '@/shared/lib/date/booking-date.ts';
+import layoutStyles from '@/shared/ui/booking-order-layout/booking-order-layout.module.scss';
+import { BookingTableCard } from '@/shared/ui/booking-table-card';
 import { Footer } from '@/widgets/footer/Footer.tsx';
-import bookingStyles from '@/widgets/booking-page/ui/BookingPageWidget.module.scss';
 import pageStyles from '@/widgets/restaurant-management/shared/ManagerPage.module.scss';
 import styles from './RestaurantBookingsWidget.module.scss';
 
@@ -212,7 +213,6 @@ export const RestaurantBookingsWidget = () => {
                                                 return null;
                                             }
 
-                                            console.log('Restaurant booking data:', booking);
                                             return booking.id;
                                         });
                                     }}
@@ -232,10 +232,10 @@ export const RestaurantBookingsWidget = () => {
                                         </>
                                     )}
                                 >
-                                    <div className={bookingStyles.orderGrid}>
-                                        <div className={bookingStyles.orderColumn}>
+                                    <div className={layoutStyles.orderGrid}>
+                                        <div className={layoutStyles.orderColumn}>
                                             <article
-                                                className={`${bookingStyles.card} ${bookingPanelStyles.infoCard}`}
+                                                className={`${layoutStyles.card} ${bookingPanelStyles.infoCard}`}
                                             >
                                                 <div className={bookingPanelStyles.infoCardHead}>
                                                     <span className={bookingPanelStyles.infoEyebrow}>
@@ -282,73 +282,35 @@ export const RestaurantBookingsWidget = () => {
                                             </article>
                                         </div>
 
-                                        <div className={bookingStyles.orderColumn}>
+                                        <div className={layoutStyles.orderColumn}>
                                             {selectedTable ? (
-                                                <article
-                                                    className={`${bookingStyles.card} ${bookingStyles.selectedTableCard}`}
-                                                    onClick={() => navigate(`${restaurantPath}#restaurant-scheme`)}
-                                                    onKeyDown={(event) => {
-                                                        if (event.key !== 'Enter' && event.key !== ' ') {
-                                                            return;
-                                                        }
-
-                                                        event.preventDefault();
-                                                        navigate(`${restaurantPath}#restaurant-scheme`);
-                                                    }}
-                                                    role="link"
-                                                    tabIndex={0}
-                                                    aria-label={copy.tableOpenAria(selectedTableLabel)}
-                                                >
-                                                    <div className={bookingStyles.selectedTableContent}>
-                                                        <div className={bookingStyles.selectedTableHead}>
-                                                            <h3 className={bookingStyles.selectedTableTitle}>
-                                                                {selectedTableLabel}
-                                                            </h3>
-                                                            <p className={bookingStyles.selectedTableSubtitle}>
-                                                                {selectedTableSubtitle}
-                                                            </p>
-                                                        </div>
-
-                                                        <div className={bookingStyles.tableInfoList}>
-                                                            <div className={bookingStyles.tableInfoRow}>
-                                                                <span className={bookingStyles.tableInfoLabel}>
-                                                                    {copy.date}
-                                                                </span>
-                                                                <span className={bookingStyles.tableInfoValue}>
-                                                                    {formatBookingDate(booking.startAt)}
-                                                                </span>
-                                                            </div>
-
-                                                            <div className={bookingStyles.tableInfoRow}>
-                                                                <span className={bookingStyles.tableInfoLabel}>
-                                                                    {copy.time}
-                                                                </span>
-                                                                <span className={bookingStyles.tableInfoValue}>
-                                                                    {formatBookingTimeRange(
-                                                                        booking.startAt,
-                                                                        booking.endAt,
-                                                                    )}
-                                                                </span>
-                                                            </div>
-
-                                                            <div className={bookingStyles.tableInfoRow}>
-                                                                <span className={bookingStyles.tableInfoLabel}>
-                                                                    {copy.guests}
-                                                                </span>
-                                                                <span className={bookingStyles.tableInfoValue}>
-                                                                    {booking.guests}
-                                                                </span>
-                                                            </div>
-                                                        </div>
-
-                                                        <div className={bookingStyles.tableActionHint}>
-                                                            {copy.tableHint}
-                                                        </div>
-                                                    </div>
-                                                </article>
+                                                <BookingTableCard
+                                                    ariaLabel={copy.tableOpenAria(selectedTableLabel)}
+                                                    hint={copy.tableHint}
+                                                    rows={[
+                                                        {
+                                                            label: copy.date,
+                                                            value: formatBookingDate(booking.startAt),
+                                                        },
+                                                        {
+                                                            label: copy.time,
+                                                            value: formatBookingTimeRange(
+                                                                booking.startAt,
+                                                                booking.endAt,
+                                                            ),
+                                                        },
+                                                        {
+                                                            label: copy.guests,
+                                                            value: booking.guests,
+                                                        },
+                                                    ]}
+                                                    title={selectedTableLabel}
+                                                    subtitle={selectedTableSubtitle}
+                                                    onOpen={() => navigate(`${restaurantPath}#restaurant-scheme`)}
+                                                />
                                             ) : (
                                                 <article
-                                                    className={`${bookingStyles.card} ${bookingStyles.stateCard}`}
+                                                    className={`${layoutStyles.card} ${layoutStyles.stateCard}`}
                                                 >
                                                     {copy.tableMissing}
                                                 </article>

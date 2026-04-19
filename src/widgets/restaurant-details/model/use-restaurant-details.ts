@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/app/providers/auth/use-auth.ts';
+import { useLanguage } from '@/app/providers/language';
 import { getRestaurantById } from '@/entities/restaurant/api/get-restaurant-by-id.ts';
 import { checkRestaurantManagerAccess } from '@/entities/restaurant/api/management.ts';
 import type { Dish, Photo, RestaurantTable, WorkingHours } from '@/entities/restaurant/model/types.ts';
@@ -18,22 +19,22 @@ import {
     uniquePhotos,
 } from '../lib/restaurant-details.ts';
 
-const DEFAULT_DISH_CATEGORY = 'Все';
-
 export const useRestaurantDetails = (id?: string) => {
     const { user } = useAuth();
+    const { language } = useLanguage();
+    const defaultDishCategory = language === 'en' ? 'All' : 'Все';
     const [restaurant, setRestaurant] = useState<NormalizedRestaurant | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
     const [canManageRestaurant, setCanManageRestaurant] = useState(false);
-    const [selectedCategory, setSelectedCategory] = useState(DEFAULT_DISH_CATEGORY);
+    const [selectedCategory, setSelectedCategory] = useState(defaultDishCategory);
     const [cartCounts, setCartCounts] = useState<RestaurantDishCounters>({});
     const [bookingCartCount, setBookingCartCount] = useState(0);
     const [selectedTable, setSelectedTable] = useState<RestaurantTable | null>(null);
 
     const loadRestaurant = useCallback(async () => {
         if (!id) {
-            setError('Не найден идентификатор ресторана');
+            setError(language === 'en' ? 'Restaurant id was not found' : 'Не найден идентификатор ресторана');
             setIsLoading(false);
             return;
         }
@@ -45,11 +46,14 @@ export const useRestaurantDetails = (id?: string) => {
             const response = await getRestaurantById(id);
             setRestaurant(normalizeRestaurant(response));
         } catch (requestError) {
-            setError(getApiErrorMessage(requestError, 'Не удалось загрузить страницу ресторана'));
+            setError(getApiErrorMessage(
+                requestError,
+                language === 'en' ? 'Failed to load the restaurant page' : 'Не удалось загрузить страницу ресторана',
+            ));
         } finally {
             setIsLoading(false);
         }
-    }, [id]);
+    }, [id, language]);
 
     useEffect(() => {
         void loadRestaurant();
@@ -154,22 +158,22 @@ export const useRestaurantDetails = (id?: string) => {
             ),
         );
 
-        return [DEFAULT_DISH_CATEGORY, ...categories];
-    }, [dishes]);
+        return [defaultDishCategory, ...categories];
+    }, [defaultDishCategory, dishes]);
 
     useEffect(() => {
         if (!dishCategories.includes(selectedCategory)) {
-            setSelectedCategory(DEFAULT_DISH_CATEGORY);
+            setSelectedCategory(defaultDishCategory);
         }
-    }, [dishCategories, selectedCategory]);
+    }, [defaultDishCategory, dishCategories, selectedCategory]);
 
     const visibleDishes = useMemo(() => {
-        if (selectedCategory === DEFAULT_DISH_CATEGORY) {
+        if (selectedCategory === defaultDishCategory) {
             return dishes;
         }
 
         return dishes.filter((dish) => dish.category === selectedCategory);
-    }, [dishes, selectedCategory]);
+    }, [defaultDishCategory, dishes, selectedCategory]);
 
     const galleryPhotos = useMemo<Photo[]>(() => {
         if (!restaurant) {

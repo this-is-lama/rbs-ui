@@ -1,4 +1,4 @@
-import { RestaurantLayoutWidget } from '@/widgets/restaurant-layout/ui/restaurant-layout-widget.tsx';
+import { RestaurantLayoutWidget } from '@/widgets/restaurant-layout';
 
 export const RestaurantLayoutPage = () => {
     return <RestaurantLayoutWidget />;

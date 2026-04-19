@@ -1,4 +1,4 @@
-import { RestaurantDetailsWidget } from '@/widgets/restaurant-details/ui/restaurant-details-widget.tsx';
+import { RestaurantDetailsWidget } from '@/widgets/restaurant-details';
 
 export const RestaurantPage = () => {
     return <RestaurantDetailsWidget />;

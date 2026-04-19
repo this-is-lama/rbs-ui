@@ -5,7 +5,7 @@ import type {
     PhotoUploadDraft,
 } from '@/entities/restaurant/model/types.ts';
 import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
-import { useConfirmDialog } from '@/shared/ui/confirm-dialog/ConfirmDialogProvider.tsx';
+import { useConfirmDialog } from '@/shared/ui/confirm-dialog/use-confirm-dialog.ts';
 import styles from './photo-upload-manager.module.scss';
 
 type PhotoCategoryOption = {

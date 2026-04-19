@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Link, generatePath, useParams, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/app/providers/auth/use-auth.ts';
+import { useLanguage } from '@/app/providers/language';
 import { getRestaurantById } from '@/entities/restaurant/api/get-restaurant-by-id.ts';
 import { checkRestaurantManagerAccess } from '@/entities/restaurant/api/management.ts';
 import { getPhotoByCategory } from '@/entities/restaurant/lib/get-photo-by-category.ts';
@@ -15,7 +16,7 @@ import { EditIcon } from '@/shared/ui/icons/action-icons.tsx';
 import { PhotoCarousel } from '@/shared/ui/photo-carousel/photo-carousel.tsx';
 import { RestaurantOrderConflictModal } from '@/shared/ui/restaurant-order-conflict-modal/RestaurantOrderConflictModal.tsx';
 import { Footer } from '@/widgets/footer/Footer.tsx';
-import { DishPhotoGalleryManager } from '@/widgets/dish-manage/ui/components/dish-photo-gallery-manager.tsx';
+import { DishPhotoGalleryManager } from '@/widgets/dish-manage/ui/dish-photo-gallery-manager';
 import styles from './DishDetailsWidget.module.scss';
 
 type NormalizedRestaurant = Restaurant & {
@@ -41,9 +42,45 @@ const canSeeAvailability = (role?: string | null) => {
 
 export const DishDetailsWidget = () => {
     const { user } = useAuth();
+    const { language } = useLanguage();
     const { id } = useParams<{ id: string }>();
     const [searchParams] = useSearchParams();
     const restaurantId = searchParams.get('restaurantId') ?? '';
+    const copy = language === 'en'
+        ? {
+            addDish: (dishName: string) => `Add dish ${dishName} to cart`,
+            availabilityActive: 'Available to order',
+            availabilityInactive: 'Currently unavailable',
+            countDecrement: (dishName: string) => `Decrease ${dishName} quantity`,
+            countIncrement: (dishName: string) => `Increase ${dishName} quantity`,
+            descriptionFallback: 'Dish description has not been added yet.',
+            dishLoadError: 'Failed to load dish page',
+            dishNotFound: 'Dish not found',
+            dishNotFoundInRestaurant: 'Dish was not found in the selected restaurant',
+            editDish: 'Edit dish',
+            loading: 'Loading dish page...',
+            openRestaurant: 'Open restaurant page',
+            photoPlaceholder: 'Dish photos are not available',
+            restaurantIdRequired: 'This page requires the restaurantId query parameter',
+            weightUnit: 'g',
+        }
+        : {
+            addDish: (dishName: string) => `Добавить блюдо ${dishName} в корзину`,
+            availabilityActive: 'Доступно для заказа',
+            availabilityInactive: 'Сейчас недоступно',
+            countDecrement: (dishName: string) => `Уменьшить количество блюда ${dishName}`,
+            countIncrement: (dishName: string) => `Увеличить количество блюда ${dishName}`,
+            descriptionFallback: 'Описание блюда пока не добавлено.',
+            dishLoadError: 'Не удалось загрузить страницу блюда',
+            dishNotFound: 'Блюдо не найдено',
+            dishNotFoundInRestaurant: 'Блюдо не найдено в выбранном ресторане',
+            editDish: 'Редактировать блюдо',
+            loading: 'Загрузка страницы блюда...',
+            openRestaurant: 'Открыть страницу ресторана',
+            photoPlaceholder: 'Фотографии блюда отсутствуют',
+            restaurantIdRequired: 'Для этой страницы нужен restaurantId в query параметрах',
+            weightUnit: 'г',
+        };
 
     const [restaurant, setRestaurant] = useState<NormalizedRestaurant | null>(null);
     const [dish, setDish] = useState<Dish | null>(null);
@@ -60,13 +97,13 @@ export const DishDetailsWidget = () => {
 
     const loadDish = useCallback(async () => {
         if (!restaurantId) {
-            setError('Для этой страницы нужен restaurantId в query параметрах');
+            setError(copy.restaurantIdRequired);
             setIsLoading(false);
             return;
         }
 
         if (!id) {
-            setError('Не найден идентификатор блюда');
+            setError(language === 'en' ? 'Dish id was not found' : 'Не найден идентификатор блюда');
             setIsLoading(false);
             return;
         }
@@ -86,7 +123,7 @@ export const DishDetailsWidget = () => {
             );
 
             if (!foundDish) {
-                setError('Блюдо не найдено в выбранном ресторане');
+                setError(copy.dishNotFoundInRestaurant);
                 setRestaurant(normalizedRestaurant);
                 setDish(null);
                 return;
@@ -95,11 +132,11 @@ export const DishDetailsWidget = () => {
             setRestaurant(normalizedRestaurant);
             setDish(foundDish);
         } catch (loadError) {
-            setError(getApiErrorMessage(loadError, 'Не удалось загрузить страницу блюда'));
+            setError(getApiErrorMessage(loadError, copy.dishLoadError));
         } finally {
             setIsLoading(false);
         }
-    }, [id, restaurantId]);
+    }, [copy.dishLoadError, copy.dishNotFoundInRestaurant, copy.restaurantIdRequired, id, language, restaurantId]);
 
     useEffect(() => {
         void loadDish();
@@ -215,7 +252,7 @@ export const DishDetailsWidget = () => {
         return (
             <>
                 <div className={`container ${styles.page}`}>
-                    <div className={styles.stateBlock}>Загрузка страницы блюда...</div>
+                    <div className={styles.stateBlock}>{copy.loading}</div>
                 </div>
                 <Footer />
             </>
@@ -237,7 +274,7 @@ export const DishDetailsWidget = () => {
         return (
             <>
                 <div className={`container ${styles.page}`}>
-                    <div className={styles.stateBlock}>Блюдо не найдено</div>
+                    <div className={styles.stateBlock}>{copy.dishNotFound}</div>
                 </div>
                 <Footer />
             </>
@@ -259,7 +296,7 @@ export const DishDetailsWidget = () => {
                     <PhotoCarousel
                         photos={dishPhotos}
                         altText={dish.name}
-                        placeholderText="Фотографии блюда отсутствуют"
+                        placeholderText={copy.photoPlaceholder}
                     />
                 )}
 
@@ -274,7 +311,7 @@ export const DishDetailsWidget = () => {
                                 to={generatePath(RoutePaths.RESTAURANT, { id: restaurantId })}
                                 className={styles.restaurantPageLink}
                             >
-                                Открыть страницу ресторана
+                                {copy.openRestaurant}
                             </Link>
                         </div>
                     ) : null}
@@ -285,7 +322,7 @@ export const DishDetailsWidget = () => {
                         <span className={`${styles.tag} ${styles.primaryTag}`}>
                             {dish.category}
                         </span>
-                        <span className={styles.tag}>{dish.weight} г</span>
+                        <span className={styles.tag}>{dish.weight} {copy.weightUnit}</span>
 
                         {showAvailabilityTag ? (
                             <span
@@ -295,7 +332,7 @@ export const DishDetailsWidget = () => {
                                         : styles.unavailableTag
                                 }`}
                             >
-                                {dish.available ? 'Доступно для заказа' : 'Сейчас недоступно'}
+                                {dish.available ? copy.availabilityActive : copy.availabilityInactive}
                             </span>
                         ) : null}
                     </div>
@@ -306,8 +343,8 @@ export const DishDetailsWidget = () => {
                                 <Link
                                     to={editDishPath}
                                     className={styles.managerEditButton}
-                                    aria-label={`Редактировать блюдо ${dish.name}`}
-                                    title="Редактировать"
+                                    aria-label={`${copy.editDish} ${dish.name}`}
+                                    title={copy.editDish}
                                 >
                                     <EditIcon className={styles.managerEditIcon} />
                                 </Link>
@@ -320,7 +357,7 @@ export const DishDetailsWidget = () => {
                     ) : null}
 
                     <p className={styles.description}>
-                        {dish.description?.trim() || 'Описание блюда пока не добавлено.'}
+                        {dish.description?.trim() || copy.descriptionFallback}
                     </p>
 
                     <div className={styles.controlsSlot}>
@@ -330,7 +367,7 @@ export const DishDetailsWidget = () => {
                                     type="button"
                                     className={styles.stepButton}
                                     onClick={handleDecreaseFromCart}
-                                    aria-label={`Уменьшить количество блюда ${dish.name}`}
+                                    aria-label={copy.countDecrement(dish.name)}
                                 >
                                     <CartActionIcon type="minus" className={styles.stepIcon} />
                                 </button>
@@ -342,7 +379,7 @@ export const DishDetailsWidget = () => {
                                     className={styles.stepButton}
                                     onClick={handleAddToCart}
                                     disabled={!dish.available}
-                                    aria-label={`Увеличить количество блюда ${dish.name}`}
+                                    aria-label={copy.countIncrement(dish.name)}
                                 >
                                     <CartActionIcon type="plus" className={styles.stepIcon} />
                                 </button>
@@ -353,7 +390,7 @@ export const DishDetailsWidget = () => {
                                 className={styles.singleActionButton}
                                 onClick={handleAddToCart}
                                 disabled={!dish.available}
-                                aria-label={`Добавить блюдо ${dish.name} в корзину`}
+                                aria-label={copy.addDish(dish.name)}
                             >
                                 <CartActionIcon type="plus" className={styles.singleActionPrefix} />
                                 <span>{priceLabel}</span>

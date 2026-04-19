@@ -1,0 +1,39 @@
+@use '@/app/styles/variables' as *;
+
+.card {
+  display: grid;
+  gap: 16px;
+  padding: 24px;
+  border-radius: 28px;
+  background-color: $color-surface;
+}
+
+.orderGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.orderColumn {
+  min-width: 0;
+}
+
+.stateCard {
+  min-height: 160px;
+  align-content: center;
+  color: rgba(17, 17, 17, 0.72);
+}
+
+@media (max-width: 980px) {
+  .orderGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .card {
+    padding: 20px;
+    border-radius: 24px;
+  }
+}

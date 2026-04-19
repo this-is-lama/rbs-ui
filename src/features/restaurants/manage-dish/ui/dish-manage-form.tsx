@@ -1,13 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useLanguage } from '@/app/providers/language';
 import type {
     DishManageFormValues,
     DishManageRequest,
 } from '@/entities/restaurant/model/types.ts';
 import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
-import { useConfirmDialog } from '@/shared/ui/confirm-dialog/ConfirmDialogProvider.tsx';
-import { dishManageSchema, toDishManageRequest } from '../model/dish-manage.schema.ts';
+import { useConfirmDialog } from '@/shared/ui/confirm-dialog/use-confirm-dialog.ts';
+import { createDishManageSchema, toDishManageRequest } from '../model/dish-manage.schema.ts';
 import styles from '@/features/restaurants/shared/ManageForm.module.scss';
 
 type DishManageFormProps = {
@@ -23,13 +24,64 @@ export const DishManageForm = ({
     onSubmitValues,
     onDelete,
 }: DishManageFormProps) => {
+    const { language } = useLanguage();
     const [serverError, setServerError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [isDeleting, setIsDeleting] = useState(false);
     const confirmDialog = useConfirmDialog();
+    const schema = useMemo(() => createDishManageSchema(language), [language]);
+    const copy = language === 'en'
+        ? {
+            active: 'Active',
+            category: 'Category',
+            categoryPlaceholder: 'Dish category',
+            confirmDelete: 'Delete dish',
+            confirmDeleteDescription: 'This action cannot be undone. The dish will disappear from the restaurant menu.',
+            confirmDeleteTitle: 'Delete dish?',
+            delete: 'Delete dish',
+            deleting: 'Deleting...',
+            description: 'Description',
+            descriptionPlaceholder: 'Describe the taste, ingredients, and presentation',
+            inactive: 'Inactive',
+            loadError: 'Failed to save dish',
+            name: 'Dish name',
+            namePlaceholder: 'Dish name',
+            price: 'Price',
+            save: 'Save',
+            saved: mode === 'create' ? 'Dish created' : 'Changes saved',
+            saving: 'Saving...',
+            status: 'Dish status',
+            statusHintActive: 'The dish is visible in the menu and available to order.',
+            statusHintInactive: 'The dish is hidden from the menu and unavailable to order.',
+            weight: 'Weight',
+        }
+        : {
+            active: 'Активно',
+            category: 'Категория',
+            categoryPlaceholder: 'Категория блюда',
+            confirmDelete: 'Удалить блюдо',
+            confirmDeleteDescription: 'Это действие нельзя отменить. Блюдо исчезнет из меню ресторана.',
+            confirmDeleteTitle: 'Удалить блюдо?',
+            delete: 'Удалить блюдо',
+            deleting: 'Удаление...',
+            description: 'Описание',
+            descriptionPlaceholder: 'Опишите вкус, состав и подачу блюда',
+            inactive: 'Неактивно',
+            loadError: 'Не удалось сохранить блюдо',
+            name: 'Название блюда',
+            namePlaceholder: 'Название блюда',
+            price: 'Цена',
+            save: 'Сохранить',
+            saved: mode === 'create' ? 'Блюдо создано' : 'Изменения сохранены',
+            saving: 'Сохранение...',
+            status: 'Статус блюда',
+            statusHintActive: 'Блюдо видно в меню и доступно для заказа.',
+            statusHintInactive: 'Блюдо скрыто из меню и недоступно для заказа.',
+            weight: 'Вес',
+        };
 
     const form = useForm<DishManageFormValues>({
-        resolver: zodResolver(dishManageSchema),
+        resolver: zodResolver(schema),
         mode: 'onBlur',
         defaultValues: initialValues,
     });
@@ -52,9 +104,9 @@ export const DishManageForm = ({
             setServerError('');
             setSuccessMessage('');
             await onSubmitValues(toDishManageRequest(values));
-            setSuccessMessage(mode === 'create' ? 'Блюдо создано' : 'Изменения сохранены');
+            setSuccessMessage(copy.saved);
         } catch (error) {
-            setServerError(getApiErrorMessage(error, 'Не удалось сохранить блюдо'));
+            setServerError(getApiErrorMessage(error, copy.loadError));
         }
     });
 
@@ -64,9 +116,9 @@ export const DishManageForm = ({
         }
 
         const isConfirmed = await confirmDialog({
-            title: 'Удалить блюдо?',
-            description: 'Это действие нельзя отменить. Блюдо исчезнет из меню ресторана.',
-            confirmText: 'Удалить блюдо',
+            title: copy.confirmDeleteTitle,
+            description: copy.confirmDeleteDescription,
+            confirmText: copy.confirmDelete,
         });
 
         if (!isConfirmed) {
@@ -79,7 +131,10 @@ export const DishManageForm = ({
             setSuccessMessage('');
             await onDelete();
         } catch (error) {
-            setServerError(getApiErrorMessage(error, 'Не удалось удалить блюдо'));
+            setServerError(getApiErrorMessage(
+                error,
+                language === 'en' ? 'Failed to delete dish' : 'Не удалось удалить блюдо',
+            ));
         } finally {
             setIsDeleting(false);
         }
@@ -91,11 +146,11 @@ export const DishManageForm = ({
                 <div className={styles.heroHeader}>
                     <div className={styles.heroFields}>
                         <label htmlFor="dish-name" className={styles.headlineField}>
-                            <span className={styles.label}>Название блюда</span>
+                            <span className={styles.label}>{copy.name}</span>
                             <input
                                 id="dish-name"
                                 className={styles.headlineInput}
-                                placeholder="Название блюда"
+                                placeholder={copy.namePlaceholder}
                                 {...register('name')}
                             />
                             {errors.name?.message ? (
@@ -104,11 +159,11 @@ export const DishManageForm = ({
                         </label>
 
                         <label htmlFor="dish-category" className={styles.headlineField}>
-                            <span className={styles.label}>Категория</span>
+                            <span className={styles.label}>{copy.category}</span>
                             <input
                                 id="dish-category"
                                 className={styles.subheadlineInput}
-                                placeholder="Категория блюда"
+                                placeholder={copy.categoryPlaceholder}
                                 {...register('category')}
                             />
                             {errors.category?.message ? (
@@ -122,14 +177,14 @@ export const DishManageForm = ({
                             isAvailable ? styles.statusCardActive : styles.statusCardInactive
                         }`}
                     >
-                        <span className={styles.statusCardLabel}>Статус блюда</span>
+                        <span className={styles.statusCardLabel}>{copy.status}</span>
                         <span className={styles.statusCardValue}>
-                            {isAvailable ? 'Активно' : 'Неактивно'}
+                            {isAvailable ? copy.active : copy.inactive}
                         </span>
                         <span className={styles.statusCardHint}>
                             {isAvailable
-                                ? 'Блюдо видно в меню и доступно для заказа.'
-                                : 'Блюдо скрыто из меню и недоступно для заказа.'}
+                                ? copy.statusHintActive
+                                : copy.statusHintInactive}
                         </span>
 
                         <span className={styles.statusSwitchControl}>
@@ -147,7 +202,7 @@ export const DishManageForm = ({
 
                 <div className={styles.grid}>
                     <div className={styles.field}>
-                        <label htmlFor="dish-price" className={styles.label}>Цена</label>
+                        <label htmlFor="dish-price" className={styles.label}>{copy.price}</label>
                         <input
                             id="dish-price"
                             className={styles.input}
@@ -161,7 +216,7 @@ export const DishManageForm = ({
                     </div>
 
                     <div className={styles.field}>
-                        <label htmlFor="dish-weight" className={styles.label}>Вес</label>
+                        <label htmlFor="dish-weight" className={styles.label}>{copy.weight}</label>
                         <input
                             id="dish-weight"
                             className={styles.input}
@@ -175,11 +230,11 @@ export const DishManageForm = ({
                     </div>
 
                     <div className={`${styles.field} ${styles.fullWidth}`}>
-                        <label htmlFor="dish-description" className={styles.label}>Описание</label>
+                        <label htmlFor="dish-description" className={styles.label}>{copy.description}</label>
                         <textarea
                             id="dish-description"
                             className={styles.textarea}
-                            placeholder="Опишите вкус, состав и подачу блюда"
+                            placeholder={copy.descriptionPlaceholder}
                             {...register('description')}
                         />
                         {errors.description?.message ? (
@@ -200,7 +255,7 @@ export const DishManageForm = ({
                         onClick={() => void handleDelete()}
                         disabled={isSubmitting || isDeleting}
                     >
-                        {isDeleting ? 'Удаление...' : 'Удалить блюдо'}
+                        {isDeleting ? copy.deleting : copy.delete}
                     </button>
                 ) : null}
 
@@ -209,7 +264,7 @@ export const DishManageForm = ({
                     className={styles.primaryButton}
                     disabled={isSubmitting || isDeleting}
                 >
-                    {isSubmitting ? 'Сохранение...' : 'Сохранить'}
+                    {isSubmitting ? copy.saving : copy.save}
                 </button>
             </div>
         </form>
