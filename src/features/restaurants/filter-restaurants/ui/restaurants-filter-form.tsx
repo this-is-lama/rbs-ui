@@ -1,11 +1,12 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useLanguage } from '@/app/providers/language';
 import { useRestaurantFilters } from '@/features/restaurants/filter-restaurants/model/use-restaurant-filters.ts';
 import styles from './RestaurantsFilterForm.module.scss';
 
 type RestaurantFiltersFormValues = {
-    name: string;
     address: string;
+    name: string;
 };
 
 type RestaurantsFilterFormProps = {
@@ -13,7 +14,26 @@ type RestaurantsFilterFormProps = {
 };
 
 export const RestaurantsFilterForm = ({ onClose }: RestaurantsFilterFormProps) => {
+    const { language } = useLanguage();
     const { filters, setFilters } = useRestaurantFilters();
+
+    const copy = language === 'en'
+        ? {
+            address: 'Address',
+            addressPlaceholder: 'Enter an address',
+            apply: 'Apply filters',
+            name: 'Name',
+            namePlaceholder: 'Enter a restaurant name',
+            reset: 'Reset',
+        }
+        : {
+            address: 'Адрес',
+            addressPlaceholder: 'Введите адрес',
+            apply: 'Применить фильтры',
+            name: 'Название',
+            namePlaceholder: 'Введите название ресторана',
+            reset: 'Сбросить',
+        };
 
     const form = useForm<RestaurantFiltersFormValues>({
         defaultValues: {
@@ -59,19 +79,19 @@ export const RestaurantsFilterForm = ({ onClose }: RestaurantsFilterFormProps) =
             <form onSubmit={onSubmit} className={styles.form}>
                 <div className={styles.fields}>
                     <label className={styles.field}>
-                        <span className={styles.label}>Название</span>
+                        <span className={styles.label}>{copy.name}</span>
                         <input
                             className={styles.input}
-                            placeholder="Введите название ресторана"
+                            placeholder={copy.namePlaceholder}
                             {...form.register('name')}
                         />
                     </label>
 
                     <label className={styles.field}>
-                        <span className={styles.label}>Адрес</span>
+                        <span className={styles.label}>{copy.address}</span>
                         <input
                             className={styles.input}
-                            placeholder="Введите адрес"
+                            placeholder={copy.addressPlaceholder}
                             {...form.register('address')}
                         />
                     </label>
@@ -83,11 +103,11 @@ export const RestaurantsFilterForm = ({ onClose }: RestaurantsFilterFormProps) =
                         className={styles.secondaryButton}
                         onClick={handleReset}
                     >
-                        Сбросить
+                        {copy.reset}
                     </button>
 
                     <button type="submit" className={styles.primaryButton}>
-                        Применить фильтры
+                        {copy.apply}
                     </button>
                 </div>
             </form>

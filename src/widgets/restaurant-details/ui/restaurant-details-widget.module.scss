@@ -325,6 +325,44 @@
   height: 20px;
 }
 
+.schemeEditButton {
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  background-color: rgba(51, 76, 219, 0.12);
+  color: $color-primary;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.schemeEditButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(17, 17, 17, 0.08);
+}
+
+.schemeEditButton:focus-visible {
+  outline: 3px solid rgba(51, 76, 219, 0.24);
+  outline-offset: 4px;
+}
+
+.schemeEditButtonIcon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
 .managerDishAddCard {
   min-height: 358px;
   padding: 22px 20px;

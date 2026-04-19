@@ -188,10 +188,7 @@ export const useRestaurantDetails = (id?: string) => {
             return null;
         }
 
-        return getPhotoByCategory(restaurant.photos, 'SCHEME')
-            ?? restaurant.photos.find((photo) => photo.category === 'GALLERY')
-            ?? restaurant.photos[0]
-            ?? null;
+        return getPhotoByCategory(restaurant.photos, 'SCHEME') ?? null;
     }, [restaurant]);
 
     const placedTables = useMemo(() => {

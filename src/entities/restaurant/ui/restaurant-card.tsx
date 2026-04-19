@@ -1,14 +1,40 @@
 import { Link, generatePath } from 'react-router-dom';
-import type { RestaurantCard as RestaurantCardType } from '@/entities/restaurant/model/types.ts';
+import { useLanguage } from '@/app/providers/language';
 import { RoutePaths } from '@/shared/config/routes/routes.ts';
 import { EditIcon } from '@/shared/ui/icons/action-icons.tsx';
+import { type AppLanguage } from '@/shared/config/language.ts';
+import type { RestaurantCard as RestaurantCardType } from '@/entities/restaurant/model/types.ts';
 import styles from './RestaurantCard.module.scss';
 
 type RestaurantCardProps = {
-    restaurant: RestaurantCardType;
     editPath?: string;
     isDimmed?: boolean;
+    locale?: AppLanguage;
+    restaurant: RestaurantCardType;
 };
+
+const restaurantCardCopy = {
+    ru: {
+        edit: 'Редактировать',
+        noDescription: 'Описание отсутствует',
+        openRestaurant: 'Открыть ресторан',
+        editRestaurant: 'Редактировать ресторан',
+        photoPlaceholder: 'Фото ресторана',
+    },
+    en: {
+        edit: 'Edit',
+        noDescription: 'No description yet',
+        openRestaurant: 'Open restaurant',
+        editRestaurant: 'Edit restaurant',
+        photoPlaceholder: 'Restaurant photo',
+    },
+} satisfies Record<AppLanguage, {
+    edit: string;
+    noDescription: string;
+    openRestaurant: string;
+    editRestaurant: string;
+    photoPlaceholder: string;
+}>;
 
 const formatCardTime = (value: string | null | undefined) => {
     if (!value) {
@@ -25,10 +51,12 @@ const formatCardTime = (value: string | null | undefined) => {
 };
 
 type RestaurantCardBodyProps = {
+    locale: AppLanguage;
     restaurant: RestaurantCardType;
 };
 
-const RestaurantCardBody = ({ restaurant }: RestaurantCardBodyProps) => {
+const RestaurantCardBody = ({ locale, restaurant }: RestaurantCardBodyProps) => {
+    const copy = restaurantCardCopy[locale];
     const todayHours = restaurant.workingHour ?? null;
     const openTime = todayHours && !todayHours.closed
         ? formatCardTime(todayHours.openTime)
@@ -36,7 +64,7 @@ const RestaurantCardBody = ({ restaurant }: RestaurantCardBodyProps) => {
     const closeTime = todayHours && !todayHours.closed
         ? formatCardTime(todayHours.closeTime)
         : '—';
-    const description = restaurant.description?.trim() || restaurant.category || 'Описание отсутствует';
+    const description = restaurant.description?.trim() || restaurant.category || copy.noDescription;
 
     return (
         <>
@@ -48,7 +76,7 @@ const RestaurantCardBody = ({ restaurant }: RestaurantCardBodyProps) => {
                         className={styles.image}
                     />
                 ) : (
-                    <div className={styles.imagePlaceholder}>Фото ресторана</div>
+                    <div className={styles.imagePlaceholder}>{copy.photoPlaceholder}</div>
                 )}
             </div>
 
@@ -75,7 +103,15 @@ const RestaurantCardBody = ({ restaurant }: RestaurantCardBodyProps) => {
     );
 };
 
-export const RestaurantCard = ({ restaurant, editPath, isDimmed = false }: RestaurantCardProps) => {
+export const RestaurantCard = ({
+    editPath,
+    isDimmed = false,
+    locale,
+    restaurant,
+}: RestaurantCardProps) => {
+    const { language } = useLanguage();
+    const resolvedLocale = locale ?? language;
+    const copy = restaurantCardCopy[resolvedLocale];
     const restaurantPath = generatePath(RoutePaths.RESTAURANT, { id: restaurant.id });
     const cardClassName = `${styles.card} ${editPath ? styles.cardInteractive : ''} ${
         isDimmed ? styles.cardDimmed : ''
@@ -87,19 +123,19 @@ export const RestaurantCard = ({ restaurant, editPath, isDimmed = false }: Resta
                 <Link
                     to={restaurantPath}
                     className={styles.cardCoverLink}
-                    aria-label={`Открыть ресторан ${restaurant.name}`}
+                    aria-label={`${copy.openRestaurant} ${restaurant.name}`}
                 />
 
                 <Link
                     to={editPath}
                     className={styles.editButton}
-                    aria-label={`Редактировать ресторан ${restaurant.name}`}
-                    title="Редактировать"
+                    aria-label={`${copy.editRestaurant} ${restaurant.name}`}
+                    title={copy.edit}
                 >
                     <EditIcon className={styles.editIcon} />
                 </Link>
 
-                <RestaurantCardBody restaurant={restaurant} />
+                <RestaurantCardBody locale={resolvedLocale} restaurant={restaurant} />
             </article>
         );
     }
@@ -108,10 +144,10 @@ export const RestaurantCard = ({ restaurant, editPath, isDimmed = false }: Resta
         <Link
             to={restaurantPath}
             className={styles.cardLink}
-            aria-label={`Открыть ресторан ${restaurant.name}`}
+            aria-label={`${copy.openRestaurant} ${restaurant.name}`}
         >
             <article className={cardClassName}>
-                <RestaurantCardBody restaurant={restaurant} />
+                <RestaurantCardBody locale={resolvedLocale} restaurant={restaurant} />
             </article>
         </Link>
     );

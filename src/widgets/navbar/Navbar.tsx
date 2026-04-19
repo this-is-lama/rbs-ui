@@ -1,33 +1,49 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '@/app/providers/auth/use-auth.ts';
+import { useLanguage } from '@/app/providers/language';
 import { RoutePaths } from '@/shared/config/routes/routes.ts';
 import styles from './Navbar.module.scss';
 
 export const Navbar = () => {
     const { isAuthenticated } = useAuth();
+    const { language } = useLanguage();
+
+    const copy = language === 'en'
+        ? {
+            booking: 'Booking',
+            login: 'Sign in',
+            profile: 'Profile',
+            restaurants: 'Restaurants',
+        }
+        : {
+            booking: 'Бронирование',
+            login: 'Войти',
+            profile: 'Профиль',
+            restaurants: 'Рестораны',
+        };
 
     return (
         <nav className={styles.navbar}>
             <NavLink
                 to={RoutePaths.RESTAURANTS}
-                className={({ isActive }) =>
-                    isActive
+                className={({ isActive }) => {
+                    return isActive
                         ? `${styles.navButton} ${styles.navButtonActive}`
-                        : styles.navButton
-                }
+                        : styles.navButton;
+                }}
             >
-                Рестораны
+                {copy.restaurants}
             </NavLink>
 
             <NavLink
                 to={RoutePaths.BOOKING}
-                className={({ isActive }) =>
-                    isActive
+                className={({ isActive }) => {
+                    return isActive
                         ? `${styles.navButton} ${styles.navButtonActive}`
-                        : styles.navButton
-                }
+                        : styles.navButton;
+                }}
             >
-                Бронирование
+                {copy.booking}
             </NavLink>
 
             {isAuthenticated ? (
@@ -35,14 +51,14 @@ export const Navbar = () => {
                     to={RoutePaths.PROFILE}
                     className={`${styles.navButton} ${styles.navButtonPrimary}`}
                 >
-                    Профиль
+                    {copy.profile}
                 </NavLink>
             ) : (
                 <NavLink
                     to={RoutePaths.LOGIN}
                     className={`${styles.navButton} ${styles.navButtonPrimary}`}
                 >
-                    Войти
+                    {copy.login}
                 </NavLink>
             )}
         </nav>

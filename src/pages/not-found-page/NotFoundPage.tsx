@@ -1,33 +1,75 @@
 import { Link } from 'react-router-dom';
+import { useLanguage } from '@/app/providers/language';
 import { RoutePaths } from '@/shared/config/routes/routes.ts';
 import { Footer } from '@/widgets/footer/Footer.tsx';
 import styles from './NotFoundPage.module.scss';
 
-const links = [
-    {
-        title: '\u0412\u0441\u0435 \u0440\u0435\u0441\u0442\u043e\u0440\u0430\u043d\u044b',
-        description:
-            '\u041f\u0435\u0440\u0435\u0439\u0442\u0438 \u043a \u043a\u0430\u0442\u0430\u043b\u043e\u0433\u0443 \u0438 \u0432\u044b\u0431\u0440\u0430\u0442\u044c \u043d\u043e\u0432\u043e\u0435 \u043c\u0435\u0441\u0442\u043e \u0434\u043b\u044f \u0431\u0440\u043e\u043d\u0438.',
-        to: RoutePaths.RESTAURANTS,
-        accent: '\u041a\u0430\u0442\u0430\u043b\u043e\u0433',
-    },
-    {
-        title: '\u0413\u043b\u0430\u0432\u043d\u0430\u044f \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0430',
-        description:
-            '\u0412\u0435\u0440\u043d\u0443\u0442\u044c\u0441\u044f \u043d\u0430 \u0441\u0442\u0430\u0440\u0442 \u0438 \u0431\u044b\u0441\u0442\u0440\u043e \u0432\u043e\u0441\u0441\u0442\u0430\u043d\u043e\u0432\u0438\u0442\u044c \u043c\u0430\u0440\u0448\u0440\u0443\u0442.',
-        to: RoutePaths.HOME,
-        accent: '\u0421\u0442\u0430\u0440\u0442',
-    },
-    {
-        title: '\u041a\u0430\u043a \u044d\u0442\u043e \u0440\u0430\u0431\u043e\u0442\u0430\u0435\u0442',
-        description:
-            '\u041e\u0442\u043a\u0440\u044b\u0442\u044c \u0431\u043b\u043e\u043a \u0441 \u043f\u043e\u0448\u0430\u0433\u043e\u0432\u044b\u043c \u043e\u043f\u0438\u0441\u0430\u043d\u0438\u0435\u043c \u0441\u0435\u0440\u0432\u0438\u0441\u0430.',
-        to: { pathname: RoutePaths.HOME, hash: '#how-it-works' },
-        accent: '\u041f\u043e\u043c\u043e\u0449\u044c',
-    },
-] as const;
-
 export const NotFoundPage = () => {
+    const { language } = useLanguage();
+
+    const copy = language === 'en'
+        ? {
+            actionsTitle: 'What you can do next',
+            backHome: 'Back home',
+            catalog: 'Catalog',
+            catalogDescription: 'Open the restaurant catalog and choose a new place for your reservation.',
+            goTo: 'Open →',
+            help: 'Help',
+            helpDescription: 'Open the block with a step-by-step explanation of how the service works.',
+            heroDescription: 'Check the address in the browser bar or return to restaurant discovery. We saved quick routes for you below.',
+            heroEyebrow: 'Page not found',
+            heroTitle: 'Looks like this page has changed its address or it was never here.',
+            homeDescription: 'Return to the start page and quickly restore your route.',
+            homeTitle: 'Home page',
+            howItWorks: 'How it works',
+            missingRoute: 'The route you need was not found',
+            note: 'Try opening a new route from the catalog or the home page.',
+            restaurants: 'To restaurants',
+            scenarioDescription: 'Choose a scenario and we will bring you back to a clear path.',
+            start: 'Start',
+        }
+        : {
+            actionsTitle: 'Что можно сделать дальше',
+            backHome: 'На главную',
+            catalog: 'Каталог',
+            catalogDescription: 'Перейти к каталогу и выбрать новое место для брони.',
+            goTo: 'Перейти →',
+            help: 'Помощь',
+            helpDescription: 'Открыть блок с пошаговым описанием сервиса.',
+            heroDescription: 'Проверьте ссылку в адресной строке или вернитесь к поиску ресторана. Мы сохранили для вас быстрые переходы ниже.',
+            heroEyebrow: 'Страница не найдена',
+            heroTitle: 'Похоже, эта страница уже сменила адрес или её здесь никогда не было.',
+            homeDescription: 'Вернуться на старт и быстро восстановить маршрут.',
+            homeTitle: 'Главная страница',
+            howItWorks: 'Как это работает',
+            missingRoute: 'Нужный маршрут не найден',
+            note: 'Попробуйте новый переход из каталога или главной.',
+            restaurants: 'К ресторанам',
+            scenarioDescription: 'Выберите сценарий, и мы вернём вас на понятный маршрут.',
+            start: 'Старт',
+        };
+
+    const links = [
+        {
+            accent: copy.catalog,
+            description: copy.catalogDescription,
+            title: language === 'en' ? 'All restaurants' : 'Все рестораны',
+            to: RoutePaths.RESTAURANTS,
+        },
+        {
+            accent: copy.start,
+            description: copy.homeDescription,
+            title: copy.homeTitle,
+            to: RoutePaths.HOME,
+        },
+        {
+            accent: copy.help,
+            description: copy.helpDescription,
+            title: copy.howItWorks,
+            to: { pathname: RoutePaths.HOME, hash: '#how-it-works' },
+        },
+    ] as const;
+
     return (
         <>
             <main className={styles.main}>
@@ -36,31 +78,27 @@ export const NotFoundPage = () => {
                         <div className={styles.heroCard}>
                             <div className={styles.copyBlock}>
                                 <span className={styles.eyebrow}>
-                                    {'\u0421\u0442\u0440\u0430\u043d\u0438\u0446\u0430 \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u0430'}
+                                    {copy.heroEyebrow}
                                 </span>
 
                                 <h1 className={styles.title}>
-                                    {
-                                        '\u041f\u043e\u0445\u043e\u0436\u0435, \u044d\u0442\u0430 \u0441\u0442\u0440\u0430\u043d\u0438\u0446\u0430 \u0443\u0436\u0435 \u0441\u043c\u0435\u043d\u0438\u043b\u0430 \u0430\u0434\u0440\u0435\u0441 \u0438\u043b\u0438 \u0435\u0451 \u0437\u0434\u0435\u0441\u044c \u043d\u0438\u043a\u043e\u0433\u0434\u0430 \u043d\u0435 \u0431\u044b\u043b\u043e.'
-                                    }
+                                    {copy.heroTitle}
                                 </h1>
 
                                 <p className={styles.description}>
-                                    {
-                                        '\u041f\u0440\u043e\u0432\u0435\u0440\u044c\u0442\u0435 \u0441\u0441\u044b\u043b\u043a\u0443 \u0432 \u0430\u0434\u0440\u0435\u0441\u043d\u043e\u0439 \u0441\u0442\u0440\u043e\u043a\u0435 \u0438\u043b\u0438 \u0432\u0435\u0440\u043d\u0438\u0442\u0435\u0441\u044c \u043a \u043f\u043e\u0438\u0441\u043a\u0443 \u0440\u0435\u0441\u0442\u043e\u0440\u0430\u043d\u0430. \u041c\u044b \u0441\u043e\u0445\u0440\u0430\u043d\u0438\u043b\u0438 \u0434\u043b\u044f \u0432\u0430\u0441 \u0431\u044b\u0441\u0442\u0440\u044b\u0435 \u043f\u0435\u0440\u0435\u0445\u043e\u0434\u044b \u043d\u0438\u0436\u0435.'
-                                    }
+                                    {copy.heroDescription}
                                 </p>
 
                                 <div className={styles.actions}>
                                     <Link to={RoutePaths.HOME} className={styles.primaryAction}>
-                                        {'\u041d\u0430 \u0433\u043b\u0430\u0432\u043d\u0443\u044e'}
+                                        {copy.backHome}
                                     </Link>
 
                                     <Link
                                         to={RoutePaths.RESTAURANTS}
                                         className={styles.secondaryAction}
                                     >
-                                        {'\u041a \u0440\u0435\u0441\u0442\u043e\u0440\u0430\u043d\u0430\u043c'}
+                                        {copy.restaurants}
                                     </Link>
                                 </div>
                             </div>
@@ -73,15 +111,11 @@ export const NotFoundPage = () => {
 
                                     <div className={styles.visualNote}>
                                         <span className={styles.noteTitle}>
-                                            {
-                                                '\u041d\u0443\u0436\u043d\u044b\u0439 \u043c\u0430\u0440\u0448\u0440\u0443\u0442 \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d'
-                                            }
+                                            {copy.missingRoute}
                                         </span>
 
                                         <span className={styles.noteText}>
-                                            {
-                                                '\u041f\u043e\u043f\u0440\u043e\u0431\u0443\u0439\u0442\u0435 \u043d\u043e\u0432\u044b\u0439 \u043f\u0435\u0440\u0435\u0445\u043e\u0434 \u0438\u0437 \u043a\u0430\u0442\u0430\u043b\u043e\u0433\u0430 \u0438\u043b\u0438 \u0433\u043b\u0430\u0432\u043d\u043e\u0439.'
-                                            }
+                                            {copy.note}
                                         </span>
                                     </div>
                                 </div>
@@ -91,13 +125,11 @@ export const NotFoundPage = () => {
                         <section className={styles.linksSection}>
                             <div className={styles.linksHeader}>
                                 <h2 className={styles.linksTitle}>
-                                    {'\u0427\u0442\u043e \u043c\u043e\u0436\u043d\u043e \u0441\u0434\u0435\u043b\u0430\u0442\u044c \u0434\u0430\u043b\u044c\u0448\u0435'}
+                                    {copy.actionsTitle}
                                 </h2>
 
                                 <p className={styles.linksDescription}>
-                                    {
-                                        '\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0441\u0446\u0435\u043d\u0430\u0440\u0438\u0439, \u0438 \u043c\u044b \u0432\u0435\u0440\u043d\u0451\u043c \u0432\u0430\u0441 \u043d\u0430 \u043f\u043e\u043d\u044f\u0442\u043d\u044b\u0439 \u043c\u0430\u0440\u0448\u0440\u0443\u0442.'
-                                    }
+                                    {copy.scenarioDescription}
                                 </p>
                             </div>
 
@@ -108,7 +140,7 @@ export const NotFoundPage = () => {
                                         <h3 className={styles.linkTitle}>{link.title}</h3>
                                         <p className={styles.linkText}>{link.description}</p>
                                         <span className={styles.linkArrow}>
-                                            {'\u041f\u0435\u0440\u0435\u0439\u0442\u0438 \u2192'}
+                                            {copy.goTo}
                                         </span>
                                     </Link>
                                 ))}

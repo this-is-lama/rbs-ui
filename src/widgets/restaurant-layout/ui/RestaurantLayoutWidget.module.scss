@@ -12,9 +12,44 @@
 .canvasHeader {
   display: flex;
   align-items: flex-start;
-  justify-content: space-between;
   gap: 14px;
   flex-wrap: wrap;
+}
+
+.controlGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.controlPanel {
+  min-height: 248px;
+  padding: 22px;
+  border-radius: 26px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 255, 255, 0.72)),
+    $color-white;
+  display: grid;
+  gap: 18px;
+}
+
+.controlPanelBody {
+  display: grid;
+  align-content: start;
+  gap: 14px;
+}
+
+.controlPanelFooter {
+  margin-top: auto;
+  display: grid;
+  gap: 12px;
+}
+
+.controlPanelNote {
+  margin: 0;
+  color: rgba(17, 17, 17, 0.68);
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .editorHeader {
@@ -38,6 +73,13 @@
 
 .editorActions {
   justify-content: flex-end;
+}
+
+.panelMetrics {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .panelTitle {
@@ -83,6 +125,11 @@
   gap: 10px;
   font-size: 14px;
   font-weight: 700;
+}
+
+.tilePrimaryButton {
+  width: 100%;
+  min-height: 58px;
 }
 
 .saveButton,
@@ -141,6 +188,18 @@
   width: 20px;
   height: 20px;
   flex-shrink: 0;
+}
+
+.hiddenFileInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .message,
@@ -252,6 +311,36 @@
   width: 100%;
   height: auto;
   user-select: none;
+}
+
+.tileActions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.pendingTables {
+  display: grid;
+  gap: 12px;
+}
+
+.pendingTableList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.pendingTableCounter {
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background-color: rgba(17, 17, 17, 0.08);
+  color: rgba(17, 17, 17, 0.74);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .canvasEmpty {
@@ -458,12 +547,28 @@
   min-height: 44px;
 }
 
+.input.tableNumberInput {
+  border-color: rgba(17, 17, 17, 0.18);
+}
+
+.input.tableNumberInput:focus {
+  border-color: rgba(17, 17, 17, 0.3);
+  box-shadow: none;
+}
+
 .label {
   padding-left: 8px;
   color: $color-primary;
   font-size: 14px;
   line-height: 1.2;
   font-weight: 700;
+}
+
+.fieldError {
+  color: #b91c1c;
+  font-size: 13px;
+  line-height: 1.4;
+  font-weight: 600;
 }
 
 .input,
@@ -635,6 +740,10 @@
     max-height: calc(100vh - 32px);
   }
 
+  .controlGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .controlsGrid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -647,11 +756,16 @@
     border-radius: 24px;
   }
 
+  .controlGrid,
   .canvasActions,
   .schemeManagerControls,
   .editorActions {
     display: grid;
     width: 100%;
+  }
+
+  .controlGrid {
+    grid-template-columns: 1fr;
   }
 
   .saveButton,
@@ -660,6 +774,10 @@
   .dangerButton,
   .fileInput {
     width: 100%;
+  }
+
+  .tileActions {
+    grid-template-columns: 1fr;
   }
 
   .canvas {

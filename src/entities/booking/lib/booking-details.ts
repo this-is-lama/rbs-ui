@@ -1,14 +1,26 @@
 import type { Booking } from '@/entities/booking/model/types.ts';
 import type { Restaurant, RestaurantTable } from '@/entities/restaurant/model/types.ts';
 
-const dateFormatter = new Intl.DateTimeFormat('ru-RU', {
-    dateStyle: 'medium',
-});
+const getCurrentLocale = () => {
+    return typeof document !== 'undefined' && document.documentElement.lang === 'en'
+        ? 'en-US'
+        : 'ru-RU';
+};
 
-const timeFormatter = new Intl.DateTimeFormat('ru-RU', {
-    hour: '2-digit',
-    minute: '2-digit',
-});
+const isEnglishLocale = () => getCurrentLocale() === 'en-US';
+
+const formatDateWithLocale = (value: string) => {
+    return new Intl.DateTimeFormat(getCurrentLocale(), {
+        dateStyle: 'medium',
+    }).format(new Date(value));
+};
+
+const formatTimeWithLocale = (value: string) => {
+    return new Intl.DateTimeFormat(getCurrentLocale(), {
+        hour: '2-digit',
+        minute: '2-digit',
+    }).format(new Date(value));
+};
 
 const getRecord = (value: unknown): Record<string, unknown> | null => {
     if (!value || typeof value !== 'object' || Array.isArray(value)) {
@@ -35,20 +47,41 @@ const getNumberValue = (value: unknown) => {
     return null;
 };
 
-export const formatBookingDate = (value?: string | null) => {
-    if (!value) {
-        return 'Не указана';
+const getStringFromRecords = (
+    records: Array<Record<string, unknown> | null | undefined>,
+    keys: string[],
+) => {
+    for (const record of records) {
+        if (!record) {
+            continue;
+        }
+
+        for (const key of keys) {
+            const value = getStringValue(record[key]);
+
+            if (value) {
+                return value;
+            }
+        }
     }
 
-    return dateFormatter.format(new Date(value));
+    return null;
+};
+
+export const formatBookingDate = (value?: string | null) => {
+    if (!value) {
+        return isEnglishLocale() ? 'Not specified' : 'Не указана';
+    }
+
+    return formatDateWithLocale(value);
 };
 
 export const formatBookingTimeRange = (startAt?: string | null, endAt?: string | null) => {
     if (!startAt || !endAt) {
-        return 'Не указано';
+        return isEnglishLocale() ? 'Not specified' : 'Не указано';
     }
 
-    return `${timeFormatter.format(new Date(startAt))} - ${timeFormatter.format(new Date(endAt))}`;
+    return `${formatTimeWithLocale(startAt)} - ${formatTimeWithLocale(endAt)}`;
 };
 
 export const isBookingPast = (booking: Pick<Booking, 'endAt'>) => {
@@ -121,10 +154,12 @@ export const getBookingTableLabel = (booking: Booking, restaurant?: Restaurant |
     const table = resolveBookingTable(booking, restaurant);
 
     if (!table) {
-        return 'Стол не указан';
+        return isEnglishLocale() ? 'Table not specified' : 'Стол не указан';
     }
 
-    return `Стол №${table.tableNumber}`;
+    return isEnglishLocale()
+        ? `Table #${table.tableNumber}`
+        : `Стол №${table.tableNumber}`;
 };
 
 export type BookingGuestInfo = {
@@ -136,50 +171,88 @@ export type BookingGuestInfo = {
 
 export const getBookingGuestInfo = (booking: Booking): BookingGuestInfo => {
     const bookingRecord = booking as unknown as Record<string, unknown>;
-    const nestedGuest =
-        getRecord(bookingRecord.user)
-        ?? getRecord(bookingRecord.guest)
-        ?? getRecord(bookingRecord.customer)
-        ?? getRecord(bookingRecord.userInfo);
+    const nestedRecords = [
+        getRecord(bookingRecord.user),
+        getRecord(bookingRecord.guest),
+        getRecord(bookingRecord.customer),
+        getRecord(bookingRecord.userInfo),
+        getRecord(bookingRecord.userDto),
+        getRecord(bookingRecord.customerInfo),
+        getRecord(bookingRecord.client),
+        getRecord(bookingRecord.person),
+        getRecord(bookingRecord.createdBy),
+    ].filter((record): record is Record<string, unknown> => Boolean(record));
+    const nestedDetailRecords = nestedRecords.flatMap((record) => {
+        return [
+            getRecord(record.profile),
+            getRecord(record.user),
+            getRecord(record.account),
+            getRecord(record.contact),
+            getRecord(record.contactInfo),
+            getRecord(record.details),
+        ].filter((nestedRecord): nestedRecord is Record<string, unknown> => Boolean(nestedRecord));
+    });
+    const candidateRecords = [bookingRecord, ...nestedRecords, ...nestedDetailRecords];
 
-    const name = getStringValue(
-        nestedGuest?.name
-        ?? bookingRecord.userName
-        ?? bookingRecord.guestName
-        ?? bookingRecord.customerName
-        ?? bookingRecord.name,
-    );
-    const surname = getStringValue(
-        nestedGuest?.surname
-        ?? bookingRecord.userSurname
-        ?? bookingRecord.guestSurname
-        ?? bookingRecord.customerSurname
-        ?? bookingRecord.surname,
-    );
-    const fullName = [name, surname].filter(Boolean).join(' ').trim() || 'Гость';
+    const name = getStringFromRecords(candidateRecords, [
+        'name',
+        'firstName',
+        'givenName',
+        'userName',
+        'guestName',
+        'customerName',
+    ]);
+    const surname = getStringFromRecords(candidateRecords, [
+        'surname',
+        'lastName',
+        'familyName',
+        'userSurname',
+        'guestSurname',
+        'customerSurname',
+    ]);
+    const directFullName = getStringFromRecords(candidateRecords, [
+        'fullName',
+        'displayName',
+        'fio',
+    ]);
+    const phone = getStringFromRecords(candidateRecords, [
+        'phone',
+        'phoneNumber',
+        'mobilePhone',
+        'contactPhone',
+        'telephone',
+        'userPhone',
+        'guestPhone',
+        'customerPhone',
+    ]);
+    const email = getStringFromRecords(candidateRecords, [
+        'email',
+        'emailAddress',
+        'mail',
+        'contactEmail',
+        'userEmail',
+        'guestEmail',
+        'customerEmail',
+    ]);
+    const userId = getStringFromRecords(candidateRecords, [
+        'id',
+        'userId',
+        'guestId',
+        'customerId',
+    ]);
+    const fullName = [name, surname].filter(Boolean).join(' ').trim()
+        || directFullName
+        || email
+        || (
+            userId
+                ? (isEnglishLocale() ? `User ${userId}` : `Пользователь ${userId}`)
+                : (isEnglishLocale() ? 'Guest' : 'Гость')
+        );
 
     return {
         fullName,
-        phone: getStringValue(
-            nestedGuest?.phone
-            ?? bookingRecord.userPhone
-            ?? bookingRecord.guestPhone
-            ?? bookingRecord.customerPhone
-            ?? bookingRecord.phone,
-        ),
-        email: getStringValue(
-            nestedGuest?.email
-            ?? bookingRecord.userEmail
-            ?? bookingRecord.guestEmail
-            ?? bookingRecord.customerEmail
-            ?? bookingRecord.email,
-        ),
-        userId: getStringValue(
-            nestedGuest?.id
-            ?? nestedGuest?.userId
-            ?? bookingRecord.userId
-            ?? bookingRecord.guestId
-            ?? bookingRecord.customerId,
-        ),
+        phone,
+        email,
+        userId,
     };
 };

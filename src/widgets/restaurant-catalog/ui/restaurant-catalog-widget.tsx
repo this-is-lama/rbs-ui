@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useLanguage } from '@/app/providers/language';
 import { getRestaurants } from '@/entities/restaurant/api/get-restaurants.ts';
 import type { RestaurantCard as RestaurantCardType } from '@/entities/restaurant/model/types.ts';
-import type { PageResponse } from '@/shared/api';
 import { RestaurantCard } from '@/entities/restaurant/ui/restaurant-card.tsx';
-import { RestaurantsFilterForm } from '@/features/restaurants/filter-restaurants/ui/restaurants-filter-form.tsx';
 import { useRestaurantFilters } from '@/features/restaurants/filter-restaurants/model/use-restaurant-filters.ts';
 import { RestaurantCategoriesNavbar } from '@/features/restaurants/filter-restaurants/ui/restaurant-categories-navbar.tsx';
+import { RestaurantsFilterForm } from '@/features/restaurants/filter-restaurants/ui/restaurants-filter-form.tsx';
+import type { PageResponse } from '@/shared/api';
 import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
 import { Footer } from '@/widgets/footer/Footer';
 import styles from './RestaurantCatalogWidget.module.scss';
@@ -33,11 +34,32 @@ const buildPagination = (currentPage: number, totalPages: number): PaginationIte
 };
 
 export const RestaurantCatalogWidget = () => {
+    const { language } = useLanguage();
     const { filters, setPage } = useRestaurantFilters();
     const [data, setData] = useState<PageResponse<RestaurantCardType> | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
     const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+
+    const copy = language === 'en'
+        ? {
+            filtersAria: 'Open filters',
+            loading: 'Loading restaurants...',
+            nextPage: 'Next page',
+            notFound: 'No restaurants found',
+            prevPage: 'Previous page',
+            title: 'Restaurants',
+            loadError: 'Failed to load restaurants',
+        }
+        : {
+            filtersAria: 'Открыть фильтры',
+            loading: 'Загрузка ресторанов...',
+            nextPage: 'Следующая страница',
+            notFound: 'Рестораны не найдены',
+            prevPage: 'Предыдущая страница',
+            title: 'Рестораны',
+            loadError: 'Не удалось загрузить список ресторанов',
+        };
 
     useEffect(() => {
         const loadRestaurants = async () => {
@@ -55,14 +77,14 @@ export const RestaurantCatalogWidget = () => {
 
                 setData(response);
             } catch (loadError) {
-                setError(getApiErrorMessage(loadError, 'Не удалось загрузить список ресторанов'));
+                setError(getApiErrorMessage(loadError, copy.loadError));
             } finally {
                 setIsLoading(false);
             }
         };
 
         void loadRestaurants();
-    }, [filters]);
+    }, [copy.loadError, filters]);
 
     const handlePrevPage = () => {
         if (!data || data.first) {
@@ -92,14 +114,14 @@ export const RestaurantCatalogWidget = () => {
                 <div className={styles.header}>
                     <div className={styles.headerSpacer} />
 
-                    <h1 className={styles.title}>Рестораны</h1>
+                    <h1 className={styles.title}>{copy.title}</h1>
 
                     <div className={styles.filterBox}>
                         <button
                             type="button"
                             className={`${styles.filterButton} ${isFiltersOpen ? styles.filterButtonActive : ''}`}
                             onClick={() => setIsFiltersOpen((current) => !current)}
-                            aria-label="Открыть фильтры"
+                            aria-label={copy.filtersAria}
                             aria-expanded={isFiltersOpen}
                         >
                             <svg
@@ -129,11 +151,11 @@ export const RestaurantCatalogWidget = () => {
 
                 <RestaurantCategoriesNavbar />
 
-                {isLoading ? <div className={styles.state}>Загрузка ресторанов...</div> : null}
+                {isLoading ? <div className={styles.state}>{copy.loading}</div> : null}
                 {error ? <div className={styles.state}>{error}</div> : null}
 
                 {!isLoading && !error && restaurants.length === 0 ? (
-                    <div className={styles.state}>Рестораны не найдены</div>
+                    <div className={styles.state}>{copy.notFound}</div>
                 ) : null}
 
                 {!isLoading && !error && restaurants.length > 0 ? (
@@ -154,7 +176,7 @@ export const RestaurantCatalogWidget = () => {
                                     className={styles.paginationButton}
                                     onClick={handlePrevPage}
                                     disabled={data.first}
-                                    aria-label="Предыдущая страница"
+                                    aria-label={copy.prevPage}
                                 >
                                     {'<'}
                                 </button>
@@ -191,7 +213,7 @@ export const RestaurantCatalogWidget = () => {
                                     className={styles.paginationButton}
                                     onClick={handleNextPage}
                                     disabled={data.last}
-                                    aria-label="Следующая страница"
+                                    aria-label={copy.nextPage}
                                 >
                                     {'>'}
                                 </button>

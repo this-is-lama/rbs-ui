@@ -6,6 +6,7 @@ import type {
     DishManageRequest,
 } from '@/entities/restaurant/model/types.ts';
 import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
+import { useConfirmDialog } from '@/shared/ui/confirm-dialog/ConfirmDialogProvider.tsx';
 import { dishManageSchema, toDishManageRequest } from '../model/dish-manage.schema.ts';
 import styles from '@/features/restaurants/shared/ManageForm.module.scss';
 
@@ -25,6 +26,7 @@ export const DishManageForm = ({
     const [serverError, setServerError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
     const [isDeleting, setIsDeleting] = useState(false);
+    const confirmDialog = useConfirmDialog();
 
     const form = useForm<DishManageFormValues>({
         resolver: zodResolver(dishManageSchema),
@@ -61,7 +63,13 @@ export const DishManageForm = ({
             return;
         }
 
-        if (!window.confirm('Удалить блюдо? Это действие нельзя отменить.')) {
+        const isConfirmed = await confirmDialog({
+            title: 'Удалить блюдо?',
+            description: 'Это действие нельзя отменить. Блюдо исчезнет из меню ресторана.',
+            confirmText: 'Удалить блюдо',
+        });
+
+        if (!isConfirmed) {
             return;
         }
 

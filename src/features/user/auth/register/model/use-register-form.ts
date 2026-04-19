@@ -1,21 +1,24 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { registerSchema, type RegisterFormValues } from '../lib/register.schema';
+import { useLanguage } from '@/app/providers/language';
+import { useAuth } from '@/app/providers/auth/use-auth.ts';
+import { loginUser } from '@/features/user/auth/login/api/login.ts';
+import { RoutePaths } from '@/shared/config/routes/routes.ts';
 import { registerUser } from '../api/register';
 import { getErrorMessage } from '../lib/get-error-message';
-import { loginUser } from '@/features/user/auth/login/api/login.ts';
-import { useAuth } from '@/app/providers/auth/use-auth.ts';
-import { RoutePaths } from '@/shared/config/routes/routes.ts';
+import { createRegisterSchema, type RegisterFormValues } from '../lib/register.schema';
 
 export const useRegisterForm = () => {
     const navigate = useNavigate();
+    const { language } = useLanguage();
     const { login } = useAuth();
     const [serverError, setServerError] = useState('');
+    const schema = useMemo(() => createRegisterSchema(language), [language]);
 
     const form = useForm<RegisterFormValues>({
-        resolver: zodResolver(registerSchema),
+        resolver: zodResolver(schema),
         mode: 'onBlur',
         defaultValues: {
             name: '',
@@ -41,13 +44,13 @@ export const useRegisterForm = () => {
             form.reset();
             navigate(RoutePaths.PROFILE);
         } catch (error) {
-            setServerError(getErrorMessage(error));
+            setServerError(getErrorMessage(error, language));
         }
     });
 
     return {
         ...form,
-        serverError,
         onSubmit,
+        serverError,
     };
 };

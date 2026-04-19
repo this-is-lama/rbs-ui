@@ -1,27 +1,35 @@
 import type { BookingStatus } from '../model/types.ts';
 
-const moneyFormatter = new Intl.NumberFormat('ru-RU', {
-    style: 'currency',
-    currency: 'RUB',
-    maximumFractionDigits: 0,
-});
+const getCurrentLocale = () => {
+    return typeof document !== 'undefined' && document.documentElement.lang === 'en'
+        ? 'en-US'
+        : 'ru-RU';
+};
+
+const isEnglishLocale = () => getCurrentLocale() === 'en-US';
 
 export const getBookingStatusLabel = (status?: BookingStatus | null) => {
     switch (status) {
         case 'RESERVED':
-            return 'Забронировано';
+            return isEnglishLocale() ? 'Reserved' : 'Забронировано';
         case 'CANCELLED':
-            return 'Отменено';
+            return isEnglishLocale() ? 'Cancelled' : 'Отменено';
         case '':
         case null:
         case undefined:
-            return 'Не указан';
+            return isEnglishLocale() ? 'Not specified' : 'Не указан';
         default:
             return status;
     }
 };
 
 export const formatBookingAmount = (value?: string | number | null) => {
+    const moneyFormatter = new Intl.NumberFormat(getCurrentLocale(), {
+        style: 'currency',
+        currency: 'RUB',
+        maximumFractionDigits: 0,
+    });
+
     if (typeof value === 'number' && Number.isFinite(value)) {
         return moneyFormatter.format(value);
     }
@@ -29,7 +37,7 @@ export const formatBookingAmount = (value?: string | number | null) => {
     const parsed = Number.parseFloat(String(value ?? '').replace(',', '.'));
 
     if (!Number.isFinite(parsed)) {
-        return 'Не указана';
+        return isEnglishLocale() ? 'Not specified' : 'Не указана';
     }
 
     return moneyFormatter.format(parsed);

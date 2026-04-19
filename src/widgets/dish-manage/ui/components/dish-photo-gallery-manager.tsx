@@ -12,6 +12,7 @@ import {
     CloseIcon,
     PlusIcon,
 } from '@/shared/ui/icons/action-icons.tsx';
+import { useConfirmDialog } from '@/shared/ui/confirm-dialog/ConfirmDialogProvider.tsx';
 import { PhotoCarousel } from '@/shared/ui/photo-carousel/photo-carousel.tsx';
 import styles from './dish-photo-gallery-manager.module.scss';
 
@@ -59,6 +60,7 @@ export const DishPhotoGalleryManager = ({
     const [deletingPhotoId, setDeletingPhotoId] = useState<string | null>(null);
     const categoryRef = useRef<HTMLSelectElement | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const confirmDialog = useConfirmDialog();
 
     useEffect(() => {
         const nextPhotos = Array.isArray(photos)
@@ -155,7 +157,13 @@ export const DishPhotoGalleryManager = ({
             return;
         }
 
-        if (!window.confirm('Удалить фотографию?')) {
+        const isConfirmed = await confirmDialog({
+            title: 'Удалить фотографию?',
+            description: 'Фотография блюда будет удалена без возможности восстановления.',
+            confirmText: 'Удалить фото',
+        });
+
+        if (!isConfirmed) {
             return;
         }
 

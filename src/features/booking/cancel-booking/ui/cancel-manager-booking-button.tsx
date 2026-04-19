@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { cancelBookingForManagerOrOwner } from '@/entities/booking/api/cancel-booking.ts';
 import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
+import { useConfirmDialog } from '@/shared/ui/confirm-dialog/ConfirmDialogProvider.tsx';
 
 type CancelManagerBookingButtonProps = {
     bookingId: string;
@@ -20,9 +21,16 @@ export const CancelManagerBookingButton = ({
     onError,
 }: CancelManagerBookingButtonProps) => {
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const confirmDialog = useConfirmDialog();
 
     const handleClick = async () => {
-        if (!window.confirm('Отменить это бронирование?')) {
+        const isConfirmed = await confirmDialog({
+            title: 'Отменить бронирование?',
+            description: 'Бронирование будет отменено и перестанет быть доступным для гостей и менеджеров.',
+            confirmText: 'Отменить бронирование',
+        });
+
+        if (!isConfirmed) {
             return;
         }
 

@@ -4,6 +4,7 @@ import { Link, generatePath, useParams } from 'react-router-dom';
 import { Footer } from '@/widgets/footer/Footer.tsx';
 import { getRestaurantById } from '@/entities/restaurant/api/get-restaurant-by-id.ts';
 import { getPhotoByCategory } from '@/entities/restaurant/lib/get-photo-by-category.ts';
+import { getRestaurantSchemeImageUrl } from '@/entities/restaurant/lib/get-restaurant-scheme-image-url.ts';
 import {
     createTable,
     deleteRestaurantPhotos,
@@ -20,6 +21,7 @@ import type {
 } from '@/entities/restaurant/model/types.ts';
 import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
 import { RoutePaths } from '@/shared/config/routes/routes.ts';
+import { useConfirmDialog } from '@/shared/ui/confirm-dialog/ConfirmDialogProvider.tsx';
 import { CloseIcon, PlusIcon } from '@/shared/ui/icons/action-icons.tsx';
 import pageStyles from '@/widgets/restaurant-management/shared/ManagerPage.module.scss';
 import styles from './RestaurantLayoutWidget.module.scss';
@@ -43,6 +45,7 @@ const MIN_MARKER_SIZE = 28;
 const MAX_MARKER_SIZE = 88;
 const DEFAULT_CAPACITY = 4;
 const DEFAULT_MARKER_SIZE = 46;
+const DEFAULT_TABLE_POSITION = 50;
 const allowedContentTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
 const defaultTableFormValues = (): TableFormValues => {
@@ -102,19 +105,22 @@ const isPlaced = (table: RestaurantTable) => {
 const buildTableRequest = (
     values: TableFormValues,
     currentTable?: RestaurantTable | null,
+    shouldPlaceAtCenter = false,
 ): TableManageRequest => {
     const parsedCapacity = Number.parseInt(values.capacity, 10);
     const markerSize = Number.isFinite(parsedCapacity) && parsedCapacity > 0
         ? getMarkerSizeByCapacity(parsedCapacity)
         : DEFAULT_MARKER_SIZE;
+    const nextPositionX = currentTable?.positionX ?? (shouldPlaceAtCenter ? DEFAULT_TABLE_POSITION : null);
+    const nextPositionY = currentTable?.positionY ?? (shouldPlaceAtCenter ? DEFAULT_TABLE_POSITION : null);
 
     return {
         tableNumber: Number.parseInt(values.tableNumber, 10),
         capacity: parsedCapacity,
         description: values.description.trim() || null,
         active: values.active,
-        positionX: currentTable?.positionX ?? null,
-        positionY: currentTable?.positionY ?? null,
+        positionX: nextPositionX,
+        positionY: nextPositionY,
         markerSize,
     };
 };
@@ -132,6 +138,24 @@ const validateTableForm = (values: TableFormValues) => {
     }
 
     return '';
+};
+
+const getDuplicateTableNumberError = (
+    tableNumberValue: string,
+    tables: RestaurantTable[],
+    selectedTableId: string | null,
+) => {
+    const tableNumber = Number.parseInt(tableNumberValue, 10);
+
+    if (!Number.isFinite(tableNumber) || tableNumber <= 0) {
+        return '';
+    }
+
+    const hasDuplicate = tables.some((table) => {
+        return table.tableNumber === tableNumber && table.id !== selectedTableId;
+    });
+
+    return hasDuplicate ? 'Стол с таким номером уже существует' : '';
 };
 
 export const RestaurantLayoutWidget = () => {
@@ -155,6 +179,7 @@ export const RestaurantLayoutWidget = () => {
     const [isDeletingScheme, setIsDeletingScheme] = useState(false);
     const [deletingTableId, setDeletingTableId] = useState<string | null>(null);
     const [draggingTableId, setDraggingTableId] = useState<string | null>(null);
+    const confirmDialog = useConfirmDialog();
 
     const loadData = useCallback(async () => {
         if (!id) {
@@ -329,10 +354,24 @@ export const RestaurantLayoutWidget = () => {
             .filter((photo) => photo.category === 'SCHEME')
             .map((photo) => photo.id);
     }, [restaurant?.photos]);
+    const schemeImageUrl = useMemo(() => {
+        return getRestaurantSchemeImageUrl(schemePhoto?.publicUrl ?? null);
+    }, [schemePhoto?.publicUrl]);
 
     const capacityValue = useMemo(() => {
         return parseRangeValue(tableForm.capacity, DEFAULT_CAPACITY, MIN_CAPACITY, MAX_CAPACITY);
     }, [tableForm.capacity]);
+    const duplicateTableNumberError = useMemo(() => {
+        return getDuplicateTableNumberError(tableForm.tableNumber, tables, selectedTableId);
+    }, [selectedTableId, tableForm.tableNumber, tables]);
+
+    const resetSelectedSchemeFile = useCallback(() => {
+        if (schemeFileInputRef.current) {
+            schemeFileInputRef.current.value = '';
+        }
+
+        setSelectedSchemeFile(null);
+    }, []);
 
     const handleStartCreate = () => {
         setSelectedTableId(null);
@@ -366,6 +405,19 @@ export const RestaurantLayoutWidget = () => {
         }));
     };
 
+    const handleOpenSchemePicker = () => {
+        if (isUploadingScheme || isDeletingScheme) {
+            return;
+        }
+
+        schemeFileInputRef.current?.click();
+    };
+
+    const handleSchemeFileChange = (file: File | null) => {
+        setSelectedSchemeFile(file);
+        setError('');
+    };
+
     const handleSubmitTable = async () => {
         if (!id) {
             return;
@@ -378,22 +430,38 @@ export const RestaurantLayoutWidget = () => {
             return;
         }
 
+        if (duplicateTableNumberError) {
+            return;
+        }
+
         try {
             setIsSubmittingTable(true);
             setError('');
 
             if (selectedTable) {
-                await updateTable(id, selectedTable.id, buildTableRequest(tableForm, selectedTable));
+                await updateTable(
+                    id,
+                    selectedTable.id,
+                    buildTableRequest(tableForm, selectedTable, !isPlaced(selectedTable)),
+                );
                 await loadData();
-                setNotice('Стол обновлён');
+                setSelectedTableId(null);
+                setTableForm(defaultTableFormValues());
+                setIsTableEditorOpen(false);
+                setNotice(
+                    isPlaced(selectedTable)
+                        ? 'Стол обновлён'
+                        : 'Стол обновлён и размещён в центре схемы',
+                );
                 return;
             }
 
-            const createdTableId = await createTable(id, buildTableRequest(tableForm));
+            await createTable(id, buildTableRequest(tableForm, null, true));
             await loadData();
-            setSelectedTableId(createdTableId);
-            setIsTableEditorOpen(true);
-            setNotice('Стол добавлен');
+            setSelectedTableId(null);
+            setTableForm(defaultTableFormValues());
+            setIsTableEditorOpen(false);
+            setNotice('Стол добавлен и размещён в центре схемы');
         } catch (requestError) {
             setError(getApiErrorMessage(requestError, 'Не удалось сохранить стол'));
         } finally {
@@ -406,7 +474,13 @@ export const RestaurantLayoutWidget = () => {
             return;
         }
 
-        if (!window.confirm('Удалить стол?')) {
+        const isConfirmed = await confirmDialog({
+            title: 'Удалить стол?',
+            description: 'Стол будет удалён из ресторана и исчезнет со схемы зала.',
+            confirmText: 'Удалить стол',
+        });
+
+        if (!isConfirmed) {
             return;
         }
 
@@ -425,49 +499,6 @@ export const RestaurantLayoutWidget = () => {
             setError(getApiErrorMessage(requestError, 'Не удалось удалить стол'));
         } finally {
             setDeletingTableId(null);
-        }
-    };
-
-    const handlePlaceTable = (tableId: string) => {
-        setTables((currentTables) => {
-            return currentTables.map((table) => {
-                if (table.id !== tableId) {
-                    return table;
-                }
-
-                return {
-                    ...table,
-                    positionX: table.positionX ?? 50,
-                    positionY: table.positionY ?? 50,
-                    markerSize: getMarkerSizeByCapacity(table.capacity),
-                };
-            });
-        });
-
-        setNotice('Стол размещён локально. Не забудьте сохранить схему.');
-        setError('');
-    };
-
-    const handleUnplaceTable = async (table: RestaurantTable) => {
-        if (!id) {
-            return;
-        }
-
-        try {
-            setError('');
-            await updateTable(id, table.id, {
-                tableNumber: table.tableNumber,
-                capacity: table.capacity,
-                description: table.description ?? null,
-                active: table.active,
-                positionX: null,
-                positionY: null,
-                markerSize: getMarkerSizeByCapacity(table.capacity),
-            });
-            setNotice('Стол убран со схемы');
-            await loadData();
-        } catch (requestError) {
-            setError(getApiErrorMessage(requestError, 'Не удалось убрать стол со схемы'));
         }
     };
 
@@ -544,11 +575,7 @@ export const RestaurantLayoutWidget = () => {
                 await deleteRestaurantPhotos(id, oldSchemeIds);
             }
 
-            if (schemeFileInputRef.current) {
-                schemeFileInputRef.current.value = '';
-            }
-
-            setSelectedSchemeFile(null);
+            resetSelectedSchemeFile();
             await loadData();
             setNotice(schemePhoto ? 'Схема заменена' : 'Схема зала загружена');
         } catch (requestError) {
@@ -563,7 +590,13 @@ export const RestaurantLayoutWidget = () => {
             return;
         }
 
-        if (!window.confirm('Удалить схему зала?')) {
+        const isConfirmed = await confirmDialog({
+            title: 'Удалить схему зала?',
+            description: 'Собственная схема будет удалена, и вместо неё снова покажется стандартный белый фон.',
+            confirmText: 'Удалить схему',
+        });
+
+        if (!isConfirmed) {
             return;
         }
 
@@ -571,12 +604,7 @@ export const RestaurantLayoutWidget = () => {
             setIsDeletingScheme(true);
             setError('');
             await deleteRestaurantPhotos(id, schemePhotoIds);
-
-            if (schemeFileInputRef.current) {
-                schemeFileInputRef.current.value = '';
-            }
-
-            setSelectedSchemeFile(null);
+            resetSelectedSchemeFile();
             await loadData();
             setNotice('Схема удалена');
         } catch (requestError) {
@@ -584,6 +612,17 @@ export const RestaurantLayoutWidget = () => {
         } finally {
             setIsDeletingScheme(false);
         }
+    };
+
+    const handleDeleteSchemeAction = async () => {
+        if (selectedSchemeFile) {
+            resetSelectedSchemeFile();
+            setNotice('Выбранный файл схемы убран');
+            setError('');
+            return;
+        }
+
+        await handleDeleteScheme();
     };
 
     const handleMarkerPointerDown = (
@@ -610,6 +649,12 @@ export const RestaurantLayoutWidget = () => {
             transform: 'translate(-50%, -50%)',
         };
     };
+    const schemeStatusLabel = selectedSchemeFile
+        ? 'Новый файл выбран. Нажмите «Сохранить», чтобы обновить схему.'
+        : schemePhoto
+            ? 'Пользовательская схема уже загружена для этого ресторана.'
+            : 'Сейчас используется стандартный белый фон 1920×1080.';
+    const visiblePendingTables = notPlacedTables.slice(0, 4);
 
     if (isLoading) {
         return (
@@ -641,15 +686,6 @@ export const RestaurantLayoutWidget = () => {
                     <div className={pageStyles.actions}>
                         {id ? (
                             <Link
-                                to={generatePath(RoutePaths.MY_RESTAURANT_EDIT, { id })}
-                                className={pageStyles.link}
-                            >
-                                К управлению рестораном
-                            </Link>
-                        ) : null}
-
-                        {id ? (
-                            <Link
                                 to={generatePath(RoutePaths.RESTAURANT, { id })}
                                 className={pageStyles.primaryLink}
                             >
@@ -667,113 +703,191 @@ export const RestaurantLayoutWidget = () => {
                         <div>
                             <h2 className={styles.panelTitle}>Схема зала</h2>
                             <p className={styles.panelDescription}>
-                                Нажмите на стол на схеме, чтобы открыть его параметры. Перетаскивайте
-                                столы мышью и сохраняйте новое расположение.
+                                Перетаскивайте столы мышью, сохраняйте новую расстановку и при
+                                необходимости загружайте свой фон схемы.
                             </p>
                         </div>
-
-                        <div className={styles.canvasActions}>
-                            <button
-                                type="button"
-                                className={styles.secondaryButton}
-                                onClick={handleStartCreate}
-                            >
-                                <PlusIcon className={styles.actionIcon} />
-                                <span>Добавить стол</span>
-                            </button>
-
-                            <button
-                                type="button"
-                                className={styles.saveButton}
-                                onClick={() => void handleSaveLayout()}
-                                disabled={isSavingLayout}
-                            >
-                                {isSavingLayout ? 'Сохранение...' : 'Сохранить схему'}
-                            </button>
-                        </div>
                     </div>
 
-                    <div className={styles.canvasInfoRow}>
-                        <div className={styles.infoBadge}>Всего столов: {tables.length}</div>
-                        <div className={styles.infoBadge}>На схеме: {placedTables.length}</div>
-                        {notPlacedTables.length > 0 ? (
-                            <div className={styles.infoBadgeMuted}>
-                                Не размещены: {notPlacedTables.length}
+                    <input
+                        ref={schemeFileInputRef}
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        className={styles.hiddenFileInput}
+                        onChange={(event) => handleSchemeFileChange(event.target.files?.[0] ?? null)}
+                    />
+
+                    <div className={styles.controlGrid}>
+                        <section className={styles.controlPanel}>
+                            <div className={styles.controlPanelBody}>
+                                <div>
+                                    <h3 className={styles.panelTitle}>Загрузить схему</h3>
+                                    <p className={styles.panelDescription}>
+                                        Можно использовать своё изображение зала или оставить
+                                        стандартный белый фон.
+                                    </p>
+                                </div>
+
+                                <div className={schemePhoto ? styles.schemeState : styles.schemeStateMuted}>
+                                    {selectedSchemeFile
+                                        ? 'Новый файл выбран'
+                                        : schemePhoto
+                                            ? 'Схема загружена'
+                                            : 'Стандартный фон'}
+                                </div>
+
+                                <p className={styles.controlPanelNote}>{schemeStatusLabel}</p>
                             </div>
-                        ) : null}
-                    </div>
 
-                    <section className={styles.schemeManager}>
-                        <div className={styles.schemeManagerHeader}>
-                            <div>
-                                <h3 className={styles.panelTitle}>Фон схемы</h3>
-                                <p className={styles.panelDescription}>
-                                    У ресторана используется только одна схема. Здесь можно загрузить
-                                    новую или заменить текущую.
+                            <div className={styles.controlPanelFooter}>
+                                <button
+                                    type="button"
+                                    className={`${styles.actionButton} ${styles.tilePrimaryButton}`}
+                                    onClick={handleOpenSchemePicker}
+                                    disabled={isUploadingScheme || isDeletingScheme}
+                                >
+                                    Загрузить схему
+                                </button>
+
+                                {selectedSchemeFile ? (
+                                    <div className={styles.tileActions}>
+                                        <button
+                                            type="button"
+                                            className={styles.secondaryButton}
+                                            onClick={() => void handleUploadScheme()}
+                                            disabled={isUploadingScheme || isDeletingScheme}
+                                        >
+                                            {isUploadingScheme ? 'Сохранение...' : 'Сохранить'}
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            className={styles.dangerButton}
+                                            onClick={() => void handleDeleteSchemeAction()}
+                                            disabled={isUploadingScheme || isDeletingScheme}
+                                        >
+                                            Удалить
+                                        </button>
+                                    </div>
+                                ) : schemePhoto ? (
+                                    <button
+                                        type="button"
+                                        className={`${styles.dangerButton} ${styles.tilePrimaryButton}`}
+                                        onClick={() => void handleDeleteSchemeAction()}
+                                        disabled={isUploadingScheme || isDeletingScheme}
+                                    >
+                                        {isDeletingScheme ? 'Удаление...' : 'Удалить схему'}
+                                    </button>
+                                ) : null}
+                            </div>
+                        </section>
+
+                        <section className={styles.controlPanel}>
+                            <div className={styles.controlPanelBody}>
+                                <div>
+                                    <h3 className={styles.panelTitle}>Добавить стол</h3>
+                                    <p className={styles.panelDescription}>
+                                        После сохранения новый стол сразу появится в центре схемы.
+                                    </p>
+                                </div>
+
+                                <div className={styles.panelMetrics}>
+                                    <div className={styles.infoBadge}>Всего столов: {tables.length}</div>
+                                    <div className={styles.infoBadgeMuted}>На схеме: {placedTables.length}</div>
+                                </div>
+
+                                {notPlacedTables.length > 0 ? (
+                                    <div className={styles.pendingTables}>
+                                        <p className={styles.controlPanelNote}>
+                                            Без координат: {notPlacedTables.length}. Откройте стол и
+                                            нажмите «Сохранить стол», чтобы поставить его в центр.
+                                        </p>
+
+                                        <div className={styles.pendingTableList}>
+                                            {visiblePendingTables.map((table) => (
+                                                <button
+                                                    key={table.id}
+                                                    type="button"
+                                                    className={`${styles.unplacedButton} ${
+                                                        isTableEditorOpen && selectedTableId === table.id
+                                                            ? styles.unplacedButtonActive
+                                                            : ''
+                                                    }`}
+                                                    onClick={() => handleEditTable(table)}
+                                                >
+                                                    Стол №{table.tableNumber}
+                                                </button>
+                                            ))}
+
+                                            {notPlacedTables.length > visiblePendingTables.length ? (
+                                                <div className={styles.pendingTableCounter}>
+                                                    +{notPlacedTables.length - visiblePendingTables.length}
+                                                </div>
+                                            ) : null}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <p className={styles.controlPanelNote}>
+                                        Все активные столы уже находятся на схеме.
+                                    </p>
+                                )}
+                            </div>
+
+                            <div className={styles.controlPanelFooter}>
+                                <button
+                                    type="button"
+                                    className={`${styles.secondaryButton} ${styles.tilePrimaryButton}`}
+                                    onClick={handleStartCreate}
+                                >
+                                    <PlusIcon className={styles.actionIcon} />
+                                    <span>Добавить стол</span>
+                                </button>
+                            </div>
+                        </section>
+
+                        <section className={styles.controlPanel}>
+                            <div className={styles.controlPanelBody}>
+                                <div>
+                                    <h3 className={styles.panelTitle}>Сохранить схему</h3>
+                                    <p className={styles.panelDescription}>
+                                        Сохраняйте новую расстановку после перетаскивания столов или
+                                        изменения их параметров.
+                                    </p>
+                                </div>
+
+                                <div className={styles.panelMetrics}>
+                                    <div className={styles.infoBadge}>На схеме: {placedTables.length}</div>
+                                    <div className={styles.infoBadgeMuted}>
+                                        Без координат: {notPlacedTables.length}
+                                    </div>
+                                </div>
+
+                                <p className={styles.controlPanelNote}>
+                                    {placedTables.length > 0
+                                        ? 'После сохранения новая схема сразу отобразится на странице ресторана.'
+                                        : 'Сначала добавьте хотя бы один стол на схему.'}
                                 </p>
                             </div>
 
-                            <div className={schemePhoto ? styles.schemeState : styles.schemeStateMuted}>
-                                {schemePhoto ? 'Схема загружена' : 'Схема пока не загружена'}
-                            </div>
-                        </div>
-
-                        <div className={styles.schemeManagerControls}>
-                            <input
-                                ref={schemeFileInputRef}
-                                type="file"
-                                accept="image/jpeg,image/png,image/webp"
-                                className={styles.fileInput}
-                                onChange={(event) => {
-                                    setSelectedSchemeFile(event.target.files?.[0] ?? null);
-                                }}
-                            />
-
-                            <button
-                                type="button"
-                                className={styles.actionButton}
-                                onClick={() => void handleUploadScheme()}
-                                disabled={!selectedSchemeFile || isUploadingScheme || isDeletingScheme}
-                            >
-                                {isUploadingScheme
-                                    ? 'Загрузка...'
-                                    : schemePhoto
-                                        ? 'Заменить схему'
-                                        : 'Загрузить схему'}
-                            </button>
-
-                            {schemePhoto ? (
+                            <div className={styles.controlPanelFooter}>
                                 <button
                                     type="button"
-                                    className={styles.dangerButton}
-                                    onClick={() => void handleDeleteScheme()}
-                                    disabled={isUploadingScheme || isDeletingScheme}
+                                    className={`${styles.saveButton} ${styles.tilePrimaryButton}`}
+                                    onClick={() => void handleSaveLayout()}
+                                    disabled={isSavingLayout || placedTables.length === 0}
                                 >
-                                    {isDeletingScheme ? 'Удаление...' : 'Удалить схему'}
+                                    {isSavingLayout ? 'Сохранение...' : 'Сохранить схему'}
                                 </button>
-                            ) : null}
-                        </div>
-
-                        {selectedSchemeFile ? (
-                            <div className={styles.schemeFileMeta}>
-                                Выбран файл: {selectedSchemeFile.name}
                             </div>
-                        ) : null}
-                    </section>
+                        </section>
+                    </div>
 
                     <div ref={layoutRef} className={styles.canvas}>
-                        {schemePhoto?.publicUrl ? (
-                            <img
-                                src={schemePhoto.publicUrl}
-                                alt={`Схема зала ${restaurant?.name || 'ресторана'}`}
-                                className={styles.canvasImage}
-                            />
-                        ) : (
-                            <div className={styles.canvasEmpty}>
-                                Пока нет фотографии схемы. Загрузите её выше, и столы появятся поверх
-                                изображения.
-                            </div>
-                        )}
+                        <img
+                            src={schemeImageUrl}
+                            alt={`Схема зала ${restaurant?.name || 'ресторана'}`}
+                            className={styles.canvasImage}
+                        />
 
                         {placedTables.map((table) => (
                             <button
@@ -795,34 +909,6 @@ export const RestaurantLayoutWidget = () => {
                             </button>
                         ))}
                     </div>
-
-                    {notPlacedTables.length > 0 ? (
-                        <div className={styles.unplacedBlock}>
-                            <div>
-                                <h3 className={styles.unplacedTitle}>Не размещены на схеме</h3>
-                                <p className={styles.unplacedDescription}>
-                                    Откройте стол, чтобы изменить его параметры или разместить на схеме.
-                                </p>
-                            </div>
-
-                            <div className={styles.unplacedList}>
-                                {notPlacedTables.map((table) => (
-                                    <button
-                                        key={table.id}
-                                        type="button"
-                                        className={`${styles.unplacedButton} ${
-                                            isTableEditorOpen && selectedTableId === table.id
-                                                ? styles.unplacedButtonActive
-                                                : ''
-                                        }`}
-                                        onClick={() => handleEditTable(table)}
-                                    >
-                                        Стол №{table.tableNumber} • до {table.capacity} гостей
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    ) : null}
                 </div>
 
                 {isTableEditorOpen ? (
@@ -878,11 +964,15 @@ export const RestaurantLayoutWidget = () => {
 
                                         <input
                                             id="table-number"
-                                            className={styles.input}
+                                            className={`${styles.input} ${styles.tableNumberInput}`}
                                             inputMode="numeric"
                                             value={tableForm.tableNumber}
                                             onChange={(event) => handleTableFormChange('tableNumber', event.target.value)}
                                         />
+
+                                        {duplicateTableNumberError ? (
+                                            <div className={styles.fieldError}>{duplicateTableNumberError}</div>
+                                        ) : null}
                                     </div>
 
                                     <label className={styles.controlCard}>
@@ -958,30 +1048,12 @@ export const RestaurantLayoutWidget = () => {
                                 </div>
 
                                 <div className={styles.hint}>
-                                    Для нового стола координаты появятся после размещения на схеме.
+                                    {selectedTable && !isPlaced(selectedTable)
+                                        ? 'После сохранения стол появится в центре схемы.'
+                                        : 'После сохранения вы можете перетащить стол на схеме и затем сохранить общую расстановку.'}
                                 </div>
 
                                 <div className={styles.editorActions}>
-                                    {selectedTable ? (
-                                        isPlaced(selectedTable) ? (
-                                            <button
-                                                type="button"
-                                                className={styles.secondaryButton}
-                                                onClick={() => void handleUnplaceTable(selectedTable)}
-                                            >
-                                                Убрать со схемы
-                                            </button>
-                                        ) : (
-                                            <button
-                                                type="button"
-                                                className={styles.secondaryButton}
-                                                onClick={() => handlePlaceTable(selectedTable.id)}
-                                            >
-                                                Разместить на схеме
-                                            </button>
-                                        )
-                                    ) : null}
-
                                     {selectedTable ? (
                                         <button
                                             type="button"

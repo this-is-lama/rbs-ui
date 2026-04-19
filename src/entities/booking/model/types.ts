@@ -57,7 +57,20 @@ export type Booking = {
     dishes: BookingDish[];
 };
 
-export type ManagerBookingListItem = Booking;
+export type BookingUser = {
+    id: string;
+    name: string | null;
+    surname: string | null;
+    email: string | null;
+    phone: string | null;
+    active: boolean;
+};
+
+export type ManagerBooking = Booking & {
+    user: BookingUser | null;
+};
+
+export type ManagerBookingListItem = ManagerBooking;
 
 export type TableAvailabilitySlot = {
     startAt: string;

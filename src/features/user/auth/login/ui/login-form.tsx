@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
+import { useLanguage } from '@/app/providers/language';
 import { RoutePaths } from '@/shared/config/routes/routes.ts';
 import { useLoginForm } from '../model/use-login-form';
 import styles from '../../shared/AuthForm.module.scss';
 
 export const LoginForm = () => {
+    const { language } = useLanguage();
     const {
         register,
         formState: { errors, isSubmitting },
@@ -11,14 +13,30 @@ export const LoginForm = () => {
         onSubmit,
     } = useLoginForm();
 
+    const copy = language === 'en'
+        ? {
+            email: 'Email',
+            login: 'Sign in',
+            loginLoading: 'Signing in...',
+            password: 'Password',
+            registration: 'Create account',
+        }
+        : {
+            email: 'Почта',
+            login: 'Войти',
+            loginLoading: 'Вход...',
+            password: 'Пароль',
+            registration: 'Регистрация',
+        };
+
     return (
         <form onSubmit={onSubmit} className={styles.form}>
             <div className={styles.field}>
                 <input
                     className={styles.input}
                     type="email"
-                    placeholder="Почта"
-                    aria-label="Почта"
+                    placeholder={copy.email}
+                    aria-label={copy.email}
                     autoComplete="email"
                     autoFocus
                     {...register('email')}
@@ -32,8 +50,8 @@ export const LoginForm = () => {
                 <input
                     className={styles.input}
                     type="password"
-                    placeholder="Пароль"
-                    aria-label="Пароль"
+                    placeholder={copy.password}
+                    aria-label={copy.password}
                     autoComplete="current-password"
                     {...register('password')}
                 />
@@ -46,11 +64,11 @@ export const LoginForm = () => {
 
             <div className={styles.actions}>
                 <button className={styles.primaryButton} type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? 'Вход...' : 'Войти'}
+                    {isSubmitting ? copy.loginLoading : copy.login}
                 </button>
 
                 <Link to={RoutePaths.REGISTRATION} className={styles.secondaryButton}>
-                    Регистрация
+                    {copy.registration}
                 </Link>
             </div>
         </form>

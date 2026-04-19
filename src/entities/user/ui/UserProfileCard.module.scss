@@ -8,6 +8,17 @@
   background-color: #f3f3f3;
 }
 
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.headerAction {
+  flex-shrink: 0;
+}
+
 .title {
   margin: 0;
   font-size: clamp(48px, 5.2vw, 64px);
@@ -130,6 +141,10 @@
     padding: 24px 18px;
     border-radius: 28px;
     gap: 24px;
+  }
+
+  .header {
+    align-items: center;
   }
 
   .title {

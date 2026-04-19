@@ -1,19 +1,20 @@
 import { useEffect, useMemo, useState } from 'react';
 import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
-import { Footer } from '@/widgets/footer/Footer.tsx';
+import { useLanguage } from '@/app/providers/language';
 import { getRestaurantById } from '@/entities/restaurant/api/get-restaurant-by-id.ts';
 import {
     createRestaurant,
     updateRestaurant,
 } from '@/entities/restaurant/api/management.ts';
 import type { Restaurant, RestaurantManageRequest } from '@/entities/restaurant/model/types.ts';
-import { RestaurantManageForm } from '@/features/restaurants/manage-restaurant/ui/restaurant-manage-form.tsx';
 import {
     createDefaultRestaurantManageFormValues,
     mapRestaurantToManageFormValues,
 } from '@/features/restaurants/manage-restaurant/model/restaurant-manage.schema.ts';
-import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
+import { RestaurantManageForm } from '@/features/restaurants/manage-restaurant/ui/restaurant-manage-form.tsx';
 import { RoutePaths } from '@/shared/config/routes/routes.ts';
+import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
+import { Footer } from '@/widgets/footer/Footer.tsx';
 import pageStyles from '@/widgets/restaurant-management/shared/ManagerPage.module.scss';
 
 type LocationState = {
@@ -21,12 +22,31 @@ type LocationState = {
 };
 
 export const RestaurantManageWidget = () => {
+    const { language } = useLanguage();
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
     const location = useLocation();
     const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
     const [isLoading, setIsLoading] = useState(Boolean(id));
     const [error, setError] = useState('');
+
+    const copy = language === 'en'
+        ? {
+            createSuccess: 'Restaurant created',
+            editDescription: 'This form mirrors the public restaurant page, but here every field can be changed.',
+            editTitle: 'Edit restaurant',
+            loadError: 'Failed to load restaurant',
+            loading: 'Loading restaurant...',
+            newTitle: 'New restaurant',
+        }
+        : {
+            createSuccess: 'Ресторан создан',
+            editDescription: 'Форма повторяет структуру обычной страницы ресторана, но здесь все поля можно менять.',
+            editTitle: 'Редактирование ресторана',
+            loadError: 'Не удалось загрузить ресторан',
+            loading: 'Загрузка ресторана...',
+            newTitle: 'Новый ресторан',
+        };
 
     useEffect(() => {
         if (!id) {
@@ -41,7 +61,7 @@ export const RestaurantManageWidget = () => {
                 const response = await getRestaurantById(id);
                 setRestaurant(response);
             } catch (requestError) {
-                setError(getApiErrorMessage(requestError, 'Не удалось загрузить ресторан'));
+                setError(getApiErrorMessage(requestError, copy.loadError));
                 setRestaurant(null);
             } finally {
                 setIsLoading(false);
@@ -49,7 +69,7 @@ export const RestaurantManageWidget = () => {
         };
 
         void loadRestaurant();
-    }, [id]);
+    }, [copy.loadError, id]);
 
     const flashMessage = ((location.state as LocationState | null)?.message) ?? '';
 
@@ -65,7 +85,7 @@ export const RestaurantManageWidget = () => {
             navigate(generatePath(RoutePaths.MY_RESTAURANT_EDIT, { id: createdId }), {
                 replace: true,
                 state: {
-                    message: 'Ресторан создан',
+                    message: copy.createSuccess,
                 },
             });
             return;
@@ -78,7 +98,7 @@ export const RestaurantManageWidget = () => {
     if (isLoading) {
         return (
             <div className={`container ${pageStyles.page}`}>
-                <div className={pageStyles.state}>Загрузка ресторана...</div>
+                <div className={pageStyles.state}>{copy.loading}</div>
             </div>
         );
     }
@@ -97,10 +117,10 @@ export const RestaurantManageWidget = () => {
                 <div className={pageStyles.header}>
                     <div className={pageStyles.titleBlock}>
                         <h1 className={pageStyles.title}>
-                            {id ? 'Редактирование ресторана' : 'Новый ресторан'}
+                            {id ? copy.editTitle : copy.newTitle}
                         </h1>
                         <p className={pageStyles.subtitle}>
-                            Форма повторяет структуру обычной страницы ресторана, но здесь все поля можно менять.
+                            {copy.editDescription}
                         </p>
                     </div>
                 </div>

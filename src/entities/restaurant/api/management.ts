@@ -65,6 +65,27 @@ const normalizeRestaurantCard = (restaurant: ManagerRestaurantCard): ManagerRest
     };
 };
 
+const normalizeManagerBooking = (booking: ManagerBookingListItem): ManagerBookingListItem => {
+    return {
+        ...booking,
+        comment: booking.comment ?? null,
+        cancelledAt: booking.cancelledAt ?? null,
+        restaurant: booking.restaurant ?? null,
+        table: booking.table ?? null,
+        dishes: Array.isArray(booking.dishes) ? booking.dishes : [],
+        user: booking.user
+            ? {
+                ...booking.user,
+                name: booking.user.name ?? null,
+                surname: booking.user.surname ?? null,
+                email: booking.user.email ?? null,
+                phone: booking.user.phone ?? null,
+                active: Boolean(booking.user.active),
+            }
+            : null,
+    };
+};
+
 const uploadPhotoBinary = async (presignedUrl: string, file: File, contentType: string) => {
     const response = await fetch(presignedUrl, {
         method: 'PUT',
@@ -235,7 +256,7 @@ export const getRestaurantBookingsForManager = async (
     restId: string,
 ): Promise<ManagerBookingListItem[]> => {
     const response = await apiClient.get<ManagerBookingListItem[]>(`/api/v1/bookings/manager/restaurants/${restId}`);
-    return Array.isArray(response.data) ? response.data : [];
+    return Array.isArray(response.data) ? response.data.map(normalizeManagerBooking) : [];
 };
 
 export const getRestaurantDishes = async (restId: string): Promise<Dish[]> => {
@@ -341,4 +362,3 @@ export const deleteDishPhotos = async (dishId: string, ids: string[]) => {
 export const uploadDishPhotos = async (dishId: string, drafts: PhotoUploadDraft[]) => {
     return uploadPhotosWithConfirm(`/api/v1/dishes/${dishId}/photos`, drafts);
 };
-

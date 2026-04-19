@@ -1,7 +1,9 @@
+import { useLanguage } from '@/app/providers/language';
 import { useRegisterForm } from '../model/use-register-form';
 import styles from '../../shared/AuthForm.module.scss';
 
 export const RegisterForm = () => {
+    const { language } = useLanguage();
     const {
         register,
         formState: { errors, isSubmitting },
@@ -9,14 +11,32 @@ export const RegisterForm = () => {
         onSubmit,
     } = useRegisterForm();
 
+    const copy = language === 'en'
+        ? {
+            email: 'Email',
+            name: 'Name',
+            password: 'Password',
+            register: 'Create account',
+            registerLoading: 'Creating account...',
+            surname: 'Surname',
+        }
+        : {
+            email: 'Почта',
+            name: 'Имя',
+            password: 'Пароль',
+            register: 'Зарегистрироваться',
+            registerLoading: 'Регистрация...',
+            surname: 'Фамилия',
+        };
+
     return (
         <form onSubmit={onSubmit} className={styles.form}>
             <div className={styles.field}>
                 <input
                     className={styles.input}
                     type="text"
-                    placeholder="Имя"
-                    aria-label="Имя"
+                    placeholder={copy.name}
+                    aria-label={copy.name}
                     autoComplete="given-name"
                     autoFocus
                     {...register('name')}
@@ -30,8 +50,8 @@ export const RegisterForm = () => {
                 <input
                     className={styles.input}
                     type="text"
-                    placeholder="Фамилия"
-                    aria-label="Фамилия"
+                    placeholder={copy.surname}
+                    aria-label={copy.surname}
                     autoComplete="family-name"
                     {...register('surname')}
                 />
@@ -44,8 +64,8 @@ export const RegisterForm = () => {
                 <input
                     className={styles.input}
                     type="email"
-                    placeholder="Почта"
-                    aria-label="Почта"
+                    placeholder={copy.email}
+                    aria-label={copy.email}
                     autoComplete="email"
                     {...register('email')}
                 />
@@ -58,8 +78,8 @@ export const RegisterForm = () => {
                 <input
                     className={styles.input}
                     type="password"
-                    placeholder="Пароль"
-                    aria-label="Пароль"
+                    placeholder={copy.password}
+                    aria-label={copy.password}
                     autoComplete="new-password"
                     {...register('password')}
                 />
@@ -72,7 +92,7 @@ export const RegisterForm = () => {
 
             <div className={styles.actions}>
                 <button className={styles.primaryButton} type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? 'Регистрация...' : 'Зарегистрироваться'}
+                    {isSubmitting ? copy.registerLoading : copy.register}
                 </button>
             </div>
         </form>

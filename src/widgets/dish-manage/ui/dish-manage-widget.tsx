@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Link, generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Footer } from '@/widgets/footer/Footer.tsx';
 import { getRestaurantById } from '@/entities/restaurant/api/get-restaurant-by-id.ts';
 import {
@@ -136,6 +136,17 @@ export const DishManageWidget = () => {
                             Ресторан: {restaurant?.name || 'Ресторан'}
                         </p>
                     </div>
+
+                    {dishId ? (
+                        <div className={pageStyles.actions}>
+                            <Link
+                                to={`${generatePath(RoutePaths.DISH, { id: dishId })}?restaurantId=${restaurantId}`}
+                                className={pageStyles.primaryLink}
+                            >
+                                Открыть страницу блюда
+                            </Link>
+                        </div>
+                    ) : null}
                 </div>
 
                 {flashMessage ? <div className={pageStyles.note}>{flashMessage}</div> : null}

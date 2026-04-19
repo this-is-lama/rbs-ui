@@ -5,6 +5,83 @@
   gap: 24px;
 }
 
+.stateHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+}
+
+.languageSwitch {
+  box-sizing: border-box;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: center;
+  gap: 0;
+  width: 132px;
+  min-height: 56px;
+  padding: 6px;
+  border: none;
+  border-radius: 999px;
+  background-color: rgba(17, 17, 17, 0.08);
+  color: $color-text-primary;
+  overflow: hidden;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.languageSwitch:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(17, 17, 17, 0.08);
+}
+
+.languageSwitch:focus-visible {
+  outline: 3px solid rgba(51, 76, 219, 0.22);
+  outline-offset: 4px;
+}
+
+.languageThumb {
+  position: absolute;
+  top: 6px;
+  left: 14px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: $color-white;
+  box-shadow:
+    0 10px 22px rgba(17, 17, 17, 0.08),
+    inset 0 0 0 1px rgba(17, 17, 17, 0.05);
+  transition: transform 0.24s ease;
+  z-index: 0;
+}
+
+.languageSwitchEn .languageThumb {
+  transform: translateX(60px);
+}
+
+.languageOption {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  font-size: 14px;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: rgba(17, 17, 17, 0.48);
+  transition: color 0.2s ease;
+}
+
+.languageOptionActive {
+  color: $color-primary;
+}
+
 .stateCard {
   display: grid;
   gap: 16px;
@@ -225,6 +302,10 @@
   .stateCard {
     padding: 24px 18px;
     border-radius: 28px;
+  }
+
+  .stateHeader {
+    align-items: center;
   }
 
   .stateTitle {

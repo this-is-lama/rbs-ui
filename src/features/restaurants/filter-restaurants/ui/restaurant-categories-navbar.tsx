@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '@/app/providers/auth/use-auth.ts';
+import { useLanguage } from '@/app/providers/language';
 import { getRestaurantCategories } from '@/entities/restaurant/api/get-restaurant-categories.ts';
 import { useRestaurantFilters } from '@/features/restaurants/filter-restaurants/model/use-restaurant-filters.ts';
 import { RoutePaths } from '@/shared/config/routes/routes.ts';
@@ -21,6 +22,7 @@ const buildCategoryPath = (category: string) => {
 
 export const RestaurantCategoriesNavbar = () => {
     const { user } = useAuth();
+    const { language } = useLanguage();
     const { filters, setCategory } = useRestaurantFilters();
     const location = useLocation();
     const isMySection = location.pathname === RoutePaths.MY_RESTAURANTS;
@@ -30,6 +32,22 @@ export const RestaurantCategoriesNavbar = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
 
+    const copy = language === 'en'
+        ? {
+            all: 'All',
+            categoriesAria: 'Restaurant categories',
+            categoriesError: 'Failed to load categories',
+            categoriesLoading: 'Loading categories...',
+            mine: 'Mine',
+        }
+        : {
+            all: 'Все',
+            categoriesAria: 'Категории ресторанов',
+            categoriesError: 'Не удалось загрузить категории',
+            categoriesLoading: 'Загрузка категорий...',
+            mine: 'Мои',
+        };
+
     useEffect(() => {
         const loadCategories = async () => {
             try {
@@ -38,17 +56,17 @@ export const RestaurantCategoriesNavbar = () => {
                 const response = await getRestaurantCategories();
                 setCategories(response);
             } catch {
-                setError('Не удалось загрузить категории');
+                setError(copy.categoriesError);
             } finally {
                 setIsLoading(false);
             }
         };
 
         void loadCategories();
-    }, []);
+    }, [copy.categoriesError]);
 
     if (isLoading) {
-        return <div>Загрузка категорий...</div>;
+        return <div>{copy.categoriesLoading}</div>;
     }
 
     if (error) {
@@ -57,20 +75,20 @@ export const RestaurantCategoriesNavbar = () => {
 
     return (
         <div className={styles.wrapper}>
-            <nav className={styles.navbar} aria-label="Категории ресторанов">
+            <nav className={styles.navbar} aria-label={copy.categoriesAria}>
                 {canOpenMySection ? (
                     <Link
                         to={RoutePaths.MY_RESTAURANTS}
                         className={`${styles.button} ${isMySection ? styles.buttonActive : ''}`}
                         aria-current={isMySection ? 'page' : undefined}
                     >
-                        Мои
+                        {copy.mine}
                     </Link>
                 ) : null}
 
                 {isMySection ? (
                     <Link to={RoutePaths.RESTAURANTS} className={styles.button}>
-                        Все
+                        {copy.all}
                     </Link>
                 ) : (
                     <button
@@ -79,7 +97,7 @@ export const RestaurantCategoriesNavbar = () => {
                         className={`${styles.button} ${filters.category === '' ? styles.buttonActive : ''}`}
                         aria-pressed={filters.category === ''}
                     >
-                        Все
+                        {copy.all}
                     </button>
                 )}
 

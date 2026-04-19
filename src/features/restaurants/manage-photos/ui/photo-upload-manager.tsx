@@ -5,6 +5,7 @@ import type {
     PhotoUploadDraft,
 } from '@/entities/restaurant/model/types.ts';
 import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
+import { useConfirmDialog } from '@/shared/ui/confirm-dialog/ConfirmDialogProvider.tsx';
 import styles from './photo-upload-manager.module.scss';
 
 type PhotoCategoryOption = {
@@ -47,6 +48,7 @@ export const PhotoUploadManager = ({
     const [isUploading, setIsUploading] = useState(false);
     const [deletingPhotoId, setDeletingPhotoId] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
+    const confirmDialog = useConfirmDialog();
 
     const expanded = typeof isOpen === 'boolean' ? isOpen : internalOpen;
 
@@ -120,7 +122,13 @@ export const PhotoUploadManager = ({
             return;
         }
 
-        if (!window.confirm('Удалить фотографию?')) {
+        const isConfirmed = await confirmDialog({
+            title: 'Удалить фотографию?',
+            description: 'Фотография будет удалена без возможности восстановления.',
+            confirmText: 'Удалить фото',
+        });
+
+        if (!isConfirmed) {
             return;
         }
 

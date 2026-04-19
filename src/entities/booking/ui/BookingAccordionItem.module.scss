@@ -184,6 +184,20 @@
   font-weight: 700;
 }
 
+.dishChipLink {
+  text-decoration: none;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.dishChipLink:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(17, 17, 17, 0.08);
+  background-color: rgba(51, 76, 219, 0.12);
+}
+
 .actionsRow {
   display: flex;
   justify-content: flex-end;

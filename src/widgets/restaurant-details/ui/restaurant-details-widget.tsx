@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { RestaurantManagerActions } from '@/features/restaurants/restaurant-manager-actions/ui/restaurant-manager-actions.tsx';
 import { RestaurantManagersSection } from '@/features/restaurants/restaurant-managers/ui/restaurant-managers-section.tsx';
+import { getRestaurantSchemeImageUrl } from '@/entities/restaurant/lib/get-restaurant-scheme-image-url.ts';
 import { RestaurantOrderConflictModal } from '@/shared/ui/restaurant-order-conflict-modal/RestaurantOrderConflictModal.tsx';
 import { useRestaurantOrderGuard } from '@/shared/lib/restaurant-order/use-restaurant-order-guard.ts';
 import { Footer } from '@/widgets/footer/Footer.tsx';
@@ -34,7 +35,6 @@ export const RestaurantDetailsWidget = () => {
         totalCartCount,
         totalCartAmount,
         placedTables,
-        notPlacedTables,
         canManageRestaurant,
         reloadRestaurant,
         handleAddDish,
@@ -131,10 +131,11 @@ export const RestaurantDetailsWidget = () => {
                 />
 
                 <RestaurantSchemeSection
+                    restaurantId={restaurant.id}
                     restaurantName={restaurant.name}
                     schemePhoto={schemePhoto}
                     placedTables={placedTables}
-                    notPlacedTables={notPlacedTables}
+                    canManageRestaurant={canManageRestaurant}
                     onSelectTable={setSelectedTable}
                 />
 
@@ -142,7 +143,7 @@ export const RestaurantDetailsWidget = () => {
                     <RestaurantBookingModal
                         restaurant={restaurant}
                         table={selectedTable}
-                        schemePhotoUrl={schemePhoto?.publicUrl ?? null}
+                        schemePhotoUrl={getRestaurantSchemeImageUrl(schemePhoto?.publicUrl ?? null)}
                         onClose={() => setSelectedTable(null)}
                         onAdded={handleBookingAdded}
                         onRequestAddToOrder={(onAccept) => {

@@ -264,7 +264,20 @@ export const DishDetailsWidget = () => {
                 )}
 
                 <div className={styles.headingBlock}>
-                    <h1 className={styles.title}>{dish.name}</h1>
+                    <div className={styles.headingMain}>
+                        <h1 className={styles.title}>{dish.name}</h1>
+                    </div>
+
+                    {restaurantId ? (
+                        <div className={styles.headingActions}>
+                            <Link
+                                to={generatePath(RoutePaths.RESTAURANT, { id: restaurantId })}
+                                className={styles.restaurantPageLink}
+                            >
+                                Открыть страницу ресторана
+                            </Link>
+                        </div>
+                    ) : null}
                 </div>
 
                 <article className={`${styles.card} ${styles.detailsCard}`}>

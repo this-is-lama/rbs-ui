@@ -8,6 +8,7 @@ import type { RestaurantManager } from '@/entities/restaurant/model/types.ts';
 import { lookupUserByEmail } from '@/entities/user/api/lookup-user-by-email.ts';
 import type { RestaurantLookupUser } from '@/entities/user/model/types.ts';
 import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
+import { useConfirmDialog } from '@/shared/ui/confirm-dialog/ConfirmDialogProvider.tsx';
 import styles from './restaurant-managers-section.module.scss';
 
 type RestaurantManagersSectionProps = {
@@ -50,6 +51,7 @@ export const RestaurantManagersSection = ({
     const [removingId, setRemovingId] = useState<string | null>(null);
     const [error, setError] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
+    const confirmDialog = useConfirmDialog();
 
     const loadManagers = useCallback(async () => {
         try {
@@ -113,7 +115,13 @@ export const RestaurantManagersSection = ({
     };
 
     const handleRemove = async (managerId: string) => {
-        if (!window.confirm('Удалить менеджера из ресторана?')) {
+        const isConfirmed = await confirmDialog({
+            title: 'Удалить менеджера?',
+            description: 'Пользователь потеряет доступ к управлению этим рестораном.',
+            confirmText: 'Удалить менеджера',
+        });
+
+        if (!isConfirmed) {
             return;
         }
 

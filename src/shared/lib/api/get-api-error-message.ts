@@ -3,17 +3,20 @@ import type { ApiErrorResponse } from '@/shared/api';
 
 export const getApiErrorMessage = (
     error: unknown,
-    fallback = 'Произошла ошибка',
+    fallback?: string,
 ): string => {
+    const isEnglish = typeof document !== 'undefined' && document.documentElement.lang === 'en';
+    const resolvedFallback = fallback || (isEnglish ? 'Something went wrong' : 'Произошла ошибка');
+
     if (!axios.isAxiosError(error)) {
-        return fallback;
+        return resolvedFallback;
     }
 
     const data = error.response?.data as ApiErrorResponse | undefined;
 
     if (!data) {
-        return 'Не удалось связаться с сервером';
+        return isEnglish ? 'Failed to connect to the server' : 'Не удалось связаться с сервером';
     }
 
-    return data.message || fallback;
+    return data.message || resolvedFallback;
 };

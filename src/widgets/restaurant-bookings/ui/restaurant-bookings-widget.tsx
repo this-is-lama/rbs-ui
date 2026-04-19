@@ -1,11 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
-import { generatePath, useNavigate, useParams } from 'react-router-dom';
-import { Footer } from '@/widgets/footer/Footer.tsx';
-import { getBookingById } from '@/entities/booking/api/get-booking-by-id.ts';
-import {
-    formatBookingAmount,
-    getBookingStatusLabel,
-} from '@/entities/booking/lib/format-booking.ts';
+import { Link, generatePath, useNavigate, useParams } from 'react-router-dom';
+import { useLanguage } from '@/app/providers/language';
 import {
     formatBookingDate,
     formatBookingTimeRange,
@@ -14,37 +9,97 @@ import {
     isBookingPast,
     resolveBookingTable,
 } from '@/entities/booking/lib/booking-details.ts';
-import type { Booking } from '@/entities/booking/model/types.ts';
+import {
+    formatBookingAmount,
+    getBookingStatusLabel,
+} from '@/entities/booking/lib/format-booking.ts';
+import type { ManagerBookingListItem } from '@/entities/booking/model/types.ts';
 import { BookingAccordionItem } from '@/entities/booking/ui/booking-accordion-item.tsx';
 import bookingPanelStyles from '@/entities/booking/ui/BookingAccordionItem.module.scss';
 import { getRestaurantById } from '@/entities/restaurant/api/get-restaurant-by-id.ts';
 import { getRestaurantBookingsForManager } from '@/entities/restaurant/api/management.ts';
 import type { Restaurant } from '@/entities/restaurant/model/types.ts';
 import { CancelManagerBookingButton } from '@/features/booking/cancel-booking/ui/cancel-manager-booking-button.tsx';
-import { formatBookingDateTime } from '@/shared/lib/date/booking-date.ts';
-import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
 import { RoutePaths } from '@/shared/config/routes/routes.ts';
-import pageStyles from '@/widgets/restaurant-management/shared/ManagerPage.module.scss';
+import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
+import { formatBookingDateTime } from '@/shared/lib/date/booking-date.ts';
+import { Footer } from '@/widgets/footer/Footer.tsx';
 import bookingStyles from '@/widgets/booking-page/ui/BookingPageWidget.module.scss';
+import pageStyles from '@/widgets/restaurant-management/shared/ManagerPage.module.scss';
 import styles from './RestaurantBookingsWidget.module.scss';
 
-const getStatusTone = (status: Booking['status']) => {
+const getStatusTone = (status: ManagerBookingListItem['status']) => {
     return status === 'CANCELLED' ? 'cancelled' : 'reserved';
 };
 
 export const RestaurantBookingsWidget = () => {
+    const { language } = useLanguage();
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
     const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
-    const [bookings, setBookings] = useState<Booking[]>([]);
+    const [bookings, setBookings] = useState<ManagerBookingListItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
     const [actionError, setActionError] = useState('');
     const [expandedBookingId, setExpandedBookingId] = useState<string | null>(null);
 
+    const copy = language === 'en'
+        ? {
+            bookingsTitle: 'Restaurant bookings',
+            comment: 'Comment',
+            contacts: 'Guest contacts',
+            createdAt: 'Created at',
+            empty: 'This restaurant has no bookings yet',
+            fallbackRestaurant: 'Restaurant',
+            guest: 'Guest',
+            guests: 'Guests',
+            guestsSummary: (guests: number) => `Guests: ${guests}`,
+            loadError: 'Failed to load bookings',
+            loadRestaurantIdError: 'Restaurant identifier not found',
+            loading: 'Loading bookings...',
+            notFoundRestaurant: 'Restaurant not found',
+            notSpecified: 'Not specified',
+            openRestaurant: 'Open restaurant page',
+            orderedDishes: 'Ordered dishes',
+            phone: 'Phone',
+            price: 'Total amount',
+            tableHint: 'Click to open the floor plan',
+            tableMissing: 'Table not found',
+            tableOpenAria: (label: string) => `Open the floor plan for ${label}`,
+            tableSubtitleCapacity: (capacity: number) => `Capacity: ${capacity}`,
+            time: 'Time',
+            date: 'Date',
+        }
+        : {
+            bookingsTitle: 'Бронирования ресторана',
+            comment: 'Комментарий',
+            contacts: 'Контакты гостя',
+            createdAt: 'Создано',
+            empty: 'У этого ресторана пока нет бронирований',
+            fallbackRestaurant: 'Ресторан',
+            guest: 'Гость',
+            guests: 'Гостей',
+            guestsSummary: (guests: number) => `Гостей: ${guests}`,
+            loadError: 'Не удалось загрузить бронирования',
+            loadRestaurantIdError: 'Не найден идентификатор ресторана',
+            loading: 'Загрузка бронирований...',
+            notFoundRestaurant: 'Не найден ресторан',
+            notSpecified: 'Не указан',
+            openRestaurant: 'Открыть страницу ресторана',
+            orderedDishes: 'Заказанные блюда',
+            phone: 'Телефон',
+            price: 'Итоговая сумма',
+            tableHint: 'Нажмите, чтобы открыть схему зала',
+            tableMissing: 'Стол не найден',
+            tableOpenAria: (label: string) => `Открыть схему ресторана для ${label}`,
+            tableSubtitleCapacity: (capacity: number) => `Вместимость: ${capacity}`,
+            time: 'Время',
+            date: 'Дата',
+        };
+
     const loadData = useCallback(async () => {
         if (!id) {
-            setError('Не найден идентификатор ресторана');
+            setError(copy.loadRestaurantIdError);
             setIsLoading(false);
             return;
         }
@@ -59,26 +114,16 @@ export const RestaurantBookingsWidget = () => {
                 getRestaurantBookingsForManager(id),
             ]);
 
-            const detailedBookings = await Promise.all(
-                bookingsResponse.map(async (booking) => {
-                    try {
-                        return await getBookingById(booking.id);
-                    } catch {
-                        return booking;
-                    }
-                }),
-            );
-
             setRestaurant(restaurantResponse);
-            setBookings(detailedBookings);
+            setBookings(bookingsResponse);
         } catch (requestError) {
-            setError(getApiErrorMessage(requestError, 'Не удалось загрузить бронирования'));
+            setError(getApiErrorMessage(requestError, copy.loadError));
             setBookings([]);
             setRestaurant(null);
         } finally {
             setIsLoading(false);
         }
-    }, [id]);
+    }, [copy.loadError, copy.loadRestaurantIdError, id]);
 
     useEffect(() => {
         void loadData();
@@ -99,7 +144,7 @@ export const RestaurantBookingsWidget = () => {
     if (isLoading) {
         return (
             <div className={`container ${pageStyles.page}`}>
-                <div className={pageStyles.state}>Загрузка бронирований...</div>
+                <div className={pageStyles.state}>{copy.loading}</div>
             </div>
         );
     }
@@ -107,7 +152,7 @@ export const RestaurantBookingsWidget = () => {
     if (error || !id) {
         return (
             <div className={`container ${pageStyles.page}`}>
-                <div className={pageStyles.state}>{error || 'Не найден ресторан'}</div>
+                <div className={pageStyles.state}>{error || copy.notFoundRestaurant}</div>
             </div>
         );
     }
@@ -117,25 +162,35 @@ export const RestaurantBookingsWidget = () => {
             <section className={`container ${pageStyles.section}`}>
                 <div className={pageStyles.header}>
                     <div className={pageStyles.titleBlock}>
-                        <h1 className={pageStyles.title}>Бронирования ресторана</h1>
+                        <h1 className={pageStyles.title}>{copy.bookingsTitle}</h1>
                         <p className={pageStyles.subtitle}>
-                            {restaurant?.name || 'Ресторан'}
+                            {restaurant?.name || copy.fallbackRestaurant}
                         </p>
+                    </div>
+
+                    <div className={pageStyles.actions}>
+                        <Link
+                            to={generatePath(RoutePaths.RESTAURANT, { id })}
+                            className={pageStyles.primaryLink}
+                        >
+                            {copy.openRestaurant}
+                        </Link>
                     </div>
                 </div>
 
                 {actionError ? <div className={styles.error}>{actionError}</div> : null}
 
                 {bookings.length === 0 ? (
-                    <div className={pageStyles.state}>У этого ресторана пока нет бронирований</div>
+                    <div className={pageStyles.state}>{copy.empty}</div>
                 ) : (
                     <div className={bookingPanelStyles.list}>
                         {bookings.map((booking) => {
                             const isExpanded = expandedBookingId === booking.id;
                             const selectedTable = resolveBookingTable(booking, restaurant);
+                            const selectedTableLabel = getBookingTableLabel(booking, restaurant);
                             const selectedTableSubtitle = selectedTable
                                 ? [
-                                    `Вместимость: ${selectedTable.capacity}`,
+                                    copy.tableSubtitleCapacity(selectedTable.capacity),
                                     selectedTable.description?.trim() || null,
                                 ].filter(Boolean).join(' • ')
                                 : '';
@@ -153,9 +208,12 @@ export const RestaurantBookingsWidget = () => {
                                     dimmed={isPast}
                                     onToggle={() => {
                                         setExpandedBookingId((currentValue) => {
-                                            return currentValue === booking.id
-                                                ? null
-                                                : booking.id;
+                                            if (currentValue === booking.id) {
+                                                return null;
+                                            }
+
+                                            console.log('Restaurant booking data:', booking);
+                                            return booking.id;
                                         });
                                     }}
                                     statusLabel={getBookingStatusLabel(booking.status)}
@@ -166,10 +224,10 @@ export const RestaurantBookingsWidget = () => {
                                                 {formatBookingDateTime(booking.startAt)}
                                             </span>
                                             <span className={bookingPanelStyles.summaryChip}>
-                                                {getBookingTableLabel(booking, restaurant)}
+                                                {selectedTableLabel}
                                             </span>
                                             <span className={bookingPanelStyles.summaryChip}>
-                                                Гостей: {booking.guests}
+                                                {copy.guestsSummary(booking.guests)}
                                             </span>
                                         </>
                                     )}
@@ -181,7 +239,7 @@ export const RestaurantBookingsWidget = () => {
                                             >
                                                 <div className={bookingPanelStyles.infoCardHead}>
                                                     <span className={bookingPanelStyles.infoEyebrow}>
-                                                        Гость
+                                                        {copy.guest}
                                                     </span>
                                                     <h3 className={bookingPanelStyles.infoName}>
                                                         {guestInfo.fullName}
@@ -189,17 +247,17 @@ export const RestaurantBookingsWidget = () => {
                                                     <p className={bookingPanelStyles.infoMeta}>
                                                         {guestInfo.userId
                                                             ? `ID: ${guestInfo.userId}`
-                                                            : 'Контакты гостя'}
+                                                            : copy.contacts}
                                                     </p>
                                                 </div>
 
                                                 <div className={bookingPanelStyles.infoGrid}>
                                                     <div className={bookingPanelStyles.infoRow}>
                                                         <span className={bookingPanelStyles.infoLabel}>
-                                                            Телефон
+                                                            {copy.phone}
                                                         </span>
                                                         <span className={bookingPanelStyles.infoValue}>
-                                                            {guestInfo.phone || 'Не указан'}
+                                                            {guestInfo.phone || copy.notSpecified}
                                                         </span>
                                                     </div>
 
@@ -208,13 +266,13 @@ export const RestaurantBookingsWidget = () => {
                                                             Email
                                                         </span>
                                                         <span className={bookingPanelStyles.infoValue}>
-                                                            {guestInfo.email || 'Не указан'}
+                                                            {guestInfo.email || copy.notSpecified}
                                                         </span>
                                                     </div>
 
                                                     <div className={bookingPanelStyles.infoRow}>
                                                         <span className={bookingPanelStyles.infoLabel}>
-                                                            Создано
+                                                            {copy.createdAt}
                                                         </span>
                                                         <span className={bookingPanelStyles.infoValue}>
                                                             {formatBookingDateTime(booking.createdAt)}
@@ -239,12 +297,12 @@ export const RestaurantBookingsWidget = () => {
                                                     }}
                                                     role="link"
                                                     tabIndex={0}
-                                                    aria-label={`Открыть схему ресторана для ${getBookingTableLabel(booking, restaurant)}`}
+                                                    aria-label={copy.tableOpenAria(selectedTableLabel)}
                                                 >
                                                     <div className={bookingStyles.selectedTableContent}>
                                                         <div className={bookingStyles.selectedTableHead}>
                                                             <h3 className={bookingStyles.selectedTableTitle}>
-                                                                Стол №{selectedTable.tableNumber}
+                                                                {selectedTableLabel}
                                                             </h3>
                                                             <p className={bookingStyles.selectedTableSubtitle}>
                                                                 {selectedTableSubtitle}
@@ -254,7 +312,7 @@ export const RestaurantBookingsWidget = () => {
                                                         <div className={bookingStyles.tableInfoList}>
                                                             <div className={bookingStyles.tableInfoRow}>
                                                                 <span className={bookingStyles.tableInfoLabel}>
-                                                                    Дата
+                                                                    {copy.date}
                                                                 </span>
                                                                 <span className={bookingStyles.tableInfoValue}>
                                                                     {formatBookingDate(booking.startAt)}
@@ -263,7 +321,7 @@ export const RestaurantBookingsWidget = () => {
 
                                                             <div className={bookingStyles.tableInfoRow}>
                                                                 <span className={bookingStyles.tableInfoLabel}>
-                                                                    Время
+                                                                    {copy.time}
                                                                 </span>
                                                                 <span className={bookingStyles.tableInfoValue}>
                                                                     {formatBookingTimeRange(
@@ -275,7 +333,7 @@ export const RestaurantBookingsWidget = () => {
 
                                                             <div className={bookingStyles.tableInfoRow}>
                                                                 <span className={bookingStyles.tableInfoLabel}>
-                                                                    Гостей
+                                                                    {copy.guests}
                                                                 </span>
                                                                 <span className={bookingStyles.tableInfoValue}>
                                                                     {booking.guests}
@@ -284,7 +342,7 @@ export const RestaurantBookingsWidget = () => {
                                                         </div>
 
                                                         <div className={bookingStyles.tableActionHint}>
-                                                            Нажмите, чтобы открыть схему зала
+                                                            {copy.tableHint}
                                                         </div>
                                                     </div>
                                                 </article>
@@ -292,44 +350,47 @@ export const RestaurantBookingsWidget = () => {
                                                 <article
                                                     className={`${bookingStyles.card} ${bookingStyles.stateCard}`}
                                                 >
-                                                    Стол не найден
+                                                    {copy.tableMissing}
                                                 </article>
                                             )}
                                         </div>
                                     </div>
 
                                     <div className={bookingPanelStyles.footer}>
+                                        {orderedDishes.length > 0 ? (
+                                            <div className={bookingPanelStyles.dishesBlock}>
+                                                <span className={bookingPanelStyles.dishesTitle}>
+                                                    {copy.orderedDishes}
+                                                </span>
+                                                <div className={bookingPanelStyles.dishesList}>
+                                                    {orderedDishes.map((dish) => (
+                                                        <Link
+                                                            key={dish.id}
+                                                            to={`${generatePath(RoutePaths.DISH, {
+                                                                id: dish.dishId,
+                                                            })}?restaurantId=${id}`}
+                                                            className={`${bookingPanelStyles.dishChip} ${bookingPanelStyles.dishChipLink}`}
+                                                        >
+                                                            {dish.name} × {dish.quantity}
+                                                        </Link>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ) : null}
+
                                         <div className={bookingPanelStyles.priceBlock}>
                                             <span className={bookingPanelStyles.priceLabel}>
-                                                Итоговая сумма
+                                                {copy.price}
                                             </span>
                                             <strong className={bookingPanelStyles.priceValue}>
                                                 {formatBookingAmount(booking.totalAmount)}
                                             </strong>
                                         </div>
 
-                                        {orderedDishes.length > 0 ? (
-                                            <div className={bookingPanelStyles.dishesBlock}>
-                                                <span className={bookingPanelStyles.dishesTitle}>
-                                                    Заказанные блюда
-                                                </span>
-                                                <div className={bookingPanelStyles.dishesList}>
-                                                    {orderedDishes.map((dish) => (
-                                                        <span
-                                                            key={dish.id}
-                                                            className={bookingPanelStyles.dishChip}
-                                                        >
-                                                            {dish.name} × {dish.quantity}
-                                                        </span>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        ) : null}
-
                                         {booking.comment?.trim() ? (
                                             <div className={bookingPanelStyles.infoBlock}>
                                                 <span className={bookingPanelStyles.infoTitle}>
-                                                    Комментарий
+                                                    {copy.comment}
                                                 </span>
                                                 <p className={bookingPanelStyles.infoText}>
                                                     {booking.comment}
