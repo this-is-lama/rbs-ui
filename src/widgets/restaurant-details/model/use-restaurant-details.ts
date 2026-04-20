@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useAuth } from '@/app/providers/auth/use-auth.ts';
+import { useAuth } from '@/app/providers/auth';
 import { useLanguage } from '@/app/providers/language';
-import { getRestaurantById } from '@/entities/restaurant/api/get-restaurant-by-id.ts';
-import { checkRestaurantManagerAccess } from '@/entities/restaurant/api/management.ts';
-import type { Dish, Photo, RestaurantTable, WorkingHours } from '@/entities/restaurant/model/types.ts';
-import { getPhotoByCategory } from '@/entities/restaurant/lib/get-photo-by-category.ts';
-import { dishCartStorage } from '@/shared/dish-cart/dish-cart.ts';
-import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
-import { bookingCartStorage } from '@/shared/lib/booking-cart/booking-cart.ts';
-import { canManageRestaurants, isAdminRole } from '@/shared/lib/auth/roles.ts';
+import { getRestaurantById } from '@/entities/restaurant/api';
+import { checkRestaurantManagerAccess } from '@/entities/restaurant/api';
+import type { Dish, Photo, RestaurantTable, WorkingHours } from '@/entities/restaurant/model';
+import { getPhotoByCategory } from '@/entities/restaurant/lib';
+import { dishCartStorage } from '@/shared/dish-cart';
+import { getApiErrorMessage } from '@/shared/lib/api';
+import { bookingCartStorage } from '@/shared/lib/booking-cart';
+import { canManageRestaurants, isAdminRole } from '@/shared/lib/auth';
 import type { NormalizedRestaurant, RestaurantDishCounters } from './types.ts';
 import {
     getTodayWeekDay,

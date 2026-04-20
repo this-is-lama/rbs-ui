@@ -1,4 +1,4 @@
-import { RestaurantManageWidget } from '@/widgets/restaurant-manage/ui/restaurant-manage-widget.tsx';
+import { RestaurantManageWidget } from '@/widgets/restaurant-manage';
 
 export const RestaurantManagePage = () => {
     return <RestaurantManageWidget />;

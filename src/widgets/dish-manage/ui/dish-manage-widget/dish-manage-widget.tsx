@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link, generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useLanguage } from '@/app/providers/language';
-import { Footer } from '@/widgets/footer/Footer.tsx';
-import { getRestaurantById } from '@/entities/restaurant/api/get-restaurant-by-id.ts';
+import { Footer } from '@/widgets/footer';
+import { getRestaurantById } from '@/entities/restaurant/api';
 import {
     createDish,
     deleteDish,
@@ -14,13 +14,13 @@ import type {
     DishManageRequest,
     Restaurant,
 } from '@/entities/restaurant/model/types.ts';
-import { DishManageForm } from '@/features/restaurants/manage-dish/ui/dish-manage-form.tsx';
+import { DishManageForm } from '@/features/restaurants/manage-dish';
 import {
     createDefaultDishManageFormValues,
     mapDishToManageFormValues,
 } from '@/features/restaurants/manage-dish/model/dish-manage.schema.ts';
-import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
-import { RoutePaths } from '@/shared/config/routes/routes.ts';
+import { getApiErrorMessage } from '@/shared/lib/api';
+import { RoutePaths } from '@/shared/config/routes';
 import pageStyles from '@/widgets/restaurant-management/shared/ManagerPage.module.scss';
 
 type LocationState = {

@@ -1,4 +1,4 @@
-import { ProfileEditWidget } from '@/widgets/profile-edit/ui/profile-edit-widget.tsx';
+import { ProfileEditWidget } from '@/widgets/profile-edit';
 
 export const ProfileEditPage = () => {
     return <ProfileEditWidget />;

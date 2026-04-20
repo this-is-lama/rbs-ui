@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import { DEFAULT_APP_LANGUAGE, resolveIntlLocale, type AppLanguage } from '@/shared/config/language.ts';
+import { DEFAULT_APP_LANGUAGE, resolveIntlLocale, type AppLanguage } from '@/shared/config';
 
 export type LanguageContextValue = {
     language: AppLanguage;

@@ -1,16 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLanguage } from '@/app/providers/language';
-import { getRestaurants } from '@/entities/restaurant/api/get-restaurants.ts';
-import type { RestaurantCard as RestaurantCardType } from '@/entities/restaurant/model/types.ts';
-import { useRestaurantFilters } from '@/features/restaurants/filter-restaurants/model/use-restaurant-filters.ts';
+import { getRestaurants } from '@/entities/restaurant/api';
+import type { RestaurantCard as RestaurantCardType } from '@/entities/restaurant/model';
+import { useRestaurantFilters } from '@/features/restaurants/filter-restaurants/model';
 import { RestaurantCard } from '@/entities/restaurant/ui';
 import {
     RestaurantCategoriesNavbar,
     RestaurantsFilterForm,
 } from '@/features/restaurants/filter-restaurants/ui';
 import type { PageResponse } from '@/shared/api';
-import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
-import { Footer } from '@/widgets/footer/Footer';
+import { getApiErrorMessage } from '@/shared/lib/api';
+import { Footer } from '@/widgets/footer';
 import styles from './RestaurantCatalogWidget.module.scss';
 
 type PaginationItem = number | 'ellipsis-left' | 'ellipsis-right';

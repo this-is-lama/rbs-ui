@@ -26,3 +26,4 @@ export const AuthShell = ({ title, message, children }: AuthShellProps) => {
         </section>
     );
 };
+

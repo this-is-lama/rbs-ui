@@ -1,19 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLanguage } from '@/app/providers/language';
 import { createBooking } from '@/entities/booking/api/create-booking.ts';
-import type { BookingCartItem } from '@/entities/booking/model/types.ts';
-import { getRestaurantById } from '@/entities/restaurant/api/get-restaurant-by-id.ts';
-import { buildRestaurantCard } from '@/entities/restaurant/lib/build-restaurant-card.ts';
+import type { BookingCartItem } from '@/entities/booking/model';
+import { getRestaurantById } from '@/entities/restaurant/api';
+import { buildRestaurantCard } from '@/entities/restaurant/lib';
 import type {
     Dish,
     Photo,
     Restaurant,
     RestaurantTable,
 } from '@/entities/restaurant/model/types.ts';
-import { resolveIntlLocale } from '@/shared/config/language.ts';
-import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
-import { bookingCartStorage } from '@/shared/lib/booking-cart/booking-cart.ts';
-import { dishCartStorage, type DishCartItem } from '@/shared/dish-cart/dish-cart.ts';
+import { resolveIntlLocale } from '@/shared/config';
+import { getApiErrorMessage } from '@/shared/lib/api';
+import { bookingCartStorage } from '@/shared/lib/booking-cart';
+import { dishCartStorage, type DishCartItem } from '@/shared/dish-cart';
 import type { BookingPageDishCardItem } from '../../model/types.ts';
 import { BookingOrderSection } from '../booking-order-section';
 import { BookingSummaryCard } from '../booking-summary-card';

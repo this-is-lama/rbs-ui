@@ -3,9 +3,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useLanguage } from '@/app/providers/language';
-import { useAuth } from '@/app/providers/auth/use-auth.ts';
-import { loginUser } from '@/features/user/auth/login/api/login.ts';
-import { RoutePaths } from '@/shared/config/routes/routes.ts';
+import { useAuth } from '@/app/providers/auth';
+import { loginUser } from '@/features/user/auth/login/api';
+import { RoutePaths } from '@/shared/config/routes';
 import { getErrorMessage } from '../lib/get-error-message';
 import { createLoginSchema, type LoginFormValues } from '../lib/login.schema';
 

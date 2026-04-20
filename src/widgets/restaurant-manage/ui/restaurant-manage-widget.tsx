@@ -1,20 +1,20 @@
 import { useEffect, useMemo, useState } from 'react';
 import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useLanguage } from '@/app/providers/language';
-import { getRestaurantById } from '@/entities/restaurant/api/get-restaurant-by-id.ts';
+import { getRestaurantById } from '@/entities/restaurant/api';
 import {
     createRestaurant,
     updateRestaurant,
 } from '@/entities/restaurant/api/management.ts';
-import type { Restaurant, RestaurantManageRequest } from '@/entities/restaurant/model/types.ts';
+import type { Restaurant, RestaurantManageRequest } from '@/entities/restaurant/model';
 import {
     createDefaultRestaurantManageFormValues,
     mapRestaurantToManageFormValues,
 } from '@/features/restaurants/manage-restaurant/model/restaurant-manage.schema.ts';
-import { RestaurantManageForm } from '@/features/restaurants/manage-restaurant/ui/restaurant-manage-form.tsx';
-import { RoutePaths } from '@/shared/config/routes/routes.ts';
-import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
-import { Footer } from '@/widgets/footer/Footer.tsx';
+import { RestaurantManageForm } from '@/features/restaurants/manage-restaurant';
+import { RoutePaths } from '@/shared/config/routes';
+import { getApiErrorMessage } from '@/shared/lib/api';
+import { Footer } from '@/widgets/footer';
 import pageStyles from '@/widgets/restaurant-management/shared/ManagerPage.module.scss';
 
 type LocationState = {

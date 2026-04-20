@@ -1,4 +1,4 @@
-import { apiClient } from '@/shared/api/api-client.ts';
+import { apiClient } from '@/shared/api';
 import type {RegisterRequest} from './types.ts';
 
 export const registerUser = async (data: RegisterRequest): Promise<string> => {

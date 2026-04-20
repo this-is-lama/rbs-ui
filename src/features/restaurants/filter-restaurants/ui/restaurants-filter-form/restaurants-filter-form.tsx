@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useLanguage } from '@/app/providers/language';
-import { useRestaurantFilters } from '@/features/restaurants/filter-restaurants/model/use-restaurant-filters.ts';
+import { useRestaurantFilters } from '@/features/restaurants/filter-restaurants/model';
 import styles from './restaurants-filter-form.module.scss';
 
 type RestaurantFiltersFormValues = {

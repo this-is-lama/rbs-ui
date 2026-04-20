@@ -1,6 +1,6 @@
 import { useLanguage } from '@/app/providers/language';
-import { ChangePasswordForm } from '@/features/user/change-password/ui/change-password-form.tsx';
-import { EditProfileForm } from '@/features/user/edit-profile/ui/edit-profile-form.tsx';
+import { ChangePasswordForm } from '@/features/user/change-password';
+import { EditProfileForm } from '@/features/user/edit-profile';
 import styles from './ProfileEditWidget.module.scss';
 
 export const ProfileEditWidget = () => {

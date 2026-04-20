@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/app/providers/language';
-import type { ManagerRestaurantCard as ManagerRestaurantCardType } from '@/entities/restaurant/model/types.ts';
-import { getMyRestaurants } from '@/entities/restaurant/api/management.ts';
+import type { ManagerRestaurantCard as ManagerRestaurantCardType } from '@/entities/restaurant/model';
+import { getMyRestaurants } from '@/entities/restaurant/api';
 import { ManagerRestaurantCard } from '@/entities/restaurant/ui';
 import cardStyles from '@/entities/restaurant/ui/restaurant-card/restaurant-card.module.scss';
 import { RestaurantCategoriesNavbar } from '@/features/restaurants/filter-restaurants/ui';
-import { RoutePaths } from '@/shared/config/routes/routes.ts';
-import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
-import { PlusIcon } from '@/shared/ui/icons/action-icons.tsx';
-import { Footer } from '@/widgets/footer/Footer.tsx';
+import { RoutePaths } from '@/shared/config/routes';
+import { getApiErrorMessage } from '@/shared/lib/api';
+import { PlusIcon } from '@/shared/ui/icons';
+import { Footer } from '@/widgets/footer';
 import styles from './MyRestaurantsWidget.module.scss';
 
 const MY_RESTAURANTS_PAGE_SIZE = 50;

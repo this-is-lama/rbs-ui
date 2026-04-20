@@ -1175,3 +1175,4 @@ export const RestaurantLayoutWidget = () => {
         </div>
     );
 };
+

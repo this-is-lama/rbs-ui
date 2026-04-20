@@ -1,7 +1,7 @@
-import { resolveBookingTable } from '@/entities/booking/lib/booking-details.ts';
-import type { Booking } from '@/entities/booking/model/types.ts';
-import type { Restaurant } from '@/entities/restaurant/model/types.ts';
-import { resolveIntlLocale, type AppLanguage } from '@/shared/config/language.ts';
+import { resolveBookingTable } from '@/entities/booking/lib';
+import type { Booking } from '@/entities/booking/model';
+import type { Restaurant } from '@/entities/restaurant/model';
+import { resolveIntlLocale, type AppLanguage } from '@/shared/config';
 import type { ProfilePageCopy } from '../model/profile-page-copy.ts';
 
 export const getRestaurantIdentifier = (booking: Booking) => {

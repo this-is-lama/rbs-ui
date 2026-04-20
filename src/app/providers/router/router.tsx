@@ -15,8 +15,8 @@ import {
     RestaurantPage,
     RestaurantsPage,
 } from '@/pages';
-import { ProfileEditPage } from '@/pages/profile-edit-page/ProfileEditPage.tsx';
-import { RoutePaths } from '@/shared/config/routes/routes.ts';
+import { ProfileEditPage } from '@/pages';
+import { RoutePaths } from '@/shared/config/routes';
 import { AuthLayout, HomeLayout, MainLayout } from '@/shared/ui/layouts';
 import { GuestOnlyRoute } from './guest-only-route.tsx';
 import { ProtectedRoute } from './protected-route.tsx';

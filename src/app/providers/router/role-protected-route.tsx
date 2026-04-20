@@ -1,7 +1,7 @@
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { useAuth } from '@/app/providers/auth/use-auth.ts';
-import { RoutePaths } from '@/shared/config/routes/routes.ts';
-import { canManageRestaurants } from '@/shared/lib/auth/roles.ts';
+import { useAuth } from '@/app/providers/auth';
+import { RoutePaths } from '@/shared/config/routes';
+import { canManageRestaurants } from '@/shared/lib/auth';
 
 type RoleProtectedRouteProps = {
     allowedRoles?: string[];

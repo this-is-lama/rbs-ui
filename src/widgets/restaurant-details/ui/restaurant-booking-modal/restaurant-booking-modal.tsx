@@ -687,3 +687,4 @@ export const RestaurantBookingModal = ({
         </div>
     );
 };
+

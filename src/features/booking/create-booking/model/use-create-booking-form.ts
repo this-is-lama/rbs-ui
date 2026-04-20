@@ -2,11 +2,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { createBookingSchema, type CreateBookingFormValues } from './create-booking.schema.ts';
-import type { Booking } from '@/entities/booking/model/types.ts';
-import type { Restaurant, RestaurantCard } from '@/entities/restaurant/model/types.ts';
-import { createBooking } from '@/entities/booking/api/create-booking.ts';
-import { getRestaurantById } from '@/entities/restaurant/api/get-restaurant-by-id.ts';
-import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
+import type { Booking } from '@/entities/booking/model';
+import type { Restaurant, RestaurantCard } from '@/entities/restaurant/model';
+import { createBooking } from '@/entities/booking/api';
+import { getRestaurantById } from '@/entities/restaurant/api';
+import { getApiErrorMessage } from '@/shared/lib/api';
 import { fromDateTimeLocalValue, getDefaultBookingRange } from '@/shared/lib/date/booking-date.ts';
 
 type UseCreateBookingFormParams = {

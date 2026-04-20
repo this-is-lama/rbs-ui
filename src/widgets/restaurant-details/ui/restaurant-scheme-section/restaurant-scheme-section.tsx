@@ -105,3 +105,4 @@ export const RestaurantSchemeSection = ({
         </section>
     );
 };
+

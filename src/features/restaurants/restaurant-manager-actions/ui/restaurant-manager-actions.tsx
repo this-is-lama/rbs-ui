@@ -1,6 +1,6 @@
 import { Link, generatePath } from 'react-router-dom';
 import { useLanguage } from '@/app/providers/language';
-import { RoutePaths } from '@/shared/config/routes/routes.ts';
+import { RoutePaths } from '@/shared/config/routes';
 import styles from './restaurant-manager-actions.module.scss';
 
 type RestaurantManagerActionsProps = {

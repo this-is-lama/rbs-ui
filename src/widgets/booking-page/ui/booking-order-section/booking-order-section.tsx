@@ -1,13 +1,13 @@
 import { Link, generatePath, useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/app/providers/language';
-import type { BookingCartItem } from '@/entities/booking/model/types.ts';
+import type { BookingCartItem } from '@/entities/booking/model';
 import type {
     RestaurantCard as RestaurantCardType,
     RestaurantTable,
 } from '@/entities/restaurant/model/types.ts';
 import { RestaurantCard } from '@/entities/restaurant/ui';
-import { resolveIntlLocale } from '@/shared/config/language.ts';
-import { RoutePaths } from '@/shared/config/routes/routes.ts';
+import { resolveIntlLocale } from '@/shared/config';
+import { RoutePaths } from '@/shared/config/routes';
 import layoutStyles from '@/shared/ui/booking-order-layout/booking-order-layout.module.scss';
 import { BookingTableCard } from '@/shared/ui/booking-table-card';
 import styles from '../booking-page-widget/booking-page-widget.module.scss';

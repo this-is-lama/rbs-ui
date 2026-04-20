@@ -9,3 +9,4 @@ export const isAdminRole = (role?: string | null): role is 'ROLE_ADMIN' => {
 export const canManageRestaurants = (role?: string | null): role is UserRole => {
     return role === 'ROLE_MANAGER' || role === 'ROLE_ADMIN';
 };
+

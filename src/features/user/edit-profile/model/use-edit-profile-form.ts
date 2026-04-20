@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { editProfileSchema, type EditProfileFormValues } from './edit-profile.schema.ts';
-import { updateUserProfile } from '@/entities/user/api/update-user-profile.ts';
-import { useAuth } from '@/app/providers/auth/use-auth.ts';
+import { updateUserProfile } from '@/entities/user/api';
+import { useAuth } from '@/app/providers/auth';
 import { getErrorMessage } from '../lib/get-error-message.ts';
-import { RoutePaths } from '@/shared/config/routes/routes.ts';
+import { RoutePaths } from '@/shared/config/routes';
 
 export const useEditProfileForm = () => {
     const navigate = useNavigate();

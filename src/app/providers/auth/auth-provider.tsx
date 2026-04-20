@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState, type PropsWithChildren } from 'react';
-import { tokenStorage } from '@/shared/lib/token-storage/token-storage.ts';
-import { getUserProfile } from '@/entities/user/api/get-user-profile.ts';
-import { logoutUser } from '@/features/user/auth/logout/api/logout.ts';
-import type { UserProfile } from '@/entities/user/model/types';
+import { tokenStorage } from '@/shared/lib/token-storage';
+import { getUserProfile } from '@/entities/user/api';
+import { logoutUser } from '@/features/user/auth/logout/api';
+import type { UserProfile } from '@/entities/user/model';
 import { AuthContext } from './auth-context.ts';
 
 export const AuthProvider = ({ children }: PropsWithChildren) => {

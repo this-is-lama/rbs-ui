@@ -1,5 +1,5 @@
-import type { Dish } from '@/entities/restaurant/model/types.ts';
-import type { DishCartItem } from '@/shared/dish-cart/dish-cart.ts';
+import type { Dish } from '@/entities/restaurant/model';
+import type { DishCartItem } from '@/shared/dish-cart';
 
 export type BookingPageDishCardItem = {
     cartItem: DishCartItem;

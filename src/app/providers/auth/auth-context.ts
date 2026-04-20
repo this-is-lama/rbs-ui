@@ -1,5 +1,5 @@
 import { createContext } from 'react';
-import type { UserProfile } from '@/entities/user/model/types.ts';
+import type { UserProfile } from '@/entities/user/model';
 
 export type AuthContextValue = {
     user: UserProfile | null;

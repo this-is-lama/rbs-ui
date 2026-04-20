@@ -17,3 +17,4 @@ export const RoutePaths = {
     REGISTRATION: '/registration',
     NOT_FOUND: '*',
 } as const;
+

@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/app/providers/language';
-import { RoutePaths } from '@/shared/config/routes/routes.ts';
-import { Logo } from '@/shared/ui/logo/Logo';
+import { RoutePaths } from '@/shared/config/routes';
+import { Logo } from '@/shared/ui/logo';
 import styles from './Footer.module.scss';
 
 export const Footer = () => {

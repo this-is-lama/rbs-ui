@@ -128,11 +128,21 @@
 .dayRow {
   grid-template-columns: minmax(108px, 150px) minmax(0, 1fr) minmax(0, 1fr) 84px;
   align-items: center;
+  position: relative;
+}
+
+.dayRowMenuOpen {
+  z-index: 4;
 }
 
 .contactRow {
   grid-template-columns: minmax(112px, 136px) minmax(0, 1fr) 40px;
   align-items: end;
+  position: relative;
+}
+
+.contactRowMenuOpen {
+  z-index: 4;
 }
 
 .dayLabel {
@@ -427,6 +437,225 @@
   text-align: center;
 }
 
+.timeSelectMenu {
+  position: relative;
+  min-width: 0;
+}
+
+.timeSelectButton {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px 0 14px;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  outline: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  background-color: $color-white;
+  color: $color-text-primary;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.timeSelectButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(17, 17, 17, 0.08);
+}
+
+.timeSelectButton:focus-visible {
+  border-color: rgba(51, 76, 219, 0.45);
+  box-shadow: 0 0 0 4px rgba(51, 76, 219, 0.12);
+}
+
+.timeSelectButton:disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.timeSelectButtonOpen {
+  border-color: rgba(51, 76, 219, 0.32);
+  box-shadow:
+    0 18px 32px rgba(17, 17, 17, 0.08),
+    0 0 0 4px rgba(51, 76, 219, 0.12);
+}
+
+.timeSelectButtonValue {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  line-height: 1.2;
+  font-weight: 600;
+}
+
+.timeSelectButtonMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(17, 17, 17, 0.72);
+}
+
+.timeSelectClockIcon,
+.timeSelectButtonIcon {
+  flex-shrink: 0;
+}
+
+.timeSelectClockIcon {
+  width: 18px;
+  height: 18px;
+}
+
+.timeSelectButtonIcon {
+  width: 16px;
+  height: 16px;
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
+}
+
+.timeSelectButtonIconOpen {
+  color: $color-primary;
+  transform: rotate(180deg);
+}
+
+.timeSelectPopover {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  z-index: 12;
+  width: min(280px, calc(100vw - 64px));
+  padding: 14px;
+  border: 1px solid rgba(51, 76, 219, 0.14);
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 249, 255, 0.98) 100%);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 24px 44px rgba(17, 17, 17, 0.16);
+  animation: contactSelectAppear 0.18s ease;
+}
+
+.timeSelectPopoverHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.timeSelectPopoverLabel,
+.timeSelectSectionLabel {
+  font-size: 12px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: rgba(17, 17, 17, 0.54);
+}
+
+.timeSelectPopoverValue {
+  font-size: 22px;
+  line-height: 1;
+  font-weight: 700;
+  color: $color-primary;
+}
+
+.timeSelectPanel {
+  display: grid;
+  gap: 12px;
+}
+
+.timeSelectSection {
+  display: grid;
+  gap: 8px;
+}
+
+.timeSelectHourGrid,
+.timeSelectMinuteGrid {
+  display: grid;
+  gap: 8px;
+}
+
+.timeSelectHourGrid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.timeSelectMinuteGrid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.timeSelectOption {
+  min-height: 38px;
+  padding: 0;
+  border: none;
+  border-radius: 12px;
+  background-color: rgba(17, 17, 17, 0.05);
+  color: $color-text-primary;
+  font-size: 14px;
+  line-height: 1;
+  font-weight: 700;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.timeSelectOption:hover {
+  transform: translateY(-1px);
+  background-color: rgba(51, 76, 219, 0.1);
+}
+
+.timeSelectOption:focus-visible {
+  outline: none;
+  background-color: rgba(51, 76, 219, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(51, 76, 219, 0.16);
+}
+
+.timeSelectOptionSelected {
+  background: linear-gradient(135deg, rgba(51, 76, 219, 0.14), rgba(51, 76, 219, 0.06));
+  color: $color-primary;
+}
+
+.timeSelectApplyButton {
+  width: 100%;
+  min-height: 44px;
+  margin-top: 14px;
+  border: none;
+  border-radius: 16px;
+  background-color: $color-primary;
+  color: $color-white;
+  font-size: 14px;
+  line-height: 1.2;
+  font-weight: 700;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.timeSelectApplyButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px rgba(51, 76, 219, 0.2);
+}
+
+.timeSelectApplyButton:focus-visible {
+  outline: none;
+  box-shadow:
+    0 14px 28px rgba(51, 76, 219, 0.2),
+    0 0 0 4px rgba(51, 76, 219, 0.12);
+}
+
 .compactInput {
   min-height: 44px;
   padding: 0 14px;
@@ -535,6 +764,149 @@
   min-width: 0;
 }
 
+.contactSelectMenu {
+  position: relative;
+}
+
+.contactSelectButton {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px 0 14px;
+  border: 1px solid transparent;
+  border-radius: 16px;
+  outline: none;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  background-color: $color-white;
+  color: $color-text-primary;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.contactSelectButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(17, 17, 17, 0.08);
+}
+
+.contactSelectButton:focus-visible {
+  border-color: rgba(51, 76, 219, 0.45);
+  box-shadow: 0 0 0 4px rgba(51, 76, 219, 0.12);
+}
+
+.contactSelectButtonOpen {
+  border-color: rgba(51, 76, 219, 0.32);
+  box-shadow:
+    0 18px 32px rgba(17, 17, 17, 0.08),
+    0 0 0 4px rgba(51, 76, 219, 0.12);
+}
+
+.contactSelectButtonValue {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  line-height: 1.2;
+  font-weight: 600;
+}
+
+.contactSelectButtonIcon {
+  width: 18px;
+  height: 18px;
+  margin-right: 2px;
+  color: rgba(17, 17, 17, 0.78);
+  flex-shrink: 0;
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
+}
+
+.contactSelectButtonIconOpen {
+  color: $color-primary;
+  transform: rotate(180deg);
+}
+
+.contactSelectPopover {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 12;
+  display: grid;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid rgba(51, 76, 219, 0.14);
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 249, 255, 0.98) 100%);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 22px 40px rgba(17, 17, 17, 0.14);
+  animation: contactSelectAppear 0.18s ease;
+}
+
+.contactSelectOption {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px 0 14px;
+  border: none;
+  border-radius: 14px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  background: transparent;
+  color: $color-text-primary;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.contactSelectOption:hover {
+  transform: translateX(2px);
+  background-color: rgba(51, 76, 219, 0.08);
+}
+
+.contactSelectOption:focus-visible {
+  outline: none;
+  background-color: rgba(51, 76, 219, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(51, 76, 219, 0.16);
+}
+
+.contactSelectOptionSelected {
+  background: linear-gradient(135deg, rgba(51, 76, 219, 0.14), rgba(51, 76, 219, 0.06));
+  color: $color-primary;
+}
+
+.contactSelectOptionLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  line-height: 1.2;
+  font-weight: 600;
+}
+
+.contactSelectOptionIndicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: $color-primary;
+  box-shadow: 0 0 0 6px rgba(51, 76, 219, 0.12);
+}
+
 .contactRemoveButton {
   width: 44px;
   height: 44px;
@@ -628,6 +1000,18 @@
   box-shadow: none;
 }
 
+@keyframes contactSelectAppear {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @media (max-width: 900px) {
   .heroHeader {
     grid-template-columns: 1fr;
@@ -684,6 +1068,10 @@
   .compactInput {
     min-height: 40px;
     padding: 0 12px;
+  }
+
+  .timeSelectPopover {
+    width: min(100%, calc(100vw - 64px));
   }
 
   .contactRow {

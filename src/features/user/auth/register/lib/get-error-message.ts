@@ -1,6 +1,6 @@
 import axios from 'axios';
 import type { ApiErrorResponse } from '@/shared/api';
-import type { AppLanguage } from '@/shared/config/language.ts';
+import type { AppLanguage } from '@/shared/config';
 
 export const getErrorMessage = (error: unknown, language: AppLanguage): string => {
     const copy = language === 'en'

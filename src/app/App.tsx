@@ -1,5 +1,5 @@
 import { HashScrollManager, Router } from "./providers/router";
-import { ConfirmDialogProvider } from '@/shared/ui/confirm-dialog/ConfirmDialogProvider.tsx';
+import { ConfirmDialogProvider } from '@/shared/ui/confirm-dialog';
 
 
 function App() {

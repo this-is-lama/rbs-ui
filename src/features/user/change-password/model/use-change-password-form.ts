@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { changePassword } from '@/entities/user/api/change-password.ts';
-import { useAuth } from '@/app/providers/auth/use-auth.ts';
-import { RoutePaths } from '@/shared/config/routes/routes.ts';
+import { changePassword } from '@/entities/user/api';
+import { useAuth } from '@/app/providers/auth';
+import { RoutePaths } from '@/shared/config/routes';
 import { changePasswordSchema, type ChangePasswordFormValues } from './change-password.schema.ts';
 import { getErrorMessage } from '../lib/get-error-message.ts';
 

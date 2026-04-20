@@ -1,7 +1,7 @@
 import { useLocation } from 'react-router-dom';
 import { useLanguage } from '@/app/providers/language';
-import { LoginForm } from '@/features/user/auth/login/ui/login-form.tsx';
-import { AuthShell } from '@/shared/ui/auth-shell/AuthShell.tsx';
+import { LoginForm } from '@/features/user/auth/login';
+import { AuthShell } from '@/shared/ui/auth-shell';
 
 type LocationState = {
     message?: string;

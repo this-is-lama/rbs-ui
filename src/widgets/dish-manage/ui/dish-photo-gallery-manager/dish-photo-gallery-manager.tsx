@@ -1,20 +1,16 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import type { KeyboardEvent as ReactKeyboardEvent } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '@/app/providers/language';
 import {
     deleteDishPhotos,
     updateDishPhotoOrder,
     uploadDishPhotos,
 } from '@/entities/restaurant/api/management.ts';
-import type { Photo, PhotoUploadDraft } from '@/entities/restaurant/model/types.ts';
-import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
-import {
-    ChevronLeftIcon,
-    ChevronRightIcon,
-    CloseIcon,
-    PlusIcon,
-} from '@/shared/ui/icons/action-icons.tsx';
-import { useConfirmDialog } from '@/shared/ui/confirm-dialog/use-confirm-dialog.ts';
-import { PhotoCarousel } from '@/shared/ui/photo-carousel/photo-carousel.tsx';
+import type { Photo, PhotoUploadDraft } from '@/entities/restaurant/model';
+import { getApiErrorMessage } from '@/shared/lib/api';
+import { useConfirmDialog } from '@/shared/ui/confirm-dialog';
+import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, CloseIcon } from '@/shared/ui/icons';
+import { PhotoCarousel } from '@/shared/ui/photo-carousel';
 import styles from './dish-photo-gallery-manager.module.scss';
 
 type DishPhotoGalleryManagerProps = {
@@ -54,25 +50,28 @@ export const DishPhotoGalleryManager = ({
     const [toast, setToast] = useState<GalleryToast | null>(null);
     const [isUploading, setIsUploading] = useState(false);
     const [isReordering, setIsReordering] = useState(false);
+    const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
     const [deletingPhotoId, setDeletingPhotoId] = useState<string | null>(null);
-    const categoryRef = useRef<HTMLSelectElement | null>(null);
+    const categoryMenuId = useId();
+    const categoryRef = useRef<HTMLButtonElement | null>(null);
+    const categoryMenuRef = useRef<HTMLDivElement | null>(null);
     const fileInputRef = useRef<HTMLInputElement | null>(null);
     const confirmDialog = useConfirmDialog();
     const copy = language === 'en'
         ? {
             addPhoto: 'Add photo',
-            addingPhoto: 'Adding photo',
-            addingTitle: 'Adding...',
+            addPhotoDescription: 'Choose a category, set the order, and upload a photo to the dish gallery.',
+            addingPhotoTitle: 'Adding...',
             banner: 'Cover',
             category: 'Category',
             deleteConfirm: 'Delete photo',
             deleteDescription: 'The dish photo will be deleted permanently.',
-            deleteTitle: 'Delete photo?',
             deleteError: 'Failed to delete photo',
             deletePhoto: 'Delete photo',
+            deleteTitle: 'Delete photo?',
             error: 'Error',
             file: 'File',
-            fileNotSelected: 'File not selected',
+            fileReady: 'File selected',
             gallery: 'Gallery',
             loadingHint: 'Save the dish first, then you will be able to add photos.',
             moveLeft: 'Move photo left',
@@ -81,31 +80,32 @@ export const DishPhotoGalleryManager = ({
             orderSaved: 'Photo order saved',
             photoAdded: 'Photo added',
             photoDeleted: 'Photo deleted',
-            photosTitle: 'Dish photos',
             placeholder: 'Dish photos are not available',
             ready: 'Done',
             saveFirst: 'Save the dish first, then add photos',
             saveOrderError: 'Failed to save photo order',
             selectFile: 'Select file',
             selectFileError: 'Select a file',
-            supportedFormats: 'Only JPEG, PNG, and WEBP are supported',
+            supportedFormatsError: 'Only JPEG, PNG, and WEBP are supported',
+            uploadAction: 'Upload',
             uploadError: 'Failed to upload photo',
-            uploadHint: 'Add a cover and gallery photos for the dish.',
+            uploadTitle: 'Add photo',
+            uploadingAction: 'Uploading...',
         }
         : {
             addPhoto: 'Добавить фото',
-            addingPhoto: 'Добавление фото',
-            addingTitle: 'Добавление...',
+            addPhotoDescription: 'Выберите категорию, задайте порядок и загрузите фотографию в галерею блюда.',
+            addingPhotoTitle: 'Добавление...',
             banner: 'Обложка',
             category: 'Категория',
             deleteConfirm: 'Удалить фото',
             deleteDescription: 'Фотография блюда будет удалена без возможности восстановления.',
-            deleteTitle: 'Удалить фотографию?',
             deleteError: 'Не удалось удалить фото',
             deletePhoto: 'Удалить фото',
+            deleteTitle: 'Удалить фотографию?',
             error: 'Ошибка',
             file: 'Файл',
-            fileNotSelected: 'Файл не выбран',
+            fileReady: 'Файл выбран',
             gallery: 'Галерея',
             loadingHint: 'Сначала сохраните блюдо, затем сможете добавить фотографии.',
             moveLeft: 'Переместить фото влево',
@@ -114,16 +114,17 @@ export const DishPhotoGalleryManager = ({
             orderSaved: 'Порядок фотографий сохранен',
             photoAdded: 'Фото добавлено',
             photoDeleted: 'Фото удалено',
-            photosTitle: 'Фотографии блюда',
             placeholder: 'Фотографии блюда отсутствуют',
             ready: 'Готово',
             saveFirst: 'Сначала сохраните блюдо, затем добавьте фотографии',
             saveOrderError: 'Не удалось сохранить порядок фотографий',
             selectFile: 'Выбрать файл',
             selectFileError: 'Выберите файл',
-            supportedFormats: 'Поддерживаются только JPEG, PNG и WEBP',
+            supportedFormatsError: 'Поддерживаются только JPEG, PNG и WEBP',
+            uploadAction: 'Загрузить',
             uploadError: 'Не удалось загрузить фото',
-            uploadHint: 'Добавляйте обложку и фотографии галереи блюда.',
+            uploadTitle: 'Добавить фото',
+            uploadingAction: 'Загрузка...',
         };
     const uploadCategories = useMemo(() => {
         return [
@@ -131,6 +132,9 @@ export const DishPhotoGalleryManager = ({
             { value: 'GALLERY' as const, label: copy.gallery },
         ];
     }, [copy.banner, copy.gallery]);
+    const selectedCategoryOption = useMemo(() => {
+        return uploadCategories.find((category) => category.value === selectedCategory) ?? uploadCategories[0];
+    }, [selectedCategory, uploadCategories]);
 
     useEffect(() => {
         const nextPhotos = Array.isArray(photos)
@@ -151,8 +155,10 @@ export const DishPhotoGalleryManager = ({
     }, [nextSortOrder, selectedCategory]);
 
     useEffect(() => {
-        categoryRef.current?.focus();
-    }, []);
+        if (canManagePhotos) {
+            categoryRef.current?.focus();
+        }
+    }, [canManagePhotos]);
 
     useEffect(() => {
         if (!toast) {
@@ -174,6 +180,60 @@ export const DishPhotoGalleryManager = ({
 
     const canUploadOrDeletePhotos = Boolean(dishId) && canManagePhotos;
 
+    useEffect(() => {
+        if (canUploadOrDeletePhotos) {
+            return;
+        }
+
+        setIsCategoryMenuOpen(false);
+    }, [canUploadOrDeletePhotos]);
+
+    useEffect(() => {
+        if (!isCategoryMenuOpen) {
+            return;
+        }
+
+        const handlePointerDown = (event: PointerEvent) => {
+            if (categoryMenuRef.current?.contains(event.target as Node)) {
+                return;
+            }
+
+            setIsCategoryMenuOpen(false);
+        };
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key !== 'Escape') {
+                return;
+            }
+
+            setIsCategoryMenuOpen(false);
+            categoryRef.current?.focus();
+        };
+
+        document.addEventListener('pointerdown', handlePointerDown);
+        document.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            document.removeEventListener('pointerdown', handlePointerDown);
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [isCategoryMenuOpen]);
+
+    const handleCategoryButtonKeyDown = (event: ReactKeyboardEvent<HTMLButtonElement>) => {
+        if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') {
+            return;
+        }
+
+        event.preventDefault();
+        setIsCategoryMenuOpen(true);
+    };
+
+    const handleCategorySelect = (category: 'BANNER' | 'GALLERY') => {
+        setSelectedCategory(category);
+        setIsCategoryMenuOpen(false);
+        categoryRef.current?.focus();
+    };
+
     const handleUpload = async () => {
         if (!canUploadOrDeletePhotos || !dishId) {
             showToast('error', copy.saveFirst);
@@ -186,7 +246,7 @@ export const DishPhotoGalleryManager = ({
         }
 
         if (!allowedContentTypes.has(selectedFile.type)) {
-            showToast('error', copy.supportedFormats);
+            showToast('error', copy.supportedFormatsError);
             return;
         }
 
@@ -293,32 +353,66 @@ export const DishPhotoGalleryManager = ({
     const addPhotoCard = (
         <article className={styles.addPhotoCard}>
             <div className={styles.addPhotoHead}>
-                <h2 className={styles.addPhotoTitle}>{copy.photosTitle}</h2>
+                <h2 className={styles.addPhotoTitle}>{copy.addPhoto}</h2>
                 <p className={styles.addPhotoDescription}>
-                    {canUploadOrDeletePhotos
-                        ? copy.uploadHint
-                        : copy.loadingHint}
+                    {canUploadOrDeletePhotos ? copy.addPhotoDescription : copy.loadingHint}
                 </p>
             </div>
 
             <div className={styles.addPhotoForm}>
                 <label className={`${styles.addPhotoField} ${styles.addPhotoFieldCompact}`}>
                     <span className={styles.addPhotoLabel}>{copy.category}</span>
-                    <select
-                        ref={categoryRef}
-                        className={styles.select}
-                        value={selectedCategory}
-                        disabled={!canUploadOrDeletePhotos}
-                        onChange={(event) => {
-                            setSelectedCategory(event.target.value as 'BANNER' | 'GALLERY');
-                        }}
-                    >
-                        {uploadCategories.map((category) => (
-                            <option key={category.value} value={category.value}>
-                                {category.label}
-                            </option>
-                        ))}
-                    </select>
+                    <div ref={categoryMenuRef} className={styles.selectMenu}>
+                        <button
+                            ref={categoryRef}
+                            type="button"
+                            className={`${styles.selectButton} ${
+                                isCategoryMenuOpen ? styles.selectButtonOpen : ''
+                            }`}
+                            onClick={() => setIsCategoryMenuOpen((currentValue) => !currentValue)}
+                            onKeyDown={handleCategoryButtonKeyDown}
+                            disabled={!canUploadOrDeletePhotos}
+                            aria-haspopup="listbox"
+                            aria-expanded={isCategoryMenuOpen}
+                            aria-controls={categoryMenuId}
+                        >
+                            <span className={styles.selectButtonValue}>
+                                {selectedCategoryOption?.label}
+                            </span>
+                            <ChevronDownIcon
+                                className={`${styles.selectButtonIcon} ${
+                                    isCategoryMenuOpen ? styles.selectButtonIconOpen : ''
+                                }`}
+                            />
+                        </button>
+
+                        {isCategoryMenuOpen ? (
+                            <div
+                                id={categoryMenuId}
+                                className={styles.selectMenuPopover}
+                                role="listbox"
+                                aria-label={copy.category}
+                            >
+                                {uploadCategories.map((category) => (
+                                    <button
+                                        key={category.value}
+                                        type="button"
+                                        role="option"
+                                        aria-selected={category.value === selectedCategory}
+                                        className={`${styles.selectOption} ${
+                                            category.value === selectedCategory ? styles.selectOptionSelected : ''
+                                        }`}
+                                        onClick={() => handleCategorySelect(category.value)}
+                                    >
+                                        <span className={styles.selectOptionLabel}>{category.label}</span>
+                                        {category.value === selectedCategory ? (
+                                            <span className={styles.selectOptionIndicator} />
+                                        ) : null}
+                                    </button>
+                                ))}
+                            </div>
+                        ) : null}
+                    </div>
                 </label>
 
                 <label className={`${styles.addPhotoField} ${styles.addPhotoFieldCompact}`}>
@@ -346,32 +440,38 @@ export const DishPhotoGalleryManager = ({
                         }}
                     />
 
-                    <div className={styles.filePicker}>
-                        <button
-                            type="button"
-                            className={styles.filePickerButton}
-                            onClick={() => fileInputRef.current?.click()}
-                            disabled={!canUploadOrDeletePhotos}
-                        >
-                            {copy.selectFile}
-                        </button>
-                        <span className={styles.filePickerName} title={selectedFile?.name ?? copy.fileNotSelected}>
-                            {selectedFile?.name ?? copy.fileNotSelected}
-                        </span>
-                    </div>
+                    <button
+                        type="button"
+                        className={`${styles.filePickerButton} ${
+                            selectedFile ? styles.filePickerButtonSelected : ''
+                        }`}
+                        onClick={() => fileInputRef.current?.click()}
+                        disabled={!canUploadOrDeletePhotos}
+                        title={!canUploadOrDeletePhotos ? copy.saveFirst : undefined}
+                    >
+                        {selectedFile ? copy.fileReady : copy.selectFile}
+                    </button>
                 </label>
             </div>
 
             <div className={styles.addPhotoActions}>
                 <button
                     type="button"
-                    className={styles.uploadIconButton}
+                    className={styles.uploadButton}
                     onClick={() => void handleUpload()}
                     disabled={isUploading || !canUploadOrDeletePhotos}
-                    aria-label={isUploading ? copy.addingPhoto : copy.addPhoto}
-                    title={isUploading ? copy.addingTitle : copy.addPhoto}
+                    aria-label={!canUploadOrDeletePhotos
+                        ? copy.saveFirst
+                        : isUploading
+                            ? copy.uploadingAction
+                            : copy.uploadAction}
+                    title={!canUploadOrDeletePhotos
+                        ? copy.saveFirst
+                        : isUploading
+                            ? copy.addingPhotoTitle
+                            : copy.uploadTitle}
                 >
-                    <PlusIcon className={styles.uploadIcon} />
+                    {isUploading ? copy.uploadingAction : copy.uploadAction}
                 </button>
             </div>
         </article>

@@ -1,9 +1,9 @@
 import { generatePath, useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/app/providers/language';
-import type { DishCartItem } from '@/shared/dish-cart/dish-cart.ts';
+import type { DishCartItem } from '@/shared/dish-cart';
 import { DishCard } from '@/entities/restaurant/ui';
-import { RoutePaths } from '@/shared/config/routes/routes.ts';
-import { CloseIcon } from '@/shared/ui/icons/action-icons.tsx';
+import { RoutePaths } from '@/shared/config/routes';
+import { CloseIcon } from '@/shared/ui/icons';
 import type { BookingPageDishCardItem } from '../../model/types.ts';
 import styles from '../booking-page-widget/booking-page-widget.module.scss';
 

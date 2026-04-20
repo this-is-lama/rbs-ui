@@ -6,8 +6,8 @@ import type {
     DishManageFormValues,
     DishManageRequest,
 } from '@/entities/restaurant/model/types.ts';
-import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
-import { useConfirmDialog } from '@/shared/ui/confirm-dialog/use-confirm-dialog.ts';
+import { getApiErrorMessage } from '@/shared/lib/api';
+import { useConfirmDialog } from '@/shared/ui/confirm-dialog';
 import { createDishManageSchema, toDishManageRequest } from '../model/dish-manage.schema.ts';
 import styles from '@/features/restaurants/shared/ManageForm.module.scss';
 

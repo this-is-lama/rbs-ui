@@ -4,7 +4,7 @@ import type {
     DishManageFormValues,
     DishManageRequest,
 } from '@/entities/restaurant/model/types.ts';
-import type { AppLanguage } from '@/shared/config/language.ts';
+import type { AppLanguage } from '@/shared/config';
 
 export const createDishManageSchema = (language: AppLanguage) => {
     const copy = language === 'en'

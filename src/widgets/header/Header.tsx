@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Logo } from '@/shared/ui/logo/Logo';
+import { Logo } from '@/shared/ui/logo';
 import styles from './Header.module.scss';
 import {Navbar} from "@/widgets/navbar";
 

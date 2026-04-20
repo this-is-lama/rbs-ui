@@ -13,19 +13,19 @@ import {
     formatBookingAmount,
     getBookingStatusLabel,
 } from '@/entities/booking/lib/format-booking.ts';
-import type { ManagerBookingListItem } from '@/entities/booking/model/types.ts';
-import { BookingAccordionItem } from '@/entities/booking/ui/booking-accordion-item.tsx';
+import type { ManagerBookingListItem } from '@/entities/booking/model';
+import { BookingAccordionItem } from '@/entities/booking/ui';
 import bookingPanelStyles from '@/entities/booking/ui/BookingAccordionItem.module.scss';
-import { getRestaurantById } from '@/entities/restaurant/api/get-restaurant-by-id.ts';
-import { getRestaurantBookingsForManager } from '@/entities/restaurant/api/management.ts';
-import type { Restaurant } from '@/entities/restaurant/model/types.ts';
-import { CancelManagerBookingButton } from '@/features/booking/cancel-booking/ui/cancel-manager-booking-button.tsx';
-import { RoutePaths } from '@/shared/config/routes/routes.ts';
-import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
-import { formatBookingDateTime } from '@/shared/lib/date/booking-date.ts';
+import { getRestaurantById } from '@/entities/restaurant/api';
+import { getRestaurantBookingsForManager } from '@/entities/restaurant/api';
+import type { Restaurant } from '@/entities/restaurant/model';
+import { CancelManagerBookingButton } from '@/features/booking/cancel-booking';
+import { RoutePaths } from '@/shared/config/routes';
+import { getApiErrorMessage } from '@/shared/lib/api';
+import { formatBookingDateTime } from '@/shared/lib/date';
 import layoutStyles from '@/shared/ui/booking-order-layout/booking-order-layout.module.scss';
 import { BookingTableCard } from '@/shared/ui/booking-table-card';
-import { Footer } from '@/widgets/footer/Footer.tsx';
+import { Footer } from '@/widgets/footer';
 import pageStyles from '@/widgets/restaurant-management/shared/ManagerPage.module.scss';
 import styles from './RestaurantBookingsWidget.module.scss';
 

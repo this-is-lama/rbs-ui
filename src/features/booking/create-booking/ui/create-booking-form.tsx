@@ -1,6 +1,6 @@
-import type { Booking } from '@/entities/booking/model/types.ts';
-import type { RestaurantCard } from '@/entities/restaurant/model/types.ts';
-import { Input } from '@/shared/ui/input/input.tsx';
+import type { Booking } from '@/entities/booking/model';
+import type { RestaurantCard } from '@/entities/restaurant/model';
+import { Input } from '@/shared/ui/input';
 import { useCreateBookingForm } from '../model/use-create-booking-form.ts';
 import styles from './CreateBookingForm.module.scss';
 

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/app/providers/language';
-import { RoutePaths } from '@/shared/config/routes/routes.ts';
+import { RoutePaths } from '@/shared/config/routes';
 import { useLoginForm } from '../model/use-login-form';
 import styles from '../../shared/AuthForm.module.scss';
 

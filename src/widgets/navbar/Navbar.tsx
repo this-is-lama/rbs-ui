@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
-import { useAuth } from '@/app/providers/auth/use-auth.ts';
+import { useAuth } from '@/app/providers/auth';
 import { useLanguage } from '@/app/providers/language';
-import { RoutePaths } from '@/shared/config/routes/routes.ts';
+import { RoutePaths } from '@/shared/config/routes';
 import styles from './Navbar.module.scss';
 
 export const Navbar = () => {

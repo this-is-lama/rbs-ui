@@ -1,13 +1,13 @@
 import { generatePath, useNavigate } from 'react-router-dom';
-import { resolveBookingTable } from '@/entities/booking/lib/booking-details.ts';
-import type { Booking } from '@/entities/booking/model/types.ts';
-import { BookingAccordionItem } from '@/entities/booking/ui/booking-accordion-item.tsx';
+import { resolveBookingTable } from '@/entities/booking/lib';
+import type { Booking } from '@/entities/booking/model';
+import { BookingAccordionItem } from '@/entities/booking/ui';
 import bookingPanelStyles from '@/entities/booking/ui/BookingAccordionItem.module.scss';
-import { buildRestaurantCard } from '@/entities/restaurant/lib/build-restaurant-card.ts';
-import type { Restaurant } from '@/entities/restaurant/model/types.ts';
-import { type AppLanguage } from '@/shared/config/language.ts';
+import { buildRestaurantCard } from '@/entities/restaurant/lib';
+import type { Restaurant } from '@/entities/restaurant/model';
+import { type AppLanguage } from '@/shared/config';
 import { RestaurantCard } from '@/entities/restaurant/ui';
-import { RoutePaths } from '@/shared/config/routes/routes.ts';
+import { RoutePaths } from '@/shared/config/routes';
 import layoutStyles from '@/shared/ui/booking-order-layout/booking-order-layout.module.scss';
 import { BookingTableCard } from '@/shared/ui/booking-table-card';
 import {
@@ -63,7 +63,7 @@ export const UserBookingItem = ({
         ? [
             copy.capacity(selectedTable.capacity),
             selectedTable.description?.trim() || null,
-        ].filter(Boolean).join(' вЂў ')
+        ].filter(Boolean).join(' • ')
         : '';
 
     return (
@@ -168,7 +168,7 @@ export const UserBookingItem = ({
                                     key={dish.id}
                                     className={bookingPanelStyles.dishChip}
                                 >
-                                    {dish.name} Г— {dish.quantity}
+                                    {dish.name} × {dish.quantity}
                                 </span>
                             ))}
                         </div>

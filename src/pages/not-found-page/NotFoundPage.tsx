@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/app/providers/language';
-import { RoutePaths } from '@/shared/config/routes/routes.ts';
-import { Footer } from '@/widgets/footer/Footer.tsx';
+import { RoutePaths } from '@/shared/config/routes';
+import { Footer } from '@/widgets/footer';
 import styles from './NotFoundPage.module.scss';
 
 export const NotFoundPage = () => {

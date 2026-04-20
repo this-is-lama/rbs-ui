@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { Button } from '@/shared/ui/button/button';
+import { Button } from '@/shared/ui/button';
 import { useLogout } from '../model/use-logout';
 
 export const LogoutButton = () => {

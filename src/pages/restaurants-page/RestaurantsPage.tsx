@@ -1,6 +1,7 @@
-import { RestaurantCatalogWidget } from '@/widgets/restaurant-catalog/ui/restaurant-catalog-widget.tsx';
+import { RestaurantCatalogWidget } from '@/widgets/restaurant-catalog';
 
 export const RestaurantsPage = () => {
     return <RestaurantCatalogWidget />
 };
+
 

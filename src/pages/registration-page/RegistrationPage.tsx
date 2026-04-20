@@ -1,6 +1,6 @@
 import { useLanguage } from '@/app/providers/language';
-import { RegisterForm } from '@/features/user/auth/register/ui/register-form.tsx';
-import { AuthShell } from '@/shared/ui/auth-shell/AuthShell.tsx';
+import { RegisterForm } from '@/features/user/auth/register';
+import { AuthShell } from '@/shared/ui/auth-shell';
 
 export const RegistrationPage = () => {
     const { language } = useLanguage();

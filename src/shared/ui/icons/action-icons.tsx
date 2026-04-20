@@ -118,3 +118,50 @@ export const ChevronRightIcon = ({ className }: ActionIconProps) => {
         </svg>
     );
 };
+
+export const ChevronDownIcon = ({ className }: ActionIconProps) => {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className={className}
+            aria-hidden="true"
+        >
+            <path
+                d="M6.5 9.5L12 15L17.5 9.5"
+                stroke="currentColor"
+                strokeWidth="1.9"
+                strokeLinecap="square"
+                strokeLinejoin="miter"
+            />
+        </svg>
+    );
+};
+
+export const ClockIcon = ({ className }: ActionIconProps) => {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className={className}
+            aria-hidden="true"
+        >
+            <circle
+                cx="12"
+                cy="12"
+                r="8.25"
+                stroke="currentColor"
+                strokeWidth="1.8"
+            />
+            <path
+                d="M12 8V12.25L14.75 14"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="square"
+                strokeLinejoin="miter"
+            />
+        </svg>
+    );
+};

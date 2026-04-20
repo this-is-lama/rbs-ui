@@ -10,3 +10,4 @@ export const isAppLanguage = (value: string | null | undefined): value is AppLan
 export const resolveIntlLocale = (language: AppLanguage) => {
     return language === 'en' ? 'en-US' : 'ru-RU';
 };
+

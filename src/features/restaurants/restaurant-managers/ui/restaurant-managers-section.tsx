@@ -5,12 +5,12 @@ import {
     getRestaurantManagers,
     removeRestaurantManager,
 } from '@/entities/restaurant/api/management.ts';
-import type { RestaurantManager } from '@/entities/restaurant/model/types.ts';
-import { lookupUserByEmail } from '@/entities/user/api/lookup-user-by-email.ts';
-import type { RestaurantLookupUser } from '@/entities/user/model/types.ts';
-import { resolveIntlLocale } from '@/shared/config/language.ts';
-import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
-import { useConfirmDialog } from '@/shared/ui/confirm-dialog/use-confirm-dialog.ts';
+import type { RestaurantManager } from '@/entities/restaurant/model';
+import { lookupUserByEmail } from '@/entities/user/api';
+import type { RestaurantLookupUser } from '@/entities/user/model';
+import { resolveIntlLocale } from '@/shared/config';
+import { getApiErrorMessage } from '@/shared/lib/api';
+import { useConfirmDialog } from '@/shared/ui/confirm-dialog';
 import styles from './restaurant-managers-section.module.scss';
 
 type RestaurantManagersSectionProps = {

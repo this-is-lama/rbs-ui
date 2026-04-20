@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import type { AppLanguage } from '@/shared/config/language.ts';
+import type { AppLanguage } from '@/shared/config';
 
 export const createRegisterSchema = (language: AppLanguage) => {
     const copy = language === 'en'

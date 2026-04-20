@@ -6,7 +6,7 @@ import {
     isAppLanguage,
     resolveIntlLocale,
     type AppLanguage,
-} from '@/shared/config/language.ts';
+} from '@/shared/config';
 import { LanguageContext } from './language-context.ts';
 
 const getInitialLanguage = (): AppLanguage => {

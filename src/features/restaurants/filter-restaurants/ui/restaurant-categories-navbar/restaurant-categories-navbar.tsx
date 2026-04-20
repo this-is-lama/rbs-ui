@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useAuth } from '@/app/providers/auth/use-auth.ts';
+import { useAuth } from '@/app/providers/auth';
 import { useLanguage } from '@/app/providers/language';
-import { getRestaurantCategories } from '@/entities/restaurant/api/get-restaurant-categories.ts';
-import { useRestaurantFilters } from '@/features/restaurants/filter-restaurants/model/use-restaurant-filters.ts';
-import { RoutePaths } from '@/shared/config/routes/routes.ts';
+import { getRestaurantCategories } from '@/entities/restaurant/api';
+import { useRestaurantFilters } from '@/features/restaurants/filter-restaurants/model';
+import { RoutePaths } from '@/shared/config/routes';
 import { canManageRestaurants } from '@/shared/lib/auth/roles.ts';
 import styles from './restaurant-categories-navbar.module.scss';
 

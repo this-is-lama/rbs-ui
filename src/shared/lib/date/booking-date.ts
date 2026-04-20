@@ -57,3 +57,4 @@ export const getDefaultBookingRange = () => {
         endAt: toDateTimeLocalValue(end.toISOString()),
     };
 };
+

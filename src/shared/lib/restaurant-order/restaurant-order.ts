@@ -32,3 +32,4 @@ export const clearCurrentOrder = () => {
     bookingCartStorage.clear();
     dishCartStorage.clear();
 };
+
