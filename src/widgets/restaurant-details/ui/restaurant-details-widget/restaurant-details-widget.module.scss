@@ -431,6 +431,29 @@
   gap: 20px;
 }
 
+.dishesGridAnimated {
+  animation: menuGridReveal 0.32s $easing-smooth both;
+}
+
+.dishesGridAnimated > * {
+  opacity: 0;
+  will-change: opacity;
+  animation: menuItemReveal 0.42s $easing-smooth both;
+}
+
+.dishesGridAnimated > *:nth-child(1) { animation-delay: 0.04s; }
+.dishesGridAnimated > *:nth-child(2) { animation-delay: 0.08s; }
+.dishesGridAnimated > *:nth-child(3) { animation-delay: 0.12s; }
+.dishesGridAnimated > *:nth-child(4) { animation-delay: 0.16s; }
+.dishesGridAnimated > *:nth-child(5) { animation-delay: 0.2s; }
+.dishesGridAnimated > *:nth-child(6) { animation-delay: 0.24s; }
+.dishesGridAnimated > *:nth-child(7) { animation-delay: 0.28s; }
+.dishesGridAnimated > *:nth-child(8) { animation-delay: 0.32s; }
+
+.emptyBlockAnimated {
+  animation: menuEmptyReveal 0.28s $easing-smooth both;
+}
+
 .schemeCanvas {
   position: relative;
   width: 100%;
@@ -443,6 +466,40 @@
   display: block;
   width: 100%;
   height: auto;
+}
+
+@keyframes menuGridReveal {
+  from {
+    opacity: 0.72;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes menuItemReveal {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes menuEmptyReveal {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .schemeTableButton {
@@ -1118,5 +1175,13 @@
   .modalPrimaryButton,
   .modalSecondaryButton {
     width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dishesGridAnimated,
+  .dishesGridAnimated > *,
+  .emptyBlockAnimated {
+    animation: none !important;
   }
 }

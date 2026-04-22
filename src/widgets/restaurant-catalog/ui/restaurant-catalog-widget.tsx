@@ -105,6 +105,7 @@ export const RestaurantCatalogWidget = () => {
     };
 
     const restaurants = Array.isArray(data?.content) ? data.content : [];
+    const restaurantAnimationKey = filters.category.trim() || 'all';
 
     const paginationItems = useMemo(() => {
         return buildPagination(filters.page, data?.totalPages ?? 0);
@@ -157,12 +158,20 @@ export const RestaurantCatalogWidget = () => {
                 {error ? <div className={styles.state}>{error}</div> : null}
 
                 {!isLoading && !error && restaurants.length === 0 ? (
-                    <div className={styles.state}>{copy.notFound}</div>
+                    <div
+                        key={`empty-${restaurantAnimationKey}`}
+                        className={`${styles.state} ${styles.stateAnimated}`}
+                    >
+                        {copy.notFound}
+                    </div>
                 ) : null}
 
                 {!isLoading && !error && restaurants.length > 0 ? (
                     <>
-                        <div className={styles.list}>
+                        <div
+                            key={restaurantAnimationKey}
+                            className={`${styles.list} ${styles.listAnimated}`}
+                        >
                             {restaurants.map((restaurant, index) => (
                                 <RestaurantCard
                                     key={restaurant.id || `${restaurant.name}-${index}`}

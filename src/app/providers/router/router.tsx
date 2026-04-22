@@ -17,7 +17,7 @@ import {
 } from '@/pages';
 import { ProfileEditPage } from '@/pages';
 import { RoutePaths } from '@/shared/config/routes';
-import { AuthLayout, HomeLayout, MainLayout } from '@/shared/ui/layouts';
+ import { AuthLayout, HomeLayout, MainLayout, PageTransition } from '@/shared/ui/layouts';
 import { GuestOnlyRoute } from './guest-only-route.tsx';
 import { ProtectedRoute } from './protected-route.tsx';
 import { RoleProtectedRoute } from './role-protected-route.tsx';
@@ -62,7 +62,14 @@ export const Router = () => {
                 </Route>
             </Route>
 
-            <Route path={RoutePaths.NOT_FOUND} element={<NotFoundPage />} />
+            <Route
+                path={RoutePaths.NOT_FOUND}
+                element={(
+                    <PageTransition>
+                        <NotFoundPage />
+                    </PageTransition>
+                )}
+            />
         </Routes>
     );
 };

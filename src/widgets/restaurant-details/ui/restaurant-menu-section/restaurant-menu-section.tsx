@@ -65,6 +65,7 @@ export const RestaurantMenuSection = ({
     };
 
     const shouldRenderGrid = visibleDishes.length > 0 || canManageRestaurant;
+    const dishAnimationKey = selectedCategory.trim() || 'all';
 
     return (
         <section className={styles.section}>
@@ -97,7 +98,10 @@ export const RestaurantMenuSection = ({
             </div>
 
             {shouldRenderGrid ? (
-                <div className={styles.dishesGrid}>
+                <div
+                    key={dishAnimationKey}
+                    className={`${styles.dishesGrid} ${styles.dishesGridAnimated}`}
+                >
                     {canManageRestaurant ? (
                         <Link
                             to={createDishPath}
@@ -141,9 +145,13 @@ export const RestaurantMenuSection = ({
                     ))}
                 </div>
             ) : (
-                <div className={styles.emptyBlock}>{copy.empty}</div>
+                <div
+                    key={`empty-${dishAnimationKey}`}
+                    className={`${styles.emptyBlock} ${styles.emptyBlockAnimated}`}
+                >
+                    {copy.empty}
+                </div>
             )}
         </section>
     );
 };
-
