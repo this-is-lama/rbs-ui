@@ -299,7 +299,11 @@ export const DishPhotoGalleryManager = ({
             </div>
 
             <div className={styles.addPhotoForm}>
-                <label className={`${styles.addPhotoField} ${styles.addPhotoFieldCompact}`}>
+                <label
+                    className={`${styles.addPhotoField} ${styles.addPhotoFieldCompact} ${
+                        isCategoryMenuOpen ? styles.addPhotoFieldMenuOpen : ''
+                    }`}
+                >
                     <span className={styles.addPhotoLabel}>{copy.category}</span>
                     <div ref={categoryMenuRef} className={styles.selectMenu}>
                         <button

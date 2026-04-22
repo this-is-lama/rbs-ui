@@ -17,6 +17,14 @@
   gap: 8px;
 }
 
+.datePicker {
+  position: relative;
+}
+
+.datePickerOpen {
+  z-index: 18;
+}
+
 .label {
   padding-left: 8px;
   font-size: 14px;
@@ -34,6 +42,401 @@
     $font-size: 16px,
     $line-height: 1
   );
+}
+
+.dateTrigger {
+  @include control-base(
+    52px,
+    0 18px,
+    $radius-pill,
+    #f3f3f3,
+    $font-size: 16px,
+    $line-height: 1
+  );
+
+  width: 100%;
+  border: 1px solid transparent;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.dateTrigger:hover {
+  transform: translateY(-1px);
+}
+
+.dateTrigger:focus-visible {
+  @include control-focus($ring-color: rgba(51, 76, 219, 0.1));
+}
+
+.dateTriggerOpen {
+  @include control-focus($ring-color: rgba(51, 76, 219, 0.1));
+}
+
+.dateTriggerValue {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dateTriggerPlaceholder {
+  color: rgba(17, 17, 17, 0.55);
+}
+
+.dateTriggerIcons {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(17, 17, 17, 0.66);
+}
+
+.dateTriggerCalendarIcon,
+.dateTriggerChevron {
+  width: 18px;
+  height: 18px;
+}
+
+.dateTriggerChevron {
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
+}
+
+.dateTriggerChevronOpen {
+  color: $color-primary;
+  transform: rotate(180deg);
+}
+
+.datePopover {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 0;
+  z-index: 24;
+  width: min(100%, 360px);
+  min-width: 320px;
+  padding: 18px;
+  border-radius: 24px;
+  border: 1px solid rgba(51, 76, 219, 0.16);
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 24px 48px rgba(17, 17, 17, 0.14);
+  display: grid;
+  gap: 14px;
+  animation: datePopoverReveal 0.22s ease both;
+}
+
+.datePopoverHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.datePopoverTitle {
+  font-size: 15px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: $color-text-primary;
+}
+
+.dateToolbar {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.dateNavButton {
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  border-radius: 14px;
+  background-color: #f7f7f7;
+  color: $color-text-primary;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.dateNavButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: rgba(51, 76, 219, 0.18);
+  background-color: rgba(51, 76, 219, 0.06);
+}
+
+.dateNavButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.dateNavIcon {
+  width: 18px;
+  height: 18px;
+}
+
+.dateSelectGroup {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 104px;
+  gap: 10px;
+  position: relative;
+  z-index: 3;
+}
+
+.dateSelectControl {
+  position: relative;
+}
+
+.dateSelectButton {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  border-radius: 14px;
+  background-color: #f7f7f7;
+  color: $color-text-primary;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  font-size: 14px;
+  line-height: 1.2;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.dateSelectButton:hover {
+  transform: translateY(-1px);
+}
+
+.dateSelectButton:focus-visible,
+.dateSelectButtonOpen {
+  border-color: rgba(51, 76, 219, 0.28);
+  box-shadow: 0 0 0 3px rgba(51, 76, 219, 0.08);
+  background-color: rgba(255, 255, 255, 0.98);
+}
+
+.dateSelectButtonValue {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dateSelectButtonIcon {
+  width: 16px;
+  height: 16px;
+  color: rgba(17, 17, 17, 0.66);
+  transition:
+    transform 0.2s ease,
+    color 0.2s ease;
+}
+
+.dateSelectButtonIconOpen {
+  color: $color-primary;
+  transform: rotate(180deg);
+}
+
+.dateSelectMenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 8;
+  padding: 8px;
+  border: 1px solid rgba(51, 76, 219, 0.14);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(16px);
+  box-shadow: 0 18px 36px rgba(17, 17, 17, 0.12);
+  animation: dateSelectMenuReveal 0.18s ease both;
+}
+
+.dateSelectMenuMonths {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.dateSelectMenuYears {
+  display: grid;
+  gap: 6px;
+  max-height: 248px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(17, 17, 17, 0.28) transparent;
+}
+
+.dateSelectMenuYears::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dateSelectMenuYears::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background-color: rgba(17, 17, 17, 0.24);
+}
+
+.dateSelectMenuYears::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+.dateSelectOption {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 12px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: $color-text-primary;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: left;
+  white-space: nowrap;
+  font-size: 14px;
+  line-height: 1.2;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.dateSelectOption:hover {
+  transform: translateX(2px);
+  background-color: rgba(51, 76, 219, 0.08);
+}
+
+.dateSelectOption:focus-visible {
+  outline: none;
+  background-color: rgba(51, 76, 219, 0.08);
+  box-shadow: inset 0 0 0 1px rgba(51, 76, 219, 0.14);
+}
+
+.dateSelectOptionSelected {
+  background: linear-gradient(135deg, rgba(51, 76, 219, 0.14), rgba(51, 76, 219, 0.06));
+  color: $color-primary;
+}
+
+.dateSelectMenuMonths {
+  left: 0;
+  right: auto;
+  width: max-content;
+  min-width: 252px;
+  grid-template-columns: repeat(2, minmax(112px, 1fr));
+  gap: 8px;
+}
+
+.calendarWeekdays,
+.calendarGrid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.calendarWeekday {
+  padding: 0 0 6px;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: rgba(17, 17, 17, 0.52);
+}
+
+.calendarDay {
+  width: 100%;
+  min-height: 40px;
+  border: none;
+  border-radius: 14px;
+  background: transparent;
+  color: $color-text-primary;
+  font-size: 14px;
+  line-height: 1;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.calendarDay:hover:not(:disabled) {
+  transform: translateY(-1px);
+  background-color: rgba(51, 76, 219, 0.08);
+}
+
+.calendarDay:disabled {
+  opacity: 0.32;
+  cursor: not-allowed;
+}
+
+.calendarDayMuted {
+  color: rgba(17, 17, 17, 0.36);
+}
+
+.calendarDayToday {
+  box-shadow: inset 0 0 0 1px rgba(51, 76, 219, 0.24);
+}
+
+.calendarDaySelected {
+  background-color: $color-primary;
+  color: $color-white;
+  box-shadow: 0 14px 24px rgba(51, 76, 219, 0.2);
+}
+
+.calendarDaySelected:hover:not(:disabled) {
+  background-color: $color-primary;
+  color: $color-white;
+}
+
+.datePopoverFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.datePopoverHint {
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.35;
+  color: rgba(17, 17, 17, 0.6);
+}
+
+.clearDateButton {
+  border: none;
+  padding: 0;
+  background: transparent;
+  color: $color-primary;
+  font-size: 13px;
+  line-height: 1.2;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 .input::placeholder {
@@ -108,8 +511,42 @@
   grid-column: 1 / -1;
 }
 
+@keyframes datePopoverReveal {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes dateSelectMenuReveal {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 @media (max-width: 700px) {
   .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .datePopover {
+    width: 100%;
+    min-width: 0;
+    padding: 16px;
+  }
+
+  .dateSelectGroup {
     grid-template-columns: 1fr;
   }
 

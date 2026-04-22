@@ -10,7 +10,8 @@ type RetriableRequestConfig = InternalAxiosRequestConfig & {
     _retry?: boolean;
 };
 
-const baseURL = import.meta.env.API_URL || 'http://localhost:8080';
+const browserHost = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+const baseURL = import.meta.env.VITE_API_URL || `http://${browserHost}:8080`;
 
 const createLogoutEvent = () => {
     window.dispatchEvent(new Event('auth:logout'));

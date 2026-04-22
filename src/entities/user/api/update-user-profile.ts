@@ -12,6 +12,6 @@ export type UpdateUserProfileRequest = {
 export const updateUserProfile = async (
     data: UpdateUserProfileRequest,
 ): Promise<UserProfile> => {
-    const response = await apiClient.patch<UserProfile>('/api/v1/users/me', data);
+    const response = await apiClient.put<UserProfile>('/api/v1/users/me', data);
     return response.data;
 };

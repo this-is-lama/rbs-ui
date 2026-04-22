@@ -165,3 +165,43 @@ export const ClockIcon = ({ className }: ActionIconProps) => {
         </svg>
     );
 };
+
+export const CalendarIcon = ({ className }: ActionIconProps) => {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className={className}
+            aria-hidden="true"
+        >
+            <rect
+                x="4"
+                y="6"
+                width="16"
+                height="14"
+                rx="2.5"
+                stroke="currentColor"
+                strokeWidth="1.8"
+            />
+            <path
+                d="M8 4.5V8"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="square"
+            />
+            <path
+                d="M16 4.5V8"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="square"
+            />
+            <path
+                d="M4 10.5H20"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="square"
+            />
+        </svg>
+    );
+};
