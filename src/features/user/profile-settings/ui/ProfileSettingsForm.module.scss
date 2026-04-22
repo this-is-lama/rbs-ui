@@ -1,3 +1,4 @@
+@use '@/app/styles/mixins' as *;
 @use '@/app/styles/variables' as *;
 
 .form {
@@ -25,20 +26,14 @@
 }
 
 .input {
-  width: 100%;
-  min-height: 52px;
-  padding: 0 18px;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  background-color: #f3f3f3;
-  color: $color-text-primary;
-  font-size: 16px;
-  line-height: 1;
-  outline: none;
-  transition:
-          border-color 0.2s ease,
-          box-shadow 0.2s ease,
-          transform 0.2s ease;
+  @include control-base(
+    52px,
+    0 18px,
+    $radius-pill,
+    #f3f3f3,
+    $font-size: 16px,
+    $line-height: 1
+  );
 }
 
 .input::placeholder {
@@ -46,8 +41,7 @@
 }
 
 .input:focus {
-  border-color: rgba(51, 76, 219, 0.45);
-  box-shadow: 0 0 0 4px rgba(51, 76, 219, 0.1);
+  @include control-focus($ring-color: rgba(51, 76, 219, 0.1));
 }
 
 .error {
@@ -85,20 +79,7 @@
 
 .primaryButton,
 .secondaryButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 52px;
-  padding: 0 22px;
-  border-radius: 999px;
-  font-size: 16px;
-  line-height: 1;
-  transition:
-          transform 0.2s ease,
-          box-shadow 0.2s ease,
-          background-color 0.2s ease,
-          color 0.2s ease,
-          opacity 0.2s ease;
+  @include action-button-base(52px, 0 22px, $font-size: 16px, $font-weight: $font-weight-medium);
 }
 
 .primaryButton {
@@ -115,16 +96,12 @@
 
 .primaryButton:hover:not(:disabled),
 .secondaryButton:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 14px 28px rgba(17, 17, 17, 0.08);
+  @include hover-elevate;
 }
 
 .primaryButton:disabled,
 .secondaryButton:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
+  @include disabled-state;
 }
 
 .fullWidth {

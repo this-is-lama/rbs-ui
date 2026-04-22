@@ -162,11 +162,6 @@ export type PhotoConfirmRequestItem = {
     objectKey: string;
 };
 
-export type PhotoOrderUpdateItem = {
-    id: string;
-    sortOrder: number;
-};
-
 export type Restaurant = {
     id: string;
     name: string;

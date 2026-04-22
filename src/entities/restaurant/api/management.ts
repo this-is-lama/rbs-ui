@@ -5,7 +5,6 @@ import type {
     DishManageRequest,
     ManagerRestaurantCard,
     PhotoConfirmRequestItem,
-    PhotoOrderUpdateItem,
     PhotoUploadDraft,
     PhotoUploadPendingItem,
     PhotoUploadRequestItem,
@@ -96,7 +95,7 @@ const uploadPhotoBinary = async (presignedUrl: string, file: File, contentType: 
     });
 
     if (!response.ok) {
-        throw new Error('Не удалось загрузить файл в хранилище');
+        throw new Error('РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ С„Р°Р№Р» РІ С…СЂР°РЅРёР»РёС‰Рµ');
     }
 };
 
@@ -120,40 +119,6 @@ const deletePhotos = async (path: string, ids: string[]) => {
     await apiClient.delete(`${path}/delete`, {
         data: ids,
     });
-};
-
-const shouldRetryPhotoOrderRequest = (error: unknown) => {
-    const status = (error as { response?: { status?: number } })?.response?.status;
-    return status === 400 || status === 404 || status === 405 || status === 415;
-};
-
-const updatePhotoOrder = async (path: string, items: PhotoOrderUpdateItem[]) => {
-    const payloadVariants: Array<PhotoOrderUpdateItem[] | { photos: PhotoOrderUpdateItem[] }> = [
-        { photos: items },
-        items,
-    ];
-    const routeVariants = ['/order', '/reorder', ''];
-    const methodVariants: Array<'put' | 'patch'> = ['put', 'patch'];
-    let lastError: unknown = null;
-
-    for (const route of routeVariants) {
-        for (const payload of payloadVariants) {
-            for (const method of methodVariants) {
-                try {
-                    await apiClient[method](`${path}${route}`, payload);
-                    return;
-                } catch (error) {
-                    lastError = error;
-
-                    if (!shouldRetryPhotoOrderRequest(error)) {
-                        throw error;
-                    }
-                }
-            }
-        }
-    }
-
-    throw lastError ?? new Error('Не удалось обновить порядок фотографий');
 };
 
 const uploadPhotosWithConfirm = async (path: string, drafts: PhotoUploadDraft[]) => {
@@ -217,19 +182,6 @@ export const updateRestaurant = async (
     return normalizeRestaurant(response.data);
 };
 
-export const setRestaurantActive = async (id: string, active: boolean): Promise<Restaurant> => {
-    const response = await apiClient.patch<Restaurant>(`/api/v1/restaurants/${id}/active`, {
-        active,
-    });
-
-    return normalizeRestaurant(response.data);
-};
-
-export const updateDishPhotoOrder = async (dishId: string, items: PhotoOrderUpdateItem[]) => {
-    return updatePhotoOrder(`/api/v1/dishes/${dishId}/photos`, items);
-};
-
-
 export const checkRestaurantManagerAccess = async (restId: string): Promise<boolean> => {
     const response = await apiClient.get<boolean>(`/api/v1/restaurants/${restId}/manager-access`);
     return Boolean(response.data);
@@ -259,11 +211,6 @@ export const getRestaurantBookingsForManager = async (
     return Array.isArray(response.data) ? response.data.map(normalizeManagerBooking) : [];
 };
 
-export const getRestaurantDishes = async (restId: string): Promise<Dish[]> => {
-    const response = await apiClient.get<Dish[]>(`/api/v1/restaurants/${restId}/dishes`);
-    return Array.isArray(response.data) ? response.data.map(normalizeDish) : [];
-};
-
 export const getRestaurantDishById = async (restId: string, dishId: string): Promise<Dish> => {
     const response = await apiClient.get<Dish>(`/api/v1/restaurants/${restId}/dishes/${dishId}`);
     return normalizeDish(response.data);
@@ -285,11 +232,6 @@ export const updateDish = async (
 
 export const deleteDish = async (restId: string, id: string): Promise<void> => {
     await apiClient.delete(`/api/v1/restaurants/${restId}/dishes/${id}`);
-};
-
-export const getRestaurantTables = async (restId: string): Promise<RestaurantTable[]> => {
-    const response = await apiClient.get<RestaurantTable[]>(`/api/v1/restaurants/${restId}/tables`);
-    return Array.isArray(response.data) ? response.data.map(normalizeTable) : [];
 };
 
 export const createTable = async (restId: string, data: TableManageRequest): Promise<string> => {
@@ -318,41 +260,12 @@ export const updateRestaurantLayout = async (
     return Array.isArray(response.data) ? response.data.map(normalizeTable) : [];
 };
 
-export const requestRestaurantPhotoUploads = async (
-    restaurantId: string,
-    items: PhotoUploadRequestItem[],
-) => {
-    return requestPhotoUploads(`/api/v1/restaurants/${restaurantId}/photos`, items);
-};
-
-export const confirmRestaurantPhotoUploads = async (
-    restaurantId: string,
-    items: PhotoConfirmRequestItem[],
-) => {
-    return confirmPhotoUploads(`/api/v1/restaurants/${restaurantId}/photos`, items);
-};
-
 export const deleteRestaurantPhotos = async (restaurantId: string, ids: string[]) => {
     return deletePhotos(`/api/v1/restaurants/${restaurantId}/photos`, ids);
 };
 
 export const uploadRestaurantPhotos = async (restaurantId: string, drafts: PhotoUploadDraft[]) => {
     return uploadPhotosWithConfirm(`/api/v1/restaurants/${restaurantId}/photos`, drafts);
-};
-
-export const updateRestaurantPhotoOrder = async (
-    restaurantId: string,
-    items: PhotoOrderUpdateItem[],
-) => {
-    return updatePhotoOrder(`/api/v1/restaurants/${restaurantId}/photos`, items);
-};
-
-export const requestDishPhotoUploads = async (dishId: string, items: PhotoUploadRequestItem[]) => {
-    return requestPhotoUploads(`/api/v1/dishes/${dishId}/photos`, items);
-};
-
-export const confirmDishPhotoUploads = async (dishId: string, items: PhotoConfirmRequestItem[]) => {
-    return confirmPhotoUploads(`/api/v1/dishes/${dishId}/photos`, items);
 };
 
 export const deleteDishPhotos = async (dishId: string, ids: string[]) => {

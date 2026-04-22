@@ -21,3 +21,7 @@ $radius-pill: 999px;
 $container-width: 1280px;
 
 $transition-base: 0.2s ease;
+$easing-smooth: cubic-bezier(0.22, 1, 0.36, 1);
+$easing-soft: cubic-bezier(0.16, 1, 0.3, 1);
+$transition-smooth: 0.28s $easing-smooth;
+$transition-slow: 0.46s $easing-smooth;

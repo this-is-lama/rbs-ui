@@ -16,6 +16,9 @@ export const RegisterForm = () => {
             email: 'Email',
             name: 'Name',
             password: 'Password',
+            roleLegend: 'Account role',
+            roleManager: 'Manager',
+            roleUser: 'User',
             register: 'Create account',
             registerLoading: 'Creating account...',
             surname: 'Surname',
@@ -24,6 +27,9 @@ export const RegisterForm = () => {
             email: 'Почта',
             name: 'Имя',
             password: 'Пароль',
+            roleLegend: 'Роль',
+            roleManager: 'Менеджер',
+            roleUser: 'Пользователь',
             register: 'Зарегистрироваться',
             registerLoading: 'Регистрация...',
             surname: 'Фамилия',
@@ -75,6 +81,37 @@ export const RegisterForm = () => {
             </div>
 
             <div className={styles.field}>
+                <div
+                    className={styles.roleSwitcher}
+                    role="radiogroup"
+                    aria-label={copy.roleLegend}
+                >
+                    <label className={styles.roleOption}>
+                        <input
+                            className={styles.roleInput}
+                            type="radio"
+                            value="ROLE_USER"
+                            {...register('role')}
+                        />
+                        <span className={styles.roleButton}>{copy.roleUser}</span>
+                    </label>
+
+                    <label className={styles.roleOption}>
+                        <input
+                            className={styles.roleInput}
+                            type="radio"
+                            value="ROLE_MANAGER"
+                            {...register('role')}
+                        />
+                        <span className={styles.roleButton}>{copy.roleManager}</span>
+                    </label>
+                </div>
+                {errors.role?.message ? (
+                    <div className={styles.error}>{errors.role.message}</div>
+                ) : null}
+            </div>
+
+            <div className={styles.field}>
                 <input
                     className={styles.input}
                     type="password"
@@ -98,4 +135,3 @@ export const RegisterForm = () => {
         </form>
     );
 };
-

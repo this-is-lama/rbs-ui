@@ -1,3 +1,4 @@
+@use '@/app/styles/mixins' as *;
 @use '@/app/styles/variables' as *;
 
 .form {
@@ -12,21 +13,61 @@
   gap: 8px;
 }
 
-.input {
-  width: 100%;
-  min-height: 50px;
-  padding: 0 18px;
-  border: 1px solid transparent;
+.roleSwitcher {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 6px;
   border-radius: 999px;
-  background-color: $color-white;
+  background-color: rgba(255, 255, 255, 0.72);
+}
+
+.roleOption {
+  position: relative;
+  display: block;
+}
+
+.roleInput {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.roleButton {
+  @include action-button-base(
+    44px,
+    0 16px,
+    $font-size: 15px,
+    $font-weight: $font-weight-medium,
+    $border: 1px solid transparent
+  );
+  width: 100%;
   color: $color-text-primary;
-  font-size: 16px;
-  line-height: 1;
-  outline: none;
-  transition:
-          border-color 0.2s ease,
-          box-shadow 0.2s ease,
-          transform 0.2s ease;
+  cursor: pointer;
+}
+
+.roleInput:checked + .roleButton {
+  background-color: $color-primary;
+  border-color: $color-primary;
+  color: $color-white;
+  box-shadow: 0 10px 24px rgba(51, 76, 219, 0.22);
+}
+
+.roleInput:focus-visible + .roleButton {
+  border-color: rgba(51, 76, 219, 0.45);
+  box-shadow: 0 0 0 4px rgba(51, 76, 219, 0.1);
+}
+
+.input {
+  @include control-base(
+    50px,
+    0 18px,
+    $radius-pill,
+    $color-white,
+    $font-size: 16px,
+    $line-height: 1
+  );
 }
 
 .input::placeholder {
@@ -35,8 +76,7 @@
 }
 
 .input:focus {
-  border-color: rgba(51, 76, 219, 0.45);
-  box-shadow: 0 0 0 4px rgba(51, 76, 219, 0.1);
+  @include control-focus($ring-color: rgba(51, 76, 219, 0.1));
 }
 
 .error {
@@ -63,22 +103,14 @@
 
 .primaryButton,
 .secondaryButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  @include action-button-base(
+    52px,
+    0,
+    $font-size: 16px,
+    $font-weight: $font-weight-medium
+  );
   width: 100%;
-  min-height: 52px;
-  border-radius: 999px;
-  font-size: 16px;
-  line-height: 1;
   text-decoration: none;
-  transition:
-          transform 0.2s ease,
-          box-shadow 0.2s ease,
-          background-color 0.2s ease,
-          color 0.2s ease,
-          border-color 0.2s ease,
-          opacity 0.2s ease;
 }
 
 .primaryButton {
@@ -95,21 +127,27 @@
 
 .primaryButton:hover:not(:disabled),
 .secondaryButton:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 14px 28px rgba(17, 17, 17, 0.08);
+  @include hover-elevate;
 }
 
 .primaryButton:disabled,
 .secondaryButton:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
+  @include disabled-state;
 }
 
 @media (max-width: 640px) {
   .form {
     max-width: 100%;
+  }
+
+  .roleSwitcher {
+    gap: 6px;
+    padding: 5px;
+  }
+
+  .roleButton {
+    min-height: 42px;
+    font-size: 14px;
   }
 
   .input {

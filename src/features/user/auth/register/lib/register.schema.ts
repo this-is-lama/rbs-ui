@@ -45,6 +45,7 @@ export const createRegisterSchema = (language: AppLanguage) => {
             .min(1, copy.passwordRequired)
             .min(6, copy.passwordMin)
             .max(100, copy.passwordLong),
+        role: z.enum(['ROLE_MANAGER', 'ROLE_USER']),
     });
 };
 

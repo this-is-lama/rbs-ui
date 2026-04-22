@@ -3,13 +3,12 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '@/app/providers/language';
 import {
     deleteDishPhotos,
-    updateDishPhotoOrder,
     uploadDishPhotos,
 } from '@/entities/restaurant/api/management.ts';
 import type { Photo, PhotoUploadDraft } from '@/entities/restaurant/model';
 import { getApiErrorMessage } from '@/shared/lib/api';
 import { useConfirmDialog } from '@/shared/ui/confirm-dialog';
-import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, CloseIcon } from '@/shared/ui/icons';
+import { ChevronDownIcon, CloseIcon } from '@/shared/ui/icons';
 import { PhotoCarousel } from '@/shared/ui/photo-carousel';
 import styles from './dish-photo-gallery-manager.module.scss';
 
@@ -28,13 +27,6 @@ type GalleryToast = {
 
 const allowedContentTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
-const normalizePhotoOrder = (photos: Photo[]) => {
-    return photos.map((photo, index) => ({
-        ...photo,
-        sortOrder: index,
-    }));
-};
-
 export const DishPhotoGalleryManager = ({
     dishId,
     dishName,
@@ -46,10 +38,8 @@ export const DishPhotoGalleryManager = ({
     const [selectedCategory, setSelectedCategory] = useState<'BANNER' | 'GALLERY'>('BANNER');
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [sortOrderInput, setSortOrderInput] = useState('1');
-    const [orderedPhotos, setOrderedPhotos] = useState<Photo[]>([]);
     const [toast, setToast] = useState<GalleryToast | null>(null);
     const [isUploading, setIsUploading] = useState(false);
-    const [isReordering, setIsReordering] = useState(false);
     const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
     const [deletingPhotoId, setDeletingPhotoId] = useState<string | null>(null);
     const categoryMenuId = useId();
@@ -74,16 +64,12 @@ export const DishPhotoGalleryManager = ({
             fileReady: 'File selected',
             gallery: 'Gallery',
             loadingHint: 'Save the dish first, then you will be able to add photos.',
-            moveLeft: 'Move photo left',
-            moveRight: 'Move photo right',
             order: 'Order',
-            orderSaved: 'Photo order saved',
             photoAdded: 'Photo added',
             photoDeleted: 'Photo deleted',
             placeholder: 'Dish photos are not available',
             ready: 'Done',
             saveFirst: 'Save the dish first, then add photos',
-            saveOrderError: 'Failed to save photo order',
             selectFile: 'Select file',
             selectFileError: 'Select a file',
             supportedFormatsError: 'Only JPEG, PNG, and WEBP are supported',
@@ -108,16 +94,12 @@ export const DishPhotoGalleryManager = ({
             fileReady: 'Файл выбран',
             gallery: 'Галерея',
             loadingHint: 'Сначала сохраните блюдо, затем сможете добавить фотографии.',
-            moveLeft: 'Переместить фото влево',
-            moveRight: 'Переместить фото вправо',
             order: 'Порядок',
-            orderSaved: 'Порядок фотографий сохранен',
             photoAdded: 'Фото добавлено',
             photoDeleted: 'Фото удалено',
             placeholder: 'Фотографии блюда отсутствуют',
             ready: 'Готово',
             saveFirst: 'Сначала сохраните блюдо, затем добавьте фотографии',
-            saveOrderError: 'Не удалось сохранить порядок фотографий',
             selectFile: 'Выбрать файл',
             selectFileError: 'Выберите файл',
             supportedFormatsError: 'Поддерживаются только JPEG, PNG и WEBP',
@@ -135,13 +117,10 @@ export const DishPhotoGalleryManager = ({
     const selectedCategoryOption = useMemo(() => {
         return uploadCategories.find((category) => category.value === selectedCategory) ?? uploadCategories[0];
     }, [selectedCategory, uploadCategories]);
-
-    useEffect(() => {
-        const nextPhotos = Array.isArray(photos)
-            ? normalizePhotoOrder([...photos].sort((left, right) => left.sortOrder - right.sortOrder))
+    const orderedPhotos = useMemo(() => {
+        return Array.isArray(photos)
+            ? [...photos].sort((left, right) => left.sortOrder - right.sortOrder)
             : [];
-
-        setOrderedPhotos(nextPhotos);
     }, [photos]);
 
     const nextSortOrder = useMemo(() => {
@@ -310,46 +289,6 @@ export const DishPhotoGalleryManager = ({
         }
     };
 
-    const handleMovePhoto = async (index: number, direction: 'left' | 'right') => {
-        if (!dishId || isReordering) {
-            return;
-        }
-
-        const targetIndex = direction === 'left' ? index - 1 : index + 1;
-
-        if (targetIndex < 0 || targetIndex >= orderedPhotos.length) {
-            return;
-        }
-
-        const previousPhotos = [...orderedPhotos];
-        const nextPhotos = [...orderedPhotos];
-        const [movedPhoto] = nextPhotos.splice(index, 1);
-        nextPhotos.splice(targetIndex, 0, movedPhoto);
-        const normalizedPhotos = normalizePhotoOrder(nextPhotos);
-
-        setOrderedPhotos(normalizedPhotos);
-
-        try {
-            setIsReordering(true);
-            setToast(null);
-
-            await updateDishPhotoOrder(
-                dishId,
-                normalizedPhotos.map((photo) => ({
-                    id: photo.id,
-                    sortOrder: photo.sortOrder,
-                })),
-            );
-            await onPhotosChanged?.();
-            showToast('success', copy.orderSaved);
-        } catch (requestError) {
-            setOrderedPhotos(previousPhotos);
-            showToast('error', getApiErrorMessage(requestError, copy.saveOrderError));
-        } finally {
-            setIsReordering(false);
-        }
-    };
-
     const addPhotoCard = (
         <article className={styles.addPhotoCard}>
             <div className={styles.addPhotoHead}>
@@ -503,40 +442,16 @@ export const DishPhotoGalleryManager = ({
                 leadingCard={canManagePhotos ? addPhotoCard : undefined}
                 leadingCardClassName={canManagePhotos ? styles.leadingCardCompact : undefined}
                 size="large"
-                renderPhotoActions={canUploadOrDeletePhotos ? (photo, index) => (
-                    <>
-                        <div className={styles.orderControls}>
-                            <button
-                                type="button"
-                                className={styles.orderButton}
-                                onClick={() => void handleMovePhoto(index, 'left')}
-                                disabled={isReordering || index === 0}
-                                aria-label={copy.moveLeft}
-                            >
-                                <ChevronLeftIcon className={styles.orderIcon} />
-                            </button>
-
-                            <button
-                                type="button"
-                                className={styles.orderButton}
-                                onClick={() => void handleMovePhoto(index, 'right')}
-                                disabled={isReordering || index === orderedPhotos.length - 1}
-                                aria-label={copy.moveRight}
-                            >
-                                <ChevronRightIcon className={styles.orderIcon} />
-                            </button>
-                        </div>
-
-                        <button
-                            type="button"
-                            className={styles.deleteButton}
-                            onClick={() => void handleDelete(photo.id)}
-                            disabled={deletingPhotoId === photo.id}
-                            aria-label={copy.deletePhoto}
-                        >
-                            <CloseIcon className={styles.deleteIcon} />
-                        </button>
-                    </>
+                renderPhotoActions={canUploadOrDeletePhotos ? (photo) => (
+                    <button
+                        type="button"
+                        className={styles.deleteButton}
+                        onClick={() => void handleDelete(photo.id)}
+                        disabled={deletingPhotoId === photo.id}
+                        aria-label={copy.deletePhoto}
+                    >
+                        <CloseIcon className={styles.deleteIcon} />
+                    </button>
                 ) : undefined}
             />
         </section>

@@ -21,9 +21,35 @@
 
 .track {
   display: flex;
+  align-items: stretch;
   gap: 24px;
   width: max-content;
   min-width: 100%;
+  padding: 4px 0 8px;
+}
+
+.track > * {
+  animation: carouselCardReveal 0.64s $easing-smooth both;
+}
+
+.track > *:nth-child(1) {
+  animation-delay: 0.04s;
+}
+
+.track > *:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.track > *:nth-child(3) {
+  animation-delay: 0.16s;
+}
+
+.track > *:nth-child(4) {
+  animation-delay: 0.22s;
+}
+
+.track > *:nth-child(5) {
+  animation-delay: 0.28s;
 }
 
 .imageCard {
@@ -34,6 +60,23 @@
   max-height: 836px;
   border-radius: 30px;
   overflow: hidden;
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.18), transparent 42%),
+    linear-gradient(180deg, rgba(17, 17, 17, 0.02), rgba(17, 17, 17, 0.08));
+  transition:
+    transform $transition-smooth;
+}
+
+.imageCard::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(17, 17, 17, 0.02) 8%, rgba(17, 17, 17, 0.16) 100%);
+  opacity: 0.16;
+  pointer-events: none;
+  transition:
+    opacity $transition-smooth,
+    transform $transition-slow;
 }
 
 .utilityCard {
@@ -44,6 +87,8 @@
   max-height: 836px;
   border-radius: 30px;
   overflow: hidden;
+  transition:
+    transform $transition-smooth;
 }
 
 .image {
@@ -52,6 +97,11 @@
   height: 100%;
   max-width: none;
   object-fit: contain;
+  transform: scale(1.001);
+  transform-origin: center center;
+  transition:
+    transform $transition-slow,
+    filter $transition-smooth;
 }
 
 .imageActions {
@@ -80,9 +130,15 @@
   padding: 24px;
   border-radius: 30px;
   border: 2px dashed rgba(17, 17, 17, 0.12);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(247, 247, 247, 0.98)),
+    radial-gradient(circle at top right, rgba(51, 76, 219, 0.08), transparent 40%);
   color: rgba(17, 17, 17, 0.55);
   font-size: 20px;
   font-weight: 600;
+  transition:
+    transform $transition-smooth,
+    border-color $transition-smooth;
 }
 
 .sectionLarge .imageCard,
@@ -106,21 +162,19 @@
   color: $color-text-primary;
   font-size: 28px;
   line-height: 1;
+  backdrop-filter: blur(10px);
   box-shadow: 0 16px 32px rgba(17, 17, 17, 0.12);
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease,
-    background-color 0.2s ease;
+    transform $transition-smooth,
+    box-shadow $transition-smooth,
+    background-color $transition-smooth,
+    opacity $transition-smooth;
+  animation: carouselArrowReveal 0.42s $easing-soft both;
 }
 
 .arrowIcon {
   width: 24px;
   height: 24px;
-}
-
-.arrowButton:hover {
-  transform: translateY(-50%) scale(1.04);
-  box-shadow: 0 18px 36px rgba(17, 17, 17, 0.16);
 }
 
 .leftArrow {
@@ -131,7 +185,80 @@
   right: 14px;
 }
 
+@media (hover: hover) {
+  .imageCard:hover,
+  .imageCard:focus-within,
+  .utilityCard:hover,
+  .utilityCard:focus-within,
+  .placeholder:hover {
+    transform: translateY(-4px);
+  }
+
+  .imageActions {
+    opacity: 0;
+    transform: translateY(10px);
+    transition:
+      opacity $transition-smooth,
+      transform $transition-smooth;
+  }
+
+  .imageCard:hover .imageActions,
+  .imageCard:focus-within .imageActions {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .imageCard:hover .image,
+  .imageCard:focus-within .image {
+    transform: scale(1.04);
+    filter: saturate(1.03);
+  }
+
+  .imageCard:hover::after,
+  .imageCard:focus-within::after {
+    opacity: 0.38;
+    transform: translateY(8px);
+  }
+
+  .placeholder:hover {
+    border-color: rgba(51, 76, 219, 0.2);
+  }
+
+  .arrowButton:hover {
+    transform: translateY(-50%) scale(1.04);
+    box-shadow: 0 22px 40px rgba(17, 17, 17, 0.16);
+  }
+}
+
+@keyframes carouselCardReveal {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes carouselArrowReveal {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+}
+
 @media (max-width: 720px) {
+  .track {
+    padding-bottom: 4px;
+  }
+
   .imageCard,
   .utilityCard,
   .placeholder {
@@ -159,5 +286,26 @@
   .sectionLarge .placeholder {
     height: 50.8vh;
     min-height: 290px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .viewport {
+    scroll-behavior: auto;
+  }
+
+  .track > *,
+  .arrowButton {
+    animation: none !important;
+  }
+
+  .imageCard,
+  .imageCard::after,
+  .utilityCard,
+  .image,
+  .imageActions,
+  .placeholder,
+  .arrowButton {
+    transition: none !important;
   }
 }

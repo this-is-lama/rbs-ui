@@ -3,15 +3,12 @@ import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useLanguage } from '@/app/providers/language';
 import {
     deleteRestaurantPhotos,
-    updateRestaurantPhotoOrder,
     uploadRestaurantPhotos,
 } from '@/entities/restaurant/api/management.ts';
 import type { Photo, PhotoUploadDraft } from '@/entities/restaurant/model/types.ts';
 import { getApiErrorMessage } from '@/shared/lib/api/get-api-error-message.ts';
 import {
     ChevronDownIcon,
-    ChevronLeftIcon,
-    ChevronRightIcon,
     CloseIcon,
 } from '@/shared/ui/icons/action-icons.tsx';
 import { useConfirmDialog } from '@/shared/ui/confirm-dialog/use-confirm-dialog.ts';
@@ -35,13 +32,6 @@ type GalleryToast = {
 
 const allowedContentTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
 
-const normalizePhotoOrder = (photos: Photo[]) => {
-    return photos.map((photo, index) => ({
-        ...photo,
-        sortOrder: index,
-    }));
-};
-
 export const RestaurantGallery = ({
     restaurantId,
     restaurantName,
@@ -55,10 +45,8 @@ export const RestaurantGallery = ({
     const [selectedCategory, setSelectedCategory] = useState<'GALLERY' | 'BANNER'>('GALLERY');
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [sortOrderInput, setSortOrderInput] = useState('1');
-    const [orderedPhotos, setOrderedPhotos] = useState<Photo[]>([]);
     const [toast, setToast] = useState<GalleryToast | null>(null);
     const [isUploading, setIsUploading] = useState(false);
-    const [isReordering, setIsReordering] = useState(false);
     const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
     const [deletingPhotoId, setDeletingPhotoId] = useState<string | null>(null);
     const categoryMenuId = useId();
@@ -84,15 +72,11 @@ export const RestaurantGallery = ({
             fileNotSelected: 'File not selected',
             fileReady: 'File selected',
             gallery: 'Gallery',
-            moveLeft: 'Move photo left',
-            moveRight: 'Move photo right',
             order: 'Order',
-            orderSaved: 'Photo order saved',
             photoAdded: 'Photo added',
             photoDeleted: 'Photo deleted',
             placeholder: 'Restaurant photos are not available',
             ready: 'Done',
-            saveOrderError: 'Failed to save photo order',
             selectFile: 'Select file',
             selectFileError: 'Select a file',
             supportedFormatsError: 'Only JPEG, PNG, and WEBP are supported',
@@ -119,15 +103,11 @@ export const RestaurantGallery = ({
             fileNotSelected: 'Файл не выбран',
             fileReady: 'Файл выбран',
             gallery: 'Галерея',
-            moveLeft: 'Переместить фото влево',
-            moveRight: 'Переместить фото вправо',
             order: 'Порядок',
-            orderSaved: 'Порядок фотографий сохранен',
             photoAdded: 'Фото добавлено',
             photoDeleted: 'Фото удалено',
             placeholder: 'Фотографии ресторана отсутствуют',
             ready: 'Готово',
-            saveOrderError: 'Не удалось сохранить порядок фотографий',
             selectFile: 'Выбрать файл',
             selectFileError: 'Выберите файл',
             supportedFormatsError: 'Поддерживаются только JPEG, PNG и WEBP',
@@ -146,10 +126,7 @@ export const RestaurantGallery = ({
     const selectedCategoryOption = useMemo(() => {
         return uploadCategories.find((category) => category.value === selectedCategory) ?? uploadCategories[0];
     }, [selectedCategory, uploadCategories]);
-
-    useEffect(() => {
-        setOrderedPhotos(normalizePhotoOrder(galleryPhotos));
-    }, [galleryPhotos]);
+    const orderedPhotos = useMemo(() => [...galleryPhotos], [galleryPhotos]);
 
     const nextSortOrder = useMemo(() => {
         return orderedPhotos
@@ -305,46 +282,6 @@ export const RestaurantGallery = ({
         }
     };
 
-    const handleMovePhoto = async (index: number, direction: 'left' | 'right') => {
-        if (isReordering) {
-            return;
-        }
-
-        const targetIndex = direction === 'left' ? index - 1 : index + 1;
-
-        if (targetIndex < 0 || targetIndex >= orderedPhotos.length) {
-            return;
-        }
-
-        const previousPhotos = [...orderedPhotos];
-        const nextPhotos = [...orderedPhotos];
-        const [movedPhoto] = nextPhotos.splice(index, 1);
-        nextPhotos.splice(targetIndex, 0, movedPhoto);
-        const normalizedPhotos = normalizePhotoOrder(nextPhotos);
-
-        setOrderedPhotos(normalizedPhotos);
-
-        try {
-            setIsReordering(true);
-            setToast(null);
-
-            await updateRestaurantPhotoOrder(
-                restaurantId,
-                normalizedPhotos.map((photo) => ({
-                    id: photo.id,
-                    sortOrder: photo.sortOrder,
-                })),
-            );
-            await onPhotosChanged?.();
-            showToast('success', copy.orderSaved);
-        } catch (requestError) {
-            setOrderedPhotos(previousPhotos);
-            showToast('error', getApiErrorMessage(requestError, copy.saveOrderError));
-        } finally {
-            setIsReordering(false);
-        }
-    };
-
     const addPhotoCard = canManageRestaurant ? (
         <article className={styles.addPhotoCard}>
             <div className={styles.addPhotoHead}>
@@ -485,40 +422,16 @@ export const RestaurantGallery = ({
                 leadingCard={addPhotoCard}
                 leadingCardClassName={canManageRestaurant ? styles.leadingCardCompact : undefined}
                 size="large"
-                renderPhotoActions={canManageRestaurant ? (photo, index) => (
-                    <>
-                        <div className={styles.orderControls}>
-                            <button
-                                type="button"
-                                className={styles.orderButton}
-                                onClick={() => void handleMovePhoto(index, 'left')}
-                                disabled={isReordering || index === 0}
-                                aria-label={copy.moveLeft}
-                            >
-                                <ChevronLeftIcon className={styles.orderIcon} />
-                            </button>
-
-                            <button
-                                type="button"
-                                className={styles.orderButton}
-                                onClick={() => void handleMovePhoto(index, 'right')}
-                                disabled={isReordering || index === orderedPhotos.length - 1}
-                                aria-label={copy.moveRight}
-                            >
-                                <ChevronRightIcon className={styles.orderIcon} />
-                            </button>
-                        </div>
-
-                        <button
-                            type="button"
-                            className={styles.deleteButton}
-                            onClick={() => void handleDelete(photo.id)}
-                            disabled={deletingPhotoId === photo.id}
-                            aria-label={copy.deletePhoto}
-                        >
-                            <CloseIcon className={styles.deleteIcon} />
-                        </button>
-                    </>
+                renderPhotoActions={canManageRestaurant ? (photo) => (
+                    <button
+                        type="button"
+                        className={styles.deleteButton}
+                        onClick={() => void handleDelete(photo.id)}
+                        disabled={deletingPhotoId === photo.id}
+                        aria-label={copy.deletePhoto}
+                    >
+                        <CloseIcon className={styles.deleteIcon} />
+                    </button>
                 ) : undefined}
             />
         </section>

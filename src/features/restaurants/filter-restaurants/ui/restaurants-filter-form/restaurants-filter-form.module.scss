@@ -1,3 +1,4 @@
+@use '@/app/styles/mixins' as *;
 @use '@/app/styles/variables' as *;
 
 .panel {
@@ -31,15 +32,13 @@
 }
 
 .input {
-  width: 100%;
-  min-height: 52px;
-  padding: 0 18px;
-  border: 1px solid transparent;
-  border-radius: 20px;
-  background-color: $color-white;
-  color: $color-text-primary;
-  outline: none;
-  transition: 0.2s ease;
+  @include control-base(
+    52px,
+    0 18px,
+    20px,
+    $color-white,
+    $transition: 0.2s ease
+  );
 }
 
 .input::placeholder {
@@ -47,8 +46,7 @@
 }
 
 .input:focus {
-  border-color: $color-primary;
-  box-shadow: 0 0 0 4px rgba(51, 76, 219, 0.08);
+  @include control-focus($border-color: $color-primary, $ring-color: rgba(51, 76, 219, 0.08));
 }
 
 .actions {
@@ -60,20 +58,13 @@
 
 .primaryButton,
 .secondaryButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 48px;
-  padding: 0 24px;
+  @include action-button-base(
+    48px,
+    0 24px,
+    $font-size: 16px,
+    $font-weight: $font-weight-semi-bold
+  );
   border: none;
-  border-radius: 999px;
-  font-size: 16px;
-  font-weight: 600;
-  line-height: 1;
-  transition:
-          transform 0.2s ease,
-          box-shadow 0.2s ease,
-          background-color 0.2s ease;
 }
 
 .primaryButton {
@@ -89,8 +80,7 @@
 
 .primaryButton:hover,
 .secondaryButton:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 14px 28px rgba(17, 17, 17, 0.08);
+  @include hover-elevate;
 }
 
 @media (max-width: 640px) {

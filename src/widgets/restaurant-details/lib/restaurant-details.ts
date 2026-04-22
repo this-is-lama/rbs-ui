@@ -11,7 +11,7 @@ import {
     getCurrentWeekDay,
     getWeekDayFromDate as resolveWeekDayFromDate,
 } from '@/entities/restaurant/lib/week-day.ts';
-import { resolveIntlLocale, type AppLanguage } from '@/shared/config/language.ts';
+import type { AppLanguage } from '@/shared/config/language.ts';
 import type { NormalizedRestaurant } from '../model/types.ts';
 
 const contactTypeLabels: Record<AppLanguage, Record<string, string>> = {
@@ -148,21 +148,6 @@ export const rangesOverlap = (
     endB: Date,
 ) => {
     return startA < endB && endA > startB;
-};
-
-export const formatSlotInterval = (
-    slot: TableAvailabilitySlot,
-    language: AppLanguage = 'ru',
-) => {
-    const start = new Date(slot.startAt);
-    const end = new Date(slot.endAt);
-
-    const formatter = new Intl.DateTimeFormat(resolveIntlLocale(language), {
-        hour: '2-digit',
-        minute: '2-digit',
-    });
-
-    return `${formatter.format(start)} - ${formatter.format(end)}`;
 };
 
 export const createBookingCartItem = (

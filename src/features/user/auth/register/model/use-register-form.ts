@@ -24,6 +24,7 @@ export const useRegisterForm = () => {
             name: '',
             surname: '',
             email: '',
+            role: 'ROLE_USER',
             password: '',
         },
     });
