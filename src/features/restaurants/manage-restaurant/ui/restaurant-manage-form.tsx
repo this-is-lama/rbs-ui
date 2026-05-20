@@ -442,11 +442,6 @@ export const RestaurantManageForm = ({
                         <span className={styles.statusCardValue}>
                             {isActive ? 'Активен' : 'Неактивен'}
                         </span>
-                        <span className={styles.statusCardHint}>
-                            {isActive
-                                ? 'Ресторан доступен посетителям.'
-                                : 'Ресторан скрыт от посетителей.'}
-                        </span>
 
                         <span className={styles.statusSwitchControl}>
                             <input
@@ -466,9 +461,6 @@ export const RestaurantManageForm = ({
                 <article className={styles.section}>
                     <div>
                         <h2 className={styles.sectionTitle}>Время работы</h2>
-                        <p className={styles.sectionDescription}>
-                            Если день закрыт, поля времени можно оставить пустыми.
-                        </p>
                     </div>
 
                     <div className={styles.hoursTable}>
@@ -564,9 +556,6 @@ export const RestaurantManageForm = ({
                     <article className={styles.section}>
                         <div>
                             <h2 className={styles.sectionTitle}>Адрес</h2>
-                            <p className={styles.sectionDescription}>
-                                Укажите точный адрес, который будут видеть посетители.
-                            </p>
                         </div>
 
                         <div className={styles.field}>
@@ -587,9 +576,6 @@ export const RestaurantManageForm = ({
                         <div className={styles.sectionHeaderCompact}>
                             <div>
                                 <h2 className={styles.sectionTitle}>Контакты</h2>
-                                <p className={styles.sectionDescription}>
-                                    Добавьте телефон, email или сайт ресторана.
-                                </p>
                             </div>
 
                             <button
@@ -739,9 +725,6 @@ export const RestaurantManageForm = ({
             <article className={styles.section}>
                 <div>
                     <h2 className={styles.sectionTitle}>Описание</h2>
-                    <p className={styles.sectionDescription}>
-                        Расскажите о концепции ресторана, атмосфере и особенностях.
-                    </p>
                 </div>
 
                 <div className={styles.field}>

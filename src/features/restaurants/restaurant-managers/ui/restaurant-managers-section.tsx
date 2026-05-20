@@ -206,9 +206,6 @@ export const RestaurantManagersSection = ({
         <section className={styles.section}>
             <div className={styles.header}>
                 <h2 className={styles.title}>{copy.title}</h2>
-                <p className={styles.description}>
-                    {copy.roleUserHint}
-                </p>
             </div>
 
             <div className={styles.lookupRow}>

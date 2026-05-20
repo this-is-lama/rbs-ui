@@ -37,9 +37,6 @@ export const RestaurantManagerActions = ({
         <section className={styles.wrapper}>
             <div>
                 <h2 className={styles.title}>{copy.title}</h2>
-                <p className={styles.description}>
-                    {copy.description}
-                </p>
             </div>
 
             <div className={styles.actions}>

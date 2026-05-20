@@ -1,7 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import axios from 'axios';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useLanguage } from '@/app/providers/language';
 import { createBooking } from '@/entities/booking/api/create-booking.ts';
-import type { BookingCartItem } from '@/entities/booking/model';
+import { createDynamicPricingQuote } from '@/entities/booking/api/dynamic-pricing.ts';
+import type { BookingCartItem, DynamicPricingQuoteResponse } from '@/entities/booking/model';
 import { getRestaurantById } from '@/entities/restaurant/api';
 import { buildRestaurantCard } from '@/entities/restaurant/lib';
 import type {
@@ -11,9 +13,10 @@ import type {
     RestaurantTable,
 } from '@/entities/restaurant/model/types.ts';
 import { resolveIntlLocale } from '@/shared/config';
+import { dishCartStorage, type DishCartItem } from '@/shared/dish-cart';
 import { getApiErrorMessage } from '@/shared/lib/api';
 import { bookingCartStorage } from '@/shared/lib/booking-cart';
-import { dishCartStorage, type DishCartItem } from '@/shared/dish-cart';
+import { getBrowserLocation } from '@/shared/lib/geolocation';
 import type { BookingPageDishCardItem } from '../../model/types.ts';
 import { BookingOrderSection } from '../booking-order-section';
 import { BookingSummaryCard } from '../booking-summary-card';
@@ -44,6 +47,14 @@ const createFallbackDish = (item: DishCartItem, categoryLabel: string): Dish => 
     };
 };
 
+const toMoneyNumber = (value: string | number | null | undefined): number => {
+    const parsed = typeof value === 'number'
+        ? value
+        : Number.parseFloat(String(value ?? '0').replace(',', '.'));
+
+    return Number.isFinite(parsed) ? parsed : 0;
+};
+
 export const BookingPageWidget = () => {
     const { language } = useLanguage();
     const [bookingItems, setBookingItems] = useState<BookingCartItem[]>([]);
@@ -52,6 +63,9 @@ export const BookingPageWidget = () => {
     const [isRestaurantLoading, setIsRestaurantLoading] = useState(false);
     const [restaurantLoadError, setRestaurantLoadError] = useState('');
     const [commentDraft, setCommentDraft] = useState('');
+    const [pricingQuote, setPricingQuote] = useState<DynamicPricingQuoteResponse | null>(null);
+    const [isQuoteLoading, setIsQuoteLoading] = useState(false);
+    const [quoteError, setQuoteError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitError, setSubmitError] = useState('');
     const [submitSuccess, setSubmitSuccess] = useState('');
@@ -65,13 +79,16 @@ export const BookingPageWidget = () => {
     const copy = language === 'en'
         ? {
             booking: 'Booking',
-            commentPlaceholder: 'For example: we would like a table near the window',
             commentTitle: 'Booking comment',
             emptyCart: 'Cart is empty',
             emptyCartDescription: 'Choose a restaurant, add a table and dishes, then return here.',
             fallbackDishCategory: 'Dish',
             intro: 'Your order is assembled here: the selected table and dishes from the menu.',
             missingTableInfo: 'To complete the booking, choose a table first.',
+            quoteLoadError: 'Failed to calculate service fee',
+            quoteLoading: 'Calculating service fee...',
+            quoteMissing: 'Calculate the service fee first',
+            quoteRefreshRequired: 'The service fee has changed. We refreshed the quote, please try booking again.',
             restaurantCardError: 'Failed to load restaurant card for the order',
             submit: 'Complete booking',
             submitError: 'Failed to complete booking',
@@ -80,13 +97,16 @@ export const BookingPageWidget = () => {
         }
         : {
             booking: 'Бронирование',
-            commentPlaceholder: 'Например: нужен стол ближе к окну',
             commentTitle: 'Комментарий к бронированию',
             emptyCart: 'Корзина пуста',
             emptyCartDescription: 'Сначала выберите ресторан, добавьте стол и блюда, а затем вернитесь сюда.',
             fallbackDishCategory: 'Блюдо',
             intro: 'Здесь собирается ваш заказ: выбранный стол и блюда из меню.',
             missingTableInfo: 'Чтобы оформить бронирование, сначала выберите стол.',
+            quoteLoadError: 'Не удалось рассчитать сервисный сбор',
+            quoteLoading: 'Рассчитываем сервисный сбор...',
+            quoteMissing: 'Сначала нужно рассчитать сервисный сбор',
+            quoteRefreshRequired: 'Сервисный сбор изменился. Мы обновили расчет, попробуйте оформить бронирование еще раз.',
             restaurantCardError: 'Не удалось загрузить карточку ресторана для заказа',
             submit: 'Оформить бронирование',
             submitError: 'Не удалось оформить бронирование',
@@ -115,6 +135,11 @@ export const BookingPageWidget = () => {
     const selectedBookingItem = bookingItems[0] ?? null;
     const currentRestaurantId = selectedBookingItem?.restaurantId ?? dishItems[0]?.restaurantId ?? null;
     const currentRestaurantName = selectedBookingItem?.restaurantName ?? dishItems[0]?.restaurantName ?? '';
+    const selectedRestaurantId = selectedBookingItem?.restaurantId ?? '';
+    const selectedTableId = selectedBookingItem?.tableId ?? '';
+    const selectedStartAt = selectedBookingItem?.startAt ?? '';
+    const selectedEndAt = selectedBookingItem?.endAt ?? '';
+    const selectedGuests = selectedBookingItem?.guests ?? 0;
 
     useEffect(() => {
         setCommentDraft(selectedBookingItem?.comment ?? '');
@@ -196,9 +221,72 @@ export const BookingPageWidget = () => {
         return dishItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     }, [dishItems]);
 
+    const quoteDishes = useMemo(() => {
+        return dishItems.map((item) => ({
+            dishId: item.dishId,
+            quantity: item.quantity,
+        }));
+    }, [dishItems]);
+
+    const loadDynamicPricingQuote = useCallback(async () => {
+        if (!selectedRestaurantId || !selectedTableId || !selectedStartAt || !selectedEndAt) {
+            setPricingQuote(null);
+            setQuoteError('');
+            return;
+        }
+
+        try {
+            setIsQuoteLoading(true);
+            setQuoteError('');
+
+            const location = await getBrowserLocation();
+            const response = await createDynamicPricingQuote({
+                restaurantId: selectedRestaurantId,
+                tableId: selectedTableId,
+                startAt: selectedStartAt,
+                endAt: selectedEndAt,
+                guests: selectedGuests,
+                dishes: quoteDishes,
+                location,
+            });
+
+            setPricingQuote(response);
+        } catch (error) {
+            setPricingQuote(null);
+            setQuoteError(getApiErrorMessage(error, copy.quoteLoadError));
+        } finally {
+            setIsQuoteLoading(false);
+        }
+    }, [
+        copy.quoteLoadError,
+        quoteDishes,
+        selectedEndAt,
+        selectedGuests,
+        selectedRestaurantId,
+        selectedStartAt,
+        selectedTableId,
+    ]);
+
+    useEffect(() => {
+        void loadDynamicPricingQuote();
+    }, [loadDynamicPricingQuote]);
+
+    const preorderAmount = pricingQuote
+        ? toMoneyNumber(pricingQuote.preorderAmount)
+        : totalDishAmount;
+    const serviceFee = pricingQuote
+        ? toMoneyNumber(pricingQuote.serviceFee)
+        : 0;
+    const totalAmount = pricingQuote
+        ? toMoneyNumber(pricingQuote.totalAmount)
+        : preorderAmount + serviceFee;
     const isCartEmpty = bookingItems.length === 0 && dishItems.length === 0;
     const hasDishes = totalDishCount > 0;
-    const canSubmitBooking = Boolean(selectedBookingItem) && !isSubmitting;
+    const canSubmitBooking = Boolean(selectedBookingItem)
+        && !isSubmitting
+        && !isQuoteLoading
+        && Boolean(pricingQuote?.quoteId)
+        && Boolean(pricingQuote?.requestHash);
 
     const handleCommentChange = (value: string) => {
         setCommentDraft(value);
@@ -217,6 +305,17 @@ export const BookingPageWidget = () => {
             return;
         }
 
+        if (isQuoteLoading) {
+            setSubmitError(copy.quoteLoading);
+            return;
+        }
+
+        if (!pricingQuote?.quoteId || !pricingQuote.requestHash) {
+            setSubmitError(copy.quoteMissing);
+            await loadDynamicPricingQuote();
+            return;
+        }
+
         try {
             setIsSubmitting(true);
             setSubmitError('');
@@ -229,17 +328,24 @@ export const BookingPageWidget = () => {
                 endAt: selectedBookingItem.endAt,
                 guests: selectedBookingItem.guests,
                 comment: commentDraft.trim() || undefined,
-                dishes: dishItems.map((item) => ({
-                    dishId: item.dishId,
-                    quantity: item.quantity,
-                })),
+                dishes: quoteDishes,
+                serviceFeeQuoteId: pricingQuote.quoteId,
+                requestHash: pricingQuote.requestHash,
             });
 
             bookingCartStorage.clear();
             dishCartStorage.clear();
+            setPricingQuote(null);
+            setQuoteError('');
             setCommentDraft('');
             setSubmitSuccess(copy.submitSuccess);
         } catch (error) {
+            if (axios.isAxiosError(error) && error.response?.status === 409) {
+                setSubmitError(copy.quoteRefreshRequired);
+                await loadDynamicPricingQuote();
+                return;
+            }
+
             setSubmitError(getApiErrorMessage(error, copy.submitError));
         } finally {
             setIsSubmitting(false);
@@ -309,7 +415,6 @@ export const BookingPageWidget = () => {
                                     className={styles.commentTextarea}
                                     rows={4}
                                     maxLength={500}
-                                    placeholder={copy.commentPlaceholder}
                                     value={commentDraft}
                                     onChange={(event) => handleCommentChange(event.target.value)}
                                 />
@@ -317,10 +422,15 @@ export const BookingPageWidget = () => {
                         </section>
                     ) : null}
 
-                    {hasDishes ? (
+                    {selectedBookingItem ? (
                         <BookingSummaryCard
                             dishCount={totalDishCount}
-                            totalAmount={totalDishAmount}
+                            preorderAmount={preorderAmount}
+                            serviceFee={serviceFee}
+                            totalAmount={totalAmount}
+                            isQuoteLoading={isQuoteLoading}
+                            quoteError={quoteError}
+                            expiresAt={pricingQuote?.expiresAt ?? null}
                             formatMoney={formatMoney}
                         />
                     ) : null}
@@ -342,7 +452,11 @@ export const BookingPageWidget = () => {
                             onClick={handleSubmitBooking}
                             disabled={!canSubmitBooking}
                         >
-                            {isSubmitting ? copy.submitLoading : copy.submit}
+                            {isSubmitting
+                                ? copy.submitLoading
+                                : isQuoteLoading
+                                    ? copy.quoteLoading
+                                    : copy.submit}
                         </button>
                     </div>
                 </>

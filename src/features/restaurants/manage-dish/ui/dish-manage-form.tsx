@@ -181,11 +181,6 @@ export const DishManageForm = ({
                         <span className={styles.statusCardValue}>
                             {isAvailable ? copy.active : copy.inactive}
                         </span>
-                        <span className={styles.statusCardHint}>
-                            {isAvailable
-                                ? copy.statusHintActive
-                                : copy.statusHintInactive}
-                        </span>
 
                         <span className={styles.statusSwitchControl}>
                             <input

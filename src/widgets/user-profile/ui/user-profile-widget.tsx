@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/app/providers/auth';
 import { useLanguage } from '@/app/providers/language';
@@ -19,33 +19,36 @@ export const UserProfileWidget = () => {
     const { language, toggleLanguage } = useLanguage();
     const [bookings, setBookings] = useState<Booking[]>([]);
     const [isBookingsLoading, setIsBookingsLoading] = useState(true);
+    const [bookingActionError, setBookingActionError] = useState('');
     const [expandedBookingId, setExpandedBookingId] = useState<string | null>(null);
     const [restaurantsById, setRestaurantsById] = useState<Record<string, Restaurant>>({});
     const [restaurantLoadingIds, setRestaurantLoadingIds] = useState<string[]>([]);
 
     const copy = profilePageCopy[language];
 
-    useEffect(() => {
-        const loadBookings = async () => {
-            if (!isAuthenticated) {
-                setBookings([]);
-                setIsBookingsLoading(false);
-                return;
-            }
+    const loadBookings = useCallback(async () => {
+        if (!isAuthenticated) {
+            setBookings([]);
+            setBookingActionError('');
+            setIsBookingsLoading(false);
+            return;
+        }
 
-            try {
-                setIsBookingsLoading(true);
-                const response = await getMyBookings();
-                setBookings(response);
-            } catch {
-                setBookings([]);
-            } finally {
-                setIsBookingsLoading(false);
-            }
-        };
-
-        void loadBookings();
+        try {
+            setIsBookingsLoading(true);
+            setBookingActionError('');
+            const response = await getMyBookings();
+            setBookings(response);
+        } catch {
+            setBookings([]);
+        } finally {
+            setIsBookingsLoading(false);
+        }
     }, [isAuthenticated]);
+
+    useEffect(() => {
+        void loadBookings();
+    }, [loadBookings]);
 
     useEffect(() => {
         setExpandedBookingId((currentValue) => {
@@ -184,6 +187,10 @@ export const UserProfileWidget = () => {
                     <div className={styles.loadingText}>{copy.loadingBookings}</div>
                 ) : null}
 
+                {bookingActionError ? (
+                    <div className={styles.errorText}>{bookingActionError}</div>
+                ) : null}
+
                 {!isBookingsLoading && bookings.length === 0 ? (
                     <div className={styles.emptyText}>{copy.emptyBookings}</div>
                 ) : null}
@@ -201,6 +208,8 @@ export const UserProfileWidget = () => {
                                     expanded={expandedBookingId === booking.id}
                                     language={language}
                                     restaurant={restaurantId ? restaurantsById[restaurantId] ?? null : null}
+                                    onCancelled={loadBookings}
+                                    onError={setBookingActionError}
                                     onToggle={() => {
                                         setExpandedBookingId((currentValue) => {
                                             return currentValue === booking.id

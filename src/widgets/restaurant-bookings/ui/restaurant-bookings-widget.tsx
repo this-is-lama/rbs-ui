@@ -47,6 +47,7 @@ export const RestaurantBookingsWidget = () => {
     const copy = language === 'en'
         ? {
             bookingsTitle: 'Restaurant bookings',
+            cancellationReason: 'Cancellation reason',
             comment: 'Comment',
             contacts: 'Guest contacts',
             createdAt: 'Created at',
@@ -73,6 +74,7 @@ export const RestaurantBookingsWidget = () => {
         }
         : {
             bookingsTitle: 'Бронирования ресторана',
+            cancellationReason: 'Причина отмены',
             comment: 'Комментарий',
             contacts: 'Контакты гостя',
             createdAt: 'Создано',
@@ -356,6 +358,17 @@ export const RestaurantBookingsWidget = () => {
                                                 </span>
                                                 <p className={bookingPanelStyles.infoText}>
                                                     {booking.comment}
+                                                </p>
+                                            </div>
+                                        ) : null}
+
+                                        {booking.cancellationReason?.trim() ? (
+                                            <div className={bookingPanelStyles.infoBlock}>
+                                                <span className={bookingPanelStyles.infoTitle}>
+                                                    {copy.cancellationReason}
+                                                </span>
+                                                <p className={bookingPanelStyles.infoText}>
+                                                    {booking.cancellationReason}
                                                 </p>
                                             </div>
                                         ) : null}

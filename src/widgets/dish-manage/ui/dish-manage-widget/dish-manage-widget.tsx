@@ -21,6 +21,7 @@ import {
 } from '@/features/restaurants/manage-dish/model/dish-manage.schema.ts';
 import { getApiErrorMessage } from '@/shared/lib/api';
 import { RoutePaths } from '@/shared/config/routes';
+import { dishCartStorage } from '@/shared/dish-cart';
 import pageStyles from '@/widgets/restaurant-management/shared/ManagerPage.module.scss';
 
 type LocationState = {
@@ -35,7 +36,7 @@ export const DishManageWidget = () => {
     }>();
     const navigate = useNavigate();
     const location = useLocation();
-    const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
+    const [, setRestaurant] = useState<Restaurant | null>(null);
     const [dish, setDish] = useState<Dish | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
@@ -130,6 +131,7 @@ export const DishManageWidget = () => {
         }
 
         await deleteDish(restaurantId, dishId);
+        dishCartStorage.removeItem(restaurantId, dishId);
         navigate(generatePath(RoutePaths.MY_RESTAURANT_EDIT, { id: restaurantId }), {
             replace: true,
         });
@@ -159,9 +161,6 @@ export const DishManageWidget = () => {
                         <h1 className={pageStyles.title}>
                             {dishId ? copy.editTitle : copy.newTitle}
                         </h1>
-                        <p className={pageStyles.subtitle}>
-                            {copy.subtitle(restaurant?.name || copy.restaurantFallback)}
-                        </p>
                     </div>
 
                     {dishId ? (

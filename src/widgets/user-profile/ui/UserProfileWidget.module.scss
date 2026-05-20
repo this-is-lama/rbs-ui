@@ -290,6 +290,16 @@
   color: rgba(17, 17, 17, 0.72);
 }
 
+.errorText {
+  padding: 16px 18px;
+  border-radius: 22px;
+  background-color: rgba(185, 28, 28, 0.08);
+  color: #b91c1c;
+  font-size: 15px;
+  line-height: 1.45;
+  font-weight: 700;
+}
+
 @media (max-width: 640px) {
   .stateCard {
     padding: 24px 18px;

@@ -69,6 +69,7 @@ const normalizeManagerBooking = (booking: ManagerBookingListItem): ManagerBookin
         ...booking,
         comment: booking.comment ?? null,
         cancelledAt: booking.cancelledAt ?? null,
+        cancellationReason: booking.cancellationReason ?? null,
         restaurant: booking.restaurant ?? null,
         table: booking.table ?? null,
         dishes: Array.isArray(booking.dishes) ? booking.dishes : [],
@@ -95,7 +96,7 @@ const uploadPhotoBinary = async (presignedUrl: string, file: File, contentType: 
     });
 
     if (!response.ok) {
-        throw new Error('РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ С„Р°Р№Р» РІ С…СЂР°РЅРёР»РёС‰Рµ');
+        throw new Error('Не удалось загрузить файл в хранилище');
     }
 };
 

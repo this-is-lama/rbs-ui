@@ -293,9 +293,6 @@ export const DishPhotoGalleryManager = ({
         <article className={styles.addPhotoCard}>
             <div className={styles.addPhotoHead}>
                 <h2 className={styles.addPhotoTitle}>{copy.addPhoto}</h2>
-                <p className={styles.addPhotoDescription}>
-                    {canUploadOrDeletePhotos ? copy.addPhotoDescription : copy.loadingHint}
-                </p>
             </div>
 
             <div className={styles.addPhotoForm}>

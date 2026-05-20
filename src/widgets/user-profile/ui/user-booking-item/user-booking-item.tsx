@@ -1,10 +1,11 @@
 import { generatePath, useNavigate } from 'react-router-dom';
-import { resolveBookingTable } from '@/entities/booking/lib';
+import { isBookingPast, resolveBookingTable } from '@/entities/booking/lib';
 import type { Booking } from '@/entities/booking/model';
 import { BookingAccordionItem } from '@/entities/booking/ui';
 import bookingPanelStyles from '@/entities/booking/ui/BookingAccordionItem.module.scss';
 import { buildRestaurantCard } from '@/entities/restaurant/lib';
 import type { Restaurant } from '@/entities/restaurant/model';
+import { CancelUserBookingButton } from '@/features/booking/cancel-booking';
 import { type AppLanguage } from '@/shared/config';
 import { RestaurantCard } from '@/entities/restaurant/ui';
 import { RoutePaths } from '@/shared/config/routes';
@@ -28,6 +29,8 @@ type UserBookingItemProps = {
     expanded: boolean;
     language: AppLanguage;
     restaurant: Restaurant | null;
+    onCancelled: () => void | Promise<void>;
+    onError: (message: string) => void;
     onToggle: () => void;
 };
 
@@ -37,6 +40,8 @@ export const UserBookingItem = ({
     expanded,
     language,
     restaurant,
+    onCancelled,
+    onError,
     onToggle,
 }: UserBookingItemProps) => {
     const navigate = useNavigate();
@@ -65,11 +70,14 @@ export const UserBookingItem = ({
             selectedTable.description?.trim() || null,
         ].filter(Boolean).join(' • ')
         : '';
+    const isPast = isBookingPast(booking);
+    const canCancel = booking.status !== 'CANCELLED' && !isPast;
 
     return (
         <BookingAccordionItem
             title={booking.restaurant?.name || copy.restaurantFallback}
             expanded={expanded}
+            dimmed={isPast}
             onToggle={onToggle}
             statusLabel={getLocalizedBookingStatusLabel(booking.status, copy)}
             statusTone={getStatusTone(booking.status)}
@@ -183,6 +191,17 @@ export const UserBookingItem = ({
                         <p className={bookingPanelStyles.infoText}>
                             {booking.comment}
                         </p>
+                    </div>
+                ) : null}
+
+                {canCancel ? (
+                    <div className={bookingPanelStyles.actionsRow}>
+                        <CancelUserBookingButton
+                            bookingId={booking.id}
+                            className={bookingPanelStyles.dangerActionButton}
+                            onCancelled={onCancelled}
+                            onError={onError}
+                        />
                     </div>
                 ) : null}
             </div>

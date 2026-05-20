@@ -5,6 +5,42 @@ export type BookingDishCreateRequest = {
     quantity: number;
 };
 
+export type DynamicPricingLocationRequest = {
+    latitude: number;
+    longitude: number;
+};
+
+export type DynamicPricingQuoteRequest = {
+    restaurantId: string;
+    tableId: string;
+    startAt: string;
+    endAt: string;
+    guests: number;
+    dishes?: BookingDishCreateRequest[];
+    location?: DynamicPricingLocationRequest | null;
+};
+
+export type DynamicPricingDetailsResponse = {
+    parameters: Record<string, string | number>;
+    components: Record<string, string | number>;
+    blocks: Record<string, string | number>;
+};
+
+export type DynamicPricingQuoteResponse = {
+    quoteId: string;
+    restaurantId: string;
+    tableId: string;
+    preorderAmount: string | number;
+    baseServiceFee: string | number;
+    serviceFee: string | number;
+    totalAmount: string | number;
+    demandIndex: string | number;
+    requestHash: string;
+    contextHash: string;
+    expiresAt: string;
+    details?: DynamicPricingDetailsResponse | null;
+};
+
 export type CreateBookingRequest = {
     restaurantId: string;
     tableId: string;
@@ -13,6 +49,12 @@ export type CreateBookingRequest = {
     guests: number;
     comment?: string;
     dishes?: BookingDishCreateRequest[];
+    serviceFeeQuoteId?: string;
+    requestHash?: string;
+};
+
+export type CancelBookingRequest = {
+    reason?: string | null;
 };
 
 export type BookingDish = {
@@ -49,9 +91,12 @@ export type Booking = {
     status: BookingStatus;
     guests: number;
     comment: string | null;
+    preorderAmount: string | number;
+    serviceFee: string | number;
     totalAmount: string | number;
     createdAt: string;
     cancelledAt: string | null;
+    cancellationReason: string | null;
     restaurant: BookingRestaurantSnapshot | null;
     table: BookingTableSnapshot | null;
     dishes: BookingDish[];

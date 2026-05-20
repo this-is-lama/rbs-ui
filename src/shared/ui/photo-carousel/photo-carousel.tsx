@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { useLanguage } from '@/app/providers/language';
 import type { Photo } from '@/entities/restaurant/model/types.ts';
-import { ChevronLeftIcon, ChevronRightIcon } from '@/shared/ui/icons/action-icons.tsx';
+import { ChevronLeftIcon, ChevronRightIcon, CloseIcon } from '@/shared/ui/icons/action-icons.tsx';
 import styles from './photo-carousel.module.scss';
 
 type PhotoCarouselProps = {
@@ -29,12 +29,19 @@ export const PhotoCarousel = ({
     const visibleCardCount = photos.length + (leadingCard ? 1 : 0);
     const [canScrollLeft, setCanScrollLeft] = useState(false);
     const [canScrollRight, setCanScrollRight] = useState(visibleCardCount > 1);
+    const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
     const copy = language === 'en'
         ? {
+            closePhoto: 'Close photo',
+            openPhoto: 'Open photo',
+            photoPreview: 'Enlarged photo',
             scrollLeft: 'Scroll photos left',
             scrollRight: 'Scroll photos right',
         }
         : {
+            closePhoto: 'Закрыть фото',
+            openPhoto: 'Открыть фото',
+            photoPreview: 'Увеличенное фото',
             scrollLeft: 'Прокрутить фотографии влево',
             scrollRight: 'Прокрутить фотографии вправо',
         };
@@ -61,6 +68,28 @@ export const PhotoCarousel = ({
             window.removeEventListener('resize', updateScrollState);
         };
     }, [visibleCardCount]);
+
+    useEffect(() => {
+        if (!selectedPhoto) {
+            return;
+        }
+
+        const previousOverflow = document.body.style.overflow;
+        document.body.style.overflow = 'hidden';
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === 'Escape') {
+                setSelectedPhoto(null);
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            document.body.style.overflow = previousOverflow;
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [selectedPhoto]);
 
     const scrollGallery = (direction: 'left' | 'right') => {
         const container = viewportRef.current;
@@ -116,7 +145,14 @@ export const PhotoCarousel = ({
                     {photos.length > 0 ? (
                         photos.map((photo, index) => (
                             <div key={photo.id} className={styles.imageCard}>
-                                <img src={photo.publicUrl} alt={altText} className={styles.image} />
+                                <button
+                                    type="button"
+                                    className={styles.imageButton}
+                                    onClick={() => setSelectedPhoto(photo)}
+                                    aria-label={`${copy.openPhoto}: ${altText}`}
+                                >
+                                    <img src={photo.publicUrl} alt={altText} className={styles.image} />
+                                </button>
                                 {renderPhotoActions ? (
                                     <div className={styles.imageActions}>
                                         {renderPhotoActions(photo, index)}
@@ -129,6 +165,33 @@ export const PhotoCarousel = ({
                     )}
                 </div>
             </div>
+
+            {selectedPhoto ? (
+                <div
+                    className={styles.lightbox}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-label={copy.photoPreview}
+                    onClick={() => setSelectedPhoto(null)}
+                >
+                    <button
+                        type="button"
+                        className={styles.lightboxClose}
+                        onClick={() => setSelectedPhoto(null)}
+                        aria-label={copy.closePhoto}
+                        title={copy.closePhoto}
+                    >
+                        <CloseIcon className={styles.lightboxCloseIcon} />
+                    </button>
+
+                    <img
+                        src={selectedPhoto.publicUrl}
+                        alt={altText}
+                        className={styles.lightboxImage}
+                        onClick={(event) => event.stopPropagation()}
+                    />
+                </div>
+            ) : null}
         </section>
     );
 };

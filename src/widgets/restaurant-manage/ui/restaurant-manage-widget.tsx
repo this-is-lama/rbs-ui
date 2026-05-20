@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Link, generatePath, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useLanguage } from '@/app/providers/language';
 import { getRestaurantById } from '@/entities/restaurant/api';
 import {
@@ -33,19 +33,19 @@ export const RestaurantManageWidget = () => {
     const copy = language === 'en'
         ? {
             createSuccess: 'Restaurant created',
-            editDescription: 'This form mirrors the public restaurant page, but here every field can be changed.',
             editTitle: 'Edit restaurant',
             loadError: 'Failed to load restaurant',
             loading: 'Loading restaurant...',
             newTitle: 'New restaurant',
+            openRestaurant: 'Back to restaurant page',
         }
         : {
             createSuccess: 'Ресторан создан',
-            editDescription: 'Форма повторяет структуру обычной страницы ресторана, но здесь все поля можно менять.',
             editTitle: 'Редактирование ресторана',
             loadError: 'Не удалось загрузить ресторан',
             loading: 'Загрузка ресторана...',
             newTitle: 'Новый ресторан',
+            openRestaurant: 'Вернуться на страницу ресторана',
         };
 
     useEffect(() => {
@@ -119,10 +119,18 @@ export const RestaurantManageWidget = () => {
                         <h1 className={pageStyles.title}>
                             {id ? copy.editTitle : copy.newTitle}
                         </h1>
-                        <p className={pageStyles.subtitle}>
-                            {copy.editDescription}
-                        </p>
                     </div>
+
+                    {id ? (
+                        <div className={pageStyles.actions}>
+                            <Link
+                                to={generatePath(RoutePaths.RESTAURANT, { id })}
+                                className={pageStyles.primaryLink}
+                            >
+                                {copy.openRestaurant}
+                            </Link>
+                        </div>
+                    ) : null}
                 </div>
 
                 {flashMessage ? <div className={pageStyles.note}>{flashMessage}</div> : null}

@@ -738,11 +738,6 @@ export const RestaurantLayoutWidget = () => {
             transform: 'translate(-50%, -50%)',
         };
     };
-    const schemeStatusLabel = selectedSchemeFile
-        ? copy.newFileStatus
-        : schemePhoto
-            ? copy.schemeLoadedStatus
-            : copy.defaultBackgroundDescription;
     const visiblePendingTables = notPlacedTables.slice(0, 4);
 
     if (isLoading) {
@@ -767,9 +762,6 @@ export const RestaurantLayoutWidget = () => {
                 <div className={pageStyles.header}>
                     <div className={pageStyles.titleBlock}>
                         <h1 className={pageStyles.title}>{copy.editPageTitle}</h1>
-                        <p className={pageStyles.subtitle}>
-                            {restaurant?.name || copy.titleRestaurantFallback}
-                        </p>
                     </div>
 
                     <div className={pageStyles.actions}>
@@ -791,9 +783,6 @@ export const RestaurantLayoutWidget = () => {
                     <div className={styles.canvasHeader}>
                         <div>
                             <h2 className={styles.panelTitle}>{copy.schemePanelTitle}</h2>
-                            <p className={styles.panelDescription}>
-                                {copy.schemeDescription}
-                            </p>
                         </div>
                     </div>
 
@@ -810,9 +799,6 @@ export const RestaurantLayoutWidget = () => {
                             <div className={styles.controlPanelBody}>
                                 <div>
                                     <h3 className={styles.panelTitle}>{copy.uploadSectionTitle}</h3>
-                                    <p className={styles.panelDescription}>
-                                        {copy.schemeUploadDescription}
-                                    </p>
                                 </div>
 
                                 <div className={schemePhoto ? styles.schemeState : styles.schemeStateMuted}>
@@ -823,7 +809,6 @@ export const RestaurantLayoutWidget = () => {
                                             : copy.schemeMissingLabel}
                                 </div>
 
-                                <p className={styles.controlPanelNote}>{schemeStatusLabel}</p>
                             </div>
 
                             <div className={styles.controlPanelFooter}>
@@ -873,9 +858,6 @@ export const RestaurantLayoutWidget = () => {
                             <div className={styles.controlPanelBody}>
                                 <div>
                                     <h3 className={styles.panelTitle}>{copy.addTable}</h3>
-                                    <p className={styles.panelDescription}>
-                                        {copy.addTableDescription}
-                                    </p>
                                 </div>
 
                                 <div className={styles.panelMetrics}>
@@ -885,10 +867,6 @@ export const RestaurantLayoutWidget = () => {
 
                                 {notPlacedTables.length > 0 ? (
                                     <div className={styles.pendingTables}>
-                                        <p className={styles.controlPanelNote}>
-                                            {copy.pendingCount(notPlacedTables.length)} {copy.addToCenterHint}
-                                        </p>
-
                                         <div className={styles.pendingTableList}>
                                             {visiblePendingTables.map((table) => (
                                                 <button
@@ -912,13 +890,7 @@ export const RestaurantLayoutWidget = () => {
                                             ) : null}
                                         </div>
                                     </div>
-                                ) : (
-                                    <p className={styles.controlPanelNote}>
-                                        {language === 'en'
-                                            ? 'All active tables are already placed on the floor plan.'
-                                            : 'Все активные столы уже находятся на схеме.'}
-                                    </p>
-                                )}
+                                ) : null}
                             </div>
 
                             <div className={styles.controlPanelFooter}>
@@ -937,9 +909,6 @@ export const RestaurantLayoutWidget = () => {
                             <div className={styles.controlPanelBody}>
                                 <div>
                                     <h3 className={styles.panelTitle}>{copy.saveLayout}</h3>
-                                    <p className={styles.panelDescription}>
-                                        {copy.saveLayoutDescription}
-                                    </p>
                                 </div>
 
                                 <div className={styles.panelMetrics}>
@@ -949,11 +918,6 @@ export const RestaurantLayoutWidget = () => {
                                     </div>
                                 </div>
 
-                                <p className={styles.controlPanelNote}>
-                                    {placedTables.length > 0
-                                        ? copy.saveLayoutHintReady
-                                        : copy.saveLayoutHintEmpty}
-                                </p>
                             </div>
 
                             <div className={styles.controlPanelFooter}>
@@ -1098,12 +1062,6 @@ export const RestaurantLayoutWidget = () => {
                                             </span>
                                         </div>
 
-                                        <span className={styles.activityCardHint}>
-                                            {tableForm.active
-                                                ? copy.activityHintActive
-                                                : copy.activityHintInactive}
-                                        </span>
-
                                         <span className={styles.switchRow}>
                                             <span className={styles.switchCaption}>
                                                 {tableForm.active ? copy.tableStatusOn : copy.tableStatusOff}
@@ -1134,14 +1092,6 @@ export const RestaurantLayoutWidget = () => {
                                         value={tableForm.description}
                                         onChange={(event) => handleTableFormChange('description', event.target.value)}
                                     />
-                                </div>
-
-                                <div className={styles.hint}>
-                                    {selectedTable && !isPlaced(selectedTable)
-                                        ? copy.centeredHint
-                                        : (language === 'en'
-                                            ? 'After saving, you can drag the table on the floor plan and then save the full arrangement.'
-                                            : 'После сохранения вы можете перетащить стол на схеме и затем сохранить общую расстановку.')}
                                 </div>
 
                                 <div className={styles.editorActions}>
@@ -1175,4 +1125,3 @@ export const RestaurantLayoutWidget = () => {
         </div>
     );
 };
-

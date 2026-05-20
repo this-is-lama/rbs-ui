@@ -276,11 +276,28 @@
   gap: 12px;
 }
 
+.summaryRows {
+  display: grid;
+  gap: 10px;
+}
+
 .summaryLine {
   display: flex;
   align-items: baseline;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.summaryRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.summaryTotalRow {
+  padding-top: 12px;
+  border-top: 1px solid rgba(17, 17, 17, 0.08);
 }
 
 .summaryLabel,
@@ -302,6 +319,26 @@
   color: $color-primary;
   font-size: 28px;
   line-height: 1.1;
+  font-weight: 700;
+}
+
+.summaryHint {
+  color: rgba(17, 17, 17, 0.62);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.summaryError {
+  color: #b91c1c;
+  font-size: 14px;
+  line-height: 1.45;
+  font-weight: 600;
+}
+
+.summaryMuted {
+  color: rgba(17, 17, 17, 0.62);
+  font-size: 18px;
+  line-height: 1.2;
   font-weight: 700;
 }
 
@@ -399,6 +436,10 @@
 
   .tableInfoValue {
     text-align: left;
+  }
+
+  .summaryRow {
+    align-items: flex-start;
   }
 
   .summaryCount {

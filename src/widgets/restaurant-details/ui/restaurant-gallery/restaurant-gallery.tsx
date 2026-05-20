@@ -286,9 +286,6 @@ export const RestaurantGallery = ({
         <article className={styles.addPhotoCard}>
             <div className={styles.addPhotoHead}>
                 <h2 className={styles.addPhotoTitle}>{copy.addPhoto}</h2>
-                <p className={styles.addPhotoDescription}>
-                    {copy.addPhotoDescription}
-                </p>
             </div>
 
             <div className={styles.addPhotoForm}>
