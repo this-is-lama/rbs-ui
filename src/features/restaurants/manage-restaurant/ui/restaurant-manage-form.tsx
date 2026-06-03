@@ -741,6 +741,55 @@ export const RestaurantManageForm = ({
                 </div>
             </article>
 
+            <article className={styles.section}>
+                <div>
+                    <h2 className={styles.sectionTitle}>Динамический сервисный сбор</h2>
+                    <p className={styles.sectionDescription}>
+                        Границы суммы, в которых система рассчитывает сбор для предзаказа.
+                    </p>
+                </div>
+
+                <div className={styles.compactGrid}>
+                    <div className={styles.field}>
+                        <label htmlFor="restaurant-min-pricing-charge" className={styles.label}>
+                            Минимальный сбор
+                        </label>
+                        <input
+                            id="restaurant-min-pricing-charge"
+                            type="number"
+                            min="0"
+                            max="10000"
+                            step="0.01"
+                            inputMode="decimal"
+                            className={styles.input}
+                            {...register('minPricingCharge')}
+                        />
+                        {errors.minPricingCharge?.message ? (
+                            <div className={styles.error}>{errors.minPricingCharge.message}</div>
+                        ) : null}
+                    </div>
+
+                    <div className={styles.field}>
+                        <label htmlFor="restaurant-max-pricing-charge" className={styles.label}>
+                            Максимальный сбор
+                        </label>
+                        <input
+                            id="restaurant-max-pricing-charge"
+                            type="number"
+                            min="0"
+                            max="10000"
+                            step="0.01"
+                            inputMode="decimal"
+                            className={styles.input}
+                            {...register('maxPricingCharge')}
+                        />
+                        {errors.maxPricingCharge?.message ? (
+                            <div className={styles.error}>{errors.maxPricingCharge.message}</div>
+                        ) : null}
+                    </div>
+                </div>
+            </article>
+
             {serverError ? <div className={styles.serverError}>{serverError}</div> : null}
             {successMessage ? <div className={styles.successMessage}>{successMessage}</div> : null}
 

@@ -11,6 +11,8 @@ import type {
     Restaurant,
     RestaurantManageRequest,
     RestaurantManager,
+    RestaurantPricingSettingsRequest,
+    RestaurantPricingSettingsResponse,
     RestaurantTable,
     TableManageRequest,
     UpdateRestaurantLayoutRequest,
@@ -30,6 +32,8 @@ const normalizeRestaurant = (restaurant: Restaurant): Restaurant => {
         ...restaurant,
         description: restaurant.description ?? '',
         active: Boolean(restaurant.active),
+        minPricingCharge: restaurant.minPricingCharge ?? null,
+        maxPricingCharge: restaurant.maxPricingCharge ?? null,
         workingHours: Array.isArray(restaurant.workingHours) ? restaurant.workingHours : [],
         contacts: Array.isArray(restaurant.contacts) ? restaurant.contacts : [],
         dishes: Array.isArray(restaurant.dishes) ? restaurant.dishes : [],
@@ -175,12 +179,33 @@ export const createRestaurant = async (data: RestaurantManageRequest): Promise<s
     return response.data;
 };
 
+export const updateRestaurantPricingSettings = async (
+    id: string,
+    data: RestaurantPricingSettingsRequest,
+): Promise<RestaurantPricingSettingsResponse> => {
+    const response = await apiClient.put<RestaurantPricingSettingsResponse>(
+        `/api/v1/restaurants/${id}/pricing-settings`,
+        data,
+    );
+
+    return response.data;
+};
+
 export const updateRestaurant = async (
     id: string,
     data: RestaurantManageRequest,
 ): Promise<Restaurant> => {
     const response = await apiClient.put<Restaurant>(`/api/v1/restaurants/${id}`, data);
-    return normalizeRestaurant(response.data);
+    const pricingSettings = await updateRestaurantPricingSettings(id, {
+        minPricingCharge: data.minPricingCharge,
+        maxPricingCharge: data.maxPricingCharge,
+    });
+
+    return normalizeRestaurant({
+        ...response.data,
+        minPricingCharge: pricingSettings.minPricingCharge,
+        maxPricingCharge: pricingSettings.maxPricingCharge,
+    });
 };
 
 export const checkRestaurantManagerAccess = async (restId: string): Promise<boolean> => {

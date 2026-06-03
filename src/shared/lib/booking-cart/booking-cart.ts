@@ -24,7 +24,9 @@ const safeParse = (raw: string | null): BookingCartItem[] => {
     }
 };
 
-const normalizeItems = (items: BookingCartItem[]) => items.slice(0, 1);
+const normalizeItems = (items: BookingCartItem[]) => {
+    return items.slice(0, 1);
+};
 
 export const bookingCartStorage = {
     getItems(): BookingCartItem[] {
@@ -76,4 +78,3 @@ export const bookingCartStorage = {
         notify();
     },
 };
-

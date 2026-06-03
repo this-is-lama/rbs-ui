@@ -92,6 +92,8 @@ export type RestaurantManageFormValues = {
     description: string;
     address: string;
     active: boolean;
+    minPricingCharge: string;
+    maxPricingCharge: string;
     workingHours: WorkingHours[];
     contacts: Contact[];
 };
@@ -111,8 +113,20 @@ export type RestaurantManageRequest = {
     description: string | null;
     address: string;
     active: boolean;
+    minPricingCharge: number;
+    maxPricingCharge: number;
     workingHours: WorkingHours[];
     contacts: Contact[];
+};
+
+export type RestaurantPricingSettingsRequest = {
+    minPricingCharge: number;
+    maxPricingCharge: number;
+};
+
+export type RestaurantPricingSettingsResponse = {
+    minPricingCharge: string | number;
+    maxPricingCharge: string | number;
 };
 
 export type DishManageRequest = {
@@ -169,6 +183,8 @@ export type Restaurant = {
     description: string | null;
     address: string;
     active: boolean;
+    minPricingCharge?: string | number | null;
+    maxPricingCharge?: string | number | null;
     workingHours?: WorkingHours[] | null;
     contacts?: Contact[] | null;
     dishes?: Dish[] | null;

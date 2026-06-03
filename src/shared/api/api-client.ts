@@ -23,7 +23,9 @@ const refreshClient = axios.create({
     baseURL,
     timeout: 10_000,
     headers: {
-        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'Accept-Charset': 'utf-8',
+        'Content-Type': 'application/json; charset=utf-8',
     },
 });
 
@@ -66,7 +68,9 @@ export const apiClient = axios.create({
     baseURL,
     timeout: 10_000,
     headers: {
-        'Content-Type': 'application/json',
+        Accept: 'application/json',
+        'Accept-Charset': 'utf-8',
+        'Content-Type': 'application/json; charset=utf-8',
     },
 });
 

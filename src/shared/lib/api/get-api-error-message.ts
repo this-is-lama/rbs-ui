@@ -1,5 +1,4 @@
 import axios from 'axios';
-import type { ApiErrorResponse } from '@/shared/api';
 
 export const getApiErrorMessage = (
     error: unknown,
@@ -12,12 +11,9 @@ export const getApiErrorMessage = (
         return resolvedFallback;
     }
 
-    const data = error.response?.data as ApiErrorResponse | undefined;
-
-    if (!data) {
+    if (!error.response) {
         return isEnglish ? 'Failed to connect to the server' : 'Не удалось связаться с сервером';
     }
 
-    return data.message || resolvedFallback;
+    return resolvedFallback;
 };
-

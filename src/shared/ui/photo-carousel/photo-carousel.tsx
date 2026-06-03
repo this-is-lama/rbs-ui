@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useLanguage } from '@/app/providers/language';
 import type { Photo } from '@/entities/restaurant/model/types.ts';
 import { ChevronLeftIcon, ChevronRightIcon, CloseIcon } from '@/shared/ui/icons/action-icons.tsx';
@@ -30,6 +31,7 @@ export const PhotoCarousel = ({
     const [canScrollLeft, setCanScrollLeft] = useState(false);
     const [canScrollRight, setCanScrollRight] = useState(visibleCardCount > 1);
     const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
+    const canUsePortal = typeof document !== 'undefined';
     const copy = language === 'en'
         ? {
             closePhoto: 'Close photo',
@@ -106,6 +108,33 @@ export const PhotoCarousel = ({
         });
     };
 
+    const lightbox = selectedPhoto ? (
+        <div
+            className={styles.lightbox}
+            role="dialog"
+            aria-modal="true"
+            aria-label={copy.photoPreview}
+            onClick={() => setSelectedPhoto(null)}
+        >
+            <button
+                type="button"
+                className={styles.lightboxClose}
+                onClick={() => setSelectedPhoto(null)}
+                aria-label={copy.closePhoto}
+                title={copy.closePhoto}
+            >
+                <CloseIcon className={styles.lightboxCloseIcon} />
+            </button>
+
+            <img
+                src={selectedPhoto.publicUrl}
+                alt={altText}
+                className={styles.lightboxImage}
+                onClick={(event) => event.stopPropagation()}
+            />
+        </div>
+    ) : null;
+
     return (
         <section className={`${styles.section} ${size === 'large' ? styles.sectionLarge : ''}`.trim()}>
             {visibleCardCount > 1 && canScrollLeft ? (
@@ -166,32 +195,7 @@ export const PhotoCarousel = ({
                 </div>
             </div>
 
-            {selectedPhoto ? (
-                <div
-                    className={styles.lightbox}
-                    role="dialog"
-                    aria-modal="true"
-                    aria-label={copy.photoPreview}
-                    onClick={() => setSelectedPhoto(null)}
-                >
-                    <button
-                        type="button"
-                        className={styles.lightboxClose}
-                        onClick={() => setSelectedPhoto(null)}
-                        aria-label={copy.closePhoto}
-                        title={copy.closePhoto}
-                    >
-                        <CloseIcon className={styles.lightboxCloseIcon} />
-                    </button>
-
-                    <img
-                        src={selectedPhoto.publicUrl}
-                        alt={altText}
-                        className={styles.lightboxImage}
-                        onClick={(event) => event.stopPropagation()}
-                    />
-                </div>
-            ) : null}
+            {lightbox && canUsePortal ? createPortal(lightbox, document.body) : lightbox}
         </section>
     );
 };

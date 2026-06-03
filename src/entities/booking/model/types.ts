@@ -5,19 +5,12 @@ export type BookingDishCreateRequest = {
     quantity: number;
 };
 
-export type DynamicPricingLocationRequest = {
-    latitude: number;
-    longitude: number;
-};
-
 export type DynamicPricingQuoteRequest = {
     restaurantId: string;
     tableId: string;
     startAt: string;
     endAt: string;
-    guests: number;
-    dishes?: BookingDishCreateRequest[];
-    location?: DynamicPricingLocationRequest | null;
+    preorderItems?: BookingDishCreateRequest[];
 };
 
 export type DynamicPricingDetailsResponse = {
@@ -27,16 +20,15 @@ export type DynamicPricingDetailsResponse = {
 };
 
 export type DynamicPricingQuoteResponse = {
-    quoteId: string;
+    offerId: string;
     restaurantId: string;
     tableId: string;
     preorderAmount: string | number;
-    baseServiceFee: string | number;
-    serviceFee: string | number;
+    pricingCharge: string | number;
     totalAmount: string | number;
-    demandIndex: string | number;
-    requestHash: string;
-    contextHash: string;
+    currency: string;
+    status: string;
+    calculatedAt: string;
     expiresAt: string;
     details?: DynamicPricingDetailsResponse | null;
 };
@@ -49,8 +41,7 @@ export type CreateBookingRequest = {
     guests: number;
     comment?: string;
     dishes?: BookingDishCreateRequest[];
-    serviceFeeQuoteId?: string;
-    requestHash?: string;
+    pricingOfferId?: string;
 };
 
 export type CancelBookingRequest = {
@@ -92,8 +83,9 @@ export type Booking = {
     guests: number;
     comment: string | null;
     preorderAmount: string | number;
-    serviceFee: string | number;
+    pricingCharge: string | number;
     totalAmount: string | number;
+    pricingOfferId: string | null;
     createdAt: string;
     cancelledAt: string | null;
     cancellationReason: string | null;

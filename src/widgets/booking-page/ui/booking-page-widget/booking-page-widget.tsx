@@ -16,7 +16,6 @@ import { resolveIntlLocale } from '@/shared/config';
 import { dishCartStorage, type DishCartItem } from '@/shared/dish-cart';
 import { getApiErrorMessage } from '@/shared/lib/api';
 import { bookingCartStorage } from '@/shared/lib/booking-cart';
-import { getBrowserLocation } from '@/shared/lib/geolocation';
 import type { BookingPageDishCardItem } from '../../model/types.ts';
 import { BookingOrderSection } from '../booking-order-section';
 import { BookingSummaryCard } from '../booking-summary-card';
@@ -139,7 +138,6 @@ export const BookingPageWidget = () => {
     const selectedTableId = selectedBookingItem?.tableId ?? '';
     const selectedStartAt = selectedBookingItem?.startAt ?? '';
     const selectedEndAt = selectedBookingItem?.endAt ?? '';
-    const selectedGuests = selectedBookingItem?.guests ?? 0;
 
     useEffect(() => {
         setCommentDraft(selectedBookingItem?.comment ?? '');
@@ -167,6 +165,18 @@ export const BookingPageWidget = () => {
                 setRestaurant(response);
             } catch (error) {
                 setRestaurant(null);
+
+                if (axios.isAxiosError(error) && error.response?.status === 404) {
+                    bookingCartStorage.clear();
+                    dishCartStorage.clear();
+                    setRestaurantLoadError(
+                        language === 'en'
+                            ? 'The restaurant from your cart was deleted. We cleared the cart.'
+                            : 'Ресторан из корзины был удален. Мы очистили корзину.',
+                    );
+                    return;
+                }
+
                 setRestaurantLoadError(
                     getApiErrorMessage(error, copy.restaurantCardError),
                 );
@@ -176,7 +186,7 @@ export const BookingPageWidget = () => {
         };
 
         void loadRestaurant();
-    }, [copy.restaurantCardError, currentRestaurantId]);
+    }, [copy.restaurantCardError, currentRestaurantId, language]);
 
     const restaurantCard = useMemo(() => {
         if (!currentRestaurantId) {
@@ -239,15 +249,12 @@ export const BookingPageWidget = () => {
             setIsQuoteLoading(true);
             setQuoteError('');
 
-            const location = await getBrowserLocation();
             const response = await createDynamicPricingQuote({
                 restaurantId: selectedRestaurantId,
                 tableId: selectedTableId,
                 startAt: selectedStartAt,
                 endAt: selectedEndAt,
-                guests: selectedGuests,
-                dishes: quoteDishes,
-                location,
+                preorderItems: quoteDishes,
             });
 
             setPricingQuote(response);
@@ -261,7 +268,6 @@ export const BookingPageWidget = () => {
         copy.quoteLoadError,
         quoteDishes,
         selectedEndAt,
-        selectedGuests,
         selectedRestaurantId,
         selectedStartAt,
         selectedTableId,
@@ -275,7 +281,7 @@ export const BookingPageWidget = () => {
         ? toMoneyNumber(pricingQuote.preorderAmount)
         : totalDishAmount;
     const serviceFee = pricingQuote
-        ? toMoneyNumber(pricingQuote.serviceFee)
+        ? toMoneyNumber(pricingQuote.pricingCharge)
         : 0;
     const totalAmount = pricingQuote
         ? toMoneyNumber(pricingQuote.totalAmount)
@@ -285,8 +291,7 @@ export const BookingPageWidget = () => {
     const canSubmitBooking = Boolean(selectedBookingItem)
         && !isSubmitting
         && !isQuoteLoading
-        && Boolean(pricingQuote?.quoteId)
-        && Boolean(pricingQuote?.requestHash);
+        && Boolean(pricingQuote?.offerId);
 
     const handleCommentChange = (value: string) => {
         setCommentDraft(value);
@@ -310,7 +315,7 @@ export const BookingPageWidget = () => {
             return;
         }
 
-        if (!pricingQuote?.quoteId || !pricingQuote.requestHash) {
+        if (!pricingQuote?.offerId) {
             setSubmitError(copy.quoteMissing);
             await loadDynamicPricingQuote();
             return;
@@ -329,8 +334,7 @@ export const BookingPageWidget = () => {
                 guests: selectedBookingItem.guests,
                 comment: commentDraft.trim() || undefined,
                 dishes: quoteDishes,
-                serviceFeeQuoteId: pricingQuote.quoteId,
-                requestHash: pricingQuote.requestHash,
+                pricingOfferId: pricingQuote.offerId,
             });
 
             bookingCartStorage.clear();

@@ -1,16 +1,19 @@
 import axios from 'axios';
-import type { ApiErrorResponse } from '@/shared/api';
 
 export const getErrorMessage = (error: unknown): string => {
     if (!axios.isAxiosError(error)) {
         return 'Произошла неизвестная ошибка';
     }
 
-    const data = error.response?.data as ApiErrorResponse | undefined;
+    const status = error.response?.status;
 
-    if (!data) {
+    if (!error.response) {
         return 'Не удалось связаться с сервером';
     }
 
-    return data.message || 'Ошибка обновления профиля';
+    if (status === 409) {
+        return 'Пользователь с такой почтой уже существует';
+    }
+
+    return 'Ошибка обновления профиля';
 };
