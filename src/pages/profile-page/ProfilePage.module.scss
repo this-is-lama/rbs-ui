@@ -1,8 +1,10 @@
 .page {
   width: 100%;
   max-width: 1028px;
+  min-width: 0;
   margin: 0 auto;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 24px;
   padding: 24px 0 48px;
 }

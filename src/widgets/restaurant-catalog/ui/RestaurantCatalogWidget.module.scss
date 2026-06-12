@@ -2,12 +2,17 @@
 
 .page {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  width: 100%;
+  min-width: 0;
   gap: 180px;
   background-color: $color-white;
 }
 
 .section {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
   gap: 84px;
   padding-top: 96px;
   padding-bottom: 0;
@@ -201,24 +206,19 @@
   }
 }
 
-@media (max-width: 1100px) {
-  .page {
-    gap: 140px;
-  }
-
-  .section {
-    gap: 68px;
-    padding-top: 80px;
-  }
-
-  .list {
-    grid-template-columns: 1fr;
+@media (prefers-reduced-motion: reduce) {
+  .listAnimated,
+  .listAnimated > *,
+  .stateAnimated {
+    animation: none !important;
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 760px) {
   .page {
-    gap: 100px;
+    min-height: 100%;
+    grid-template-rows: minmax(0, 1fr) auto;
+    gap: 72px;
   }
 
   .section {
@@ -226,8 +226,13 @@
     padding-top: 40px;
   }
 
+  .list {
+    grid-template-columns: 1fr;
+  }
+
   .header {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: minmax(0, 1fr) 48px;
+    gap: 12px;
   }
 
   .headerSpacer {
@@ -235,19 +240,40 @@
   }
 
   .title {
-    grid-column: 1 / 2;
+    grid-column: 1;
+    min-width: 0;
     justify-self: start;
     text-align: left;
+    font-size: clamp(36px, 11vw, 44px);
+    line-height: 1;
+    overflow-wrap: anywhere;
   }
 
   .filterBox {
-    grid-column: 2 / 3;
+    grid-column: 2;
+    justify-self: end;
   }
 
   .filterButton {
-    width: 56px;
-    height: 56px;
-    border-radius: 18px;
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+  }
+
+  .filterDropdown {
+    width: min(327px, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
+  }
+}
+
+@media (max-width: 640px) {
+  .page {
+    gap: 64px;
+  }
+
+  .section {
+    gap: 36px;
+    padding-top: 28px;
   }
 
   .pagination {
@@ -260,13 +286,5 @@
     height: 52px;
     font-size: 16px;
     border-radius: 16px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .listAnimated,
-  .listAnimated > *,
-  .stateAnimated {
-    animation: none !important;
   }
 }

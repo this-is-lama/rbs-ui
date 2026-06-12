@@ -8,7 +8,21 @@
 .page {
   width: 100%;
   min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   animation: pageEnter 0.32s $easing-smooth both;
+}
+
+.page > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+@media (max-width: 760px) {
+  .stage,
+  .page {
+    min-height: 100%;
+  }
 }
 
 @keyframes pageEnter {

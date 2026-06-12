@@ -2,6 +2,8 @@
 
 .page {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
   gap: 72px;
   padding-top: 32px;
   padding-bottom: 0;

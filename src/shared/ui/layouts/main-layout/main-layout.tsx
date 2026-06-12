@@ -5,13 +5,13 @@ import {Header} from "@/widgets/header/Header.tsx";
 
 export const MainLayout = () => {
     return (
-        <>
+        <div className={styles.layout}>
             <Header />
             <main className={styles.main}>
                 <PageTransition>
                     <Outlet />
                 </PageTransition>
             </main>
-        </>
+        </div>
     );
 };

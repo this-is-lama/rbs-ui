@@ -301,6 +301,28 @@
 }
 
 @media (max-width: 640px) {
+  .languageSwitch {
+    width: 108px;
+    min-height: 46px;
+    padding: 5px;
+  }
+
+  .languageThumb {
+    top: 5px;
+    left: 9px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .languageSwitchEn .languageThumb {
+    transform: translateX(54px);
+  }
+
+  .languageOption {
+    min-height: 36px;
+    font-size: 12px;
+  }
+
   .stateCard {
     padding: 24px 18px;
     border-radius: 28px;

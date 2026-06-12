@@ -125,7 +125,7 @@
   height: 20px;
 }
 
-@media (max-width: 960px) {
+@media (max-width: 760px) {
   .card {
     gap: 30px;
     padding: 32px 28px;
@@ -148,7 +148,11 @@
   }
 
   .title {
-    font-size: 42px;
+    min-width: 0;
+    font-size: 32px;
+    line-height: 1;
+    white-space: nowrap;
+    overflow-wrap: normal;
   }
 
   .info {
@@ -177,5 +181,16 @@
 
   .ghostButton {
     width: 100%;
+  }
+}
+
+@media (max-width: 350px) {
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .headerAction {
+    align-self: flex-end;
   }
 }

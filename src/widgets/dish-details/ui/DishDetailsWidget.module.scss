@@ -2,6 +2,8 @@
 
 .page {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
   gap: 56px;
   padding-top: 28px;
   padding-bottom: 64px;
@@ -283,7 +285,7 @@
   white-space: nowrap;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 760px) {
   .detailsCard {
     grid-template-columns: 1fr;
     grid-template-areas:

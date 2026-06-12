@@ -339,58 +339,6 @@
   }
 }
 
-@media (max-width: 720px) {
-  .track {
-    padding-bottom: 4px;
-  }
-
-  .imageCard,
-  .utilityCard,
-  .placeholder {
-    height: 46.2vh;
-    min-height: 264px;
-    border-radius: 24px;
-  }
-
-  .arrowButton {
-    width: 46px;
-    height: 46px;
-    font-size: 22px;
-  }
-
-  .leftArrow {
-    left: 8px;
-  }
-
-  .rightArrow {
-    right: 8px;
-  }
-
-  .sectionLarge .imageCard,
-  .sectionLarge .utilityCard,
-  .sectionLarge .placeholder {
-    height: 50.8vh;
-    min-height: 290px;
-  }
-
-  .lightbox {
-    padding: 24px;
-  }
-
-  .lightboxImage {
-    width: calc(100vw - 48px);
-    height: calc(100vh - 48px);
-    border-radius: 14px;
-  }
-
-  .lightboxClose {
-    top: 16px;
-    right: 16px;
-    width: 44px;
-    height: 44px;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .viewport {
     scroll-behavior: auto;
@@ -411,5 +359,70 @@
   .lightboxClose,
   .arrowButton {
     transition: none !important;
+  }
+}
+
+@media (max-width: 720px) {
+  .track {
+    padding-bottom: 4px;
+  }
+
+  .imageCard,
+  .utilityCard,
+  .placeholder {
+    width: min(100%, calc(100vw - 32px));
+    min-width: 0;
+    max-width: calc(100vw - 32px);
+    height: 46.2vh;
+    min-height: 264px;
+    border-radius: 24px;
+  }
+
+  .arrowButton {
+    width: 46px;
+    height: 46px;
+    font-size: 22px;
+  }
+
+  .leftArrow {
+    left: 8px;
+  }
+
+  .rightArrow {
+    right: 8px;
+  }
+
+  .sectionLarge .imageCard,
+  .sectionLarge .placeholder {
+    height: 50.8vh;
+    min-height: 290px;
+  }
+
+  .sectionLarge .utilityCard {
+    align-self: flex-start;
+    height: auto;
+    min-height: 0;
+    max-height: none;
+  }
+
+  .arrowButton {
+    display: none;
+  }
+
+  .lightbox {
+    padding: 24px;
+  }
+
+  .lightboxImage {
+    width: calc(100vw - 48px);
+    height: calc(100vh - 48px);
+    border-radius: 14px;
+  }
+
+  .lightboxClose {
+    top: 16px;
+    right: 16px;
+    width: 44px;
+    height: 44px;
   }
 }
